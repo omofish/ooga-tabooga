@@ -1,26 +1,250 @@
 @import "tailwindcss";
 
+/* Non-inline @theme so these are emitted as :root CSS variables (used by the
+   custom .chunk/.btn classes below) as well as generating text-/bg-/border-
+   utilities. The display/body fonts come in as vars from next/font. */
+@theme {
+  --color-cream: #fff7e8;
+  --color-ink: #3a2a1b;
+  --color-ink-soft: #6d5233;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default team theming (overridden per-team during a turn) */
+  --team-base: #e24a3b;
+  --team-dark: #b4322a;
+  --team-deep: #7e211b;
+  --team-soft: #fbe3e0;
+  --team-on: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
+  color: var(--color-ink);
+  background-color: #e3d2b3;
+  background-image:
+    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.35) 0, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(120, 80, 40, 0.18) 0, transparent 45%),
+    radial-gradient(rgba(120, 84, 45, 0.09) 1.5px, transparent 1.6px);
+  background-size: 100% 100%, 100% 100%, 22px 22px;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+}
+
+/* ---- Typography helpers ---- */
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: 0.01em;
+}
+.text-shadow-pop {
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* ---- Cartoon "sticker" surface ---- */
+.chunk {
+  border: 3px solid var(--color-ink);
+  box-shadow: 0 5px 0 0 var(--color-ink);
+  background: var(--color-cream);
+}
+.chunk-lg {
+  border: 4px solid var(--color-ink);
+  box-shadow: 0 8px 0 0 var(--color-ink);
+  background: var(--color-cream);
+}
+
+/* ---- Chunky pressable button ---- */
+.btn {
+  position: relative;
+  border: 3px solid var(--color-ink);
+  border-radius: 1rem;
+  box-shadow: 0 5px 0 0 var(--color-ink);
+  font-weight: 800;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease,
+    filter 0.1s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 0 var(--color-ink);
+}
+.btn:disabled {
+  opacity: 0.45;
+}
+
+.btn-team {
+  background: var(--team-base);
+  color: var(--team-on);
+}
+.btn-cream {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+.btn-ink {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  box-shadow: 0 5px 0 0 #1c130a;
+}
+.btn-ink:active:not(:disabled) {
+  box-shadow: 0 1px 0 0 #1c130a;
+}
+
+/* ---- Animations ---- */
+@keyframes pop-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-pop {
+  animation: pop-in 0.32s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+@keyframes count-boom {
+  0% {
+    transform: scale(0.2) rotate(-12deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.25) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+.animate-boom {
+  animation: count-boom 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes card-swap {
+  0% {
+    transform: translateY(14px) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+.animate-swap {
+  animation: card-swap 0.22s ease-out both;
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+.animate-wiggle {
+  animation: wiggle 1.4s ease-in-out infinite;
+}
+
+@keyframes tada {
+  0% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.08) rotate(-3deg);
+  }
+  30% {
+    transform: scale(1.08) rotate(3deg);
+  }
+  45% {
+    transform: scale(1.05) rotate(-2deg);
+  }
+  60% {
+    transform: scale(1.03) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+.animate-tada {
+  animation: tada 0.9s ease-in-out both;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 0.9s ease-in-out infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-12vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 1;
+  }
+}
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 16px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes rise-in {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-rise {
+  animation: rise-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-boom,
+  .animate-swap,
+  .animate-wiggle,
+  .animate-tada,
+  .animate-pulse-soft,
+  .animate-rise,
+  .confetti-piece {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Prevent text selection during drag interactions */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
 }
