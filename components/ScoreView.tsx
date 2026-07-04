@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import { roundComplete, teamSummary } from "@/lib/game";
 import { wordSetById } from "@/lib/words";
+import Modal from "./Modal";
 import type { ScreenProps } from "./types";
 
 export default function ScoreView({ state, dispatch }: ScreenProps) {
   const { teams, rounds, currentRound } = state;
   const complete = roundComplete(state);
   const wordSet = wordSetById(state.wordSetId);
+  const [quitOpen, setQuitOpen] = useState(false);
 
   const cols = `minmax(2.2rem,auto) repeat(${teams.length}, minmax(0,1fr))`;
 
@@ -25,18 +28,38 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           </p>
         </div>
         <button
-          onClick={() => {
-            if (
-              window.confirm("Quit this game and go back to the start? Scores will be lost.")
-            ) {
-              dispatch({ type: "RETURN_TO_START" });
-            }
-          }}
+          onClick={() => setQuitOpen(true)}
           className="btn btn-cream px-3 py-2 text-xs"
         >
           Quit
         </button>
       </header>
+
+      {quitOpen && (
+        <Modal onClose={() => setQuitOpen(false)}>
+          <div className="text-center">
+            <div className="text-5xl">🚪</div>
+            <h2 className="mt-1 font-display text-2xl text-ink">Quit game?</h2>
+            <p className="mt-2 text-sm font-bold text-ink-soft">
+              Scores will be lost and everyone heads back to the start.
+            </p>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setQuitOpen(false)}
+              className="btn btn-cream py-3 font-display text-lg"
+            >
+              Keep Playing
+            </button>
+            <button
+              onClick={() => dispatch({ type: "RETURN_TO_START" })}
+              className="btn btn-ink py-3 font-display text-lg"
+            >
+              Quit
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {/* Matrix */}
       <div className="chunk-lg overflow-hidden rounded-2xl">
@@ -87,7 +110,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                   {result ? (
                     <div className="flex flex-col items-center leading-none">
                       <span
-                        className="font-display text-2xl"
+                        className="pts font-display text-2xl"
                         style={{ color: c.deep }}
                       >
                         {result.score}
@@ -130,7 +153,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                 key={t.id}
                 className="flex items-center justify-center border-l-[3px] border-cream/20 py-2"
               >
-                <span className="font-display text-xl" style={{ color: c.base }}>
+                <span className="pts font-display text-xl" style={{ color: c.base }}>
                   {total}
                 </span>
               </div>

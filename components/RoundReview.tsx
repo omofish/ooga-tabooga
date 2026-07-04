@@ -130,8 +130,8 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
               }}
             >
               <div className="mb-1.5 flex items-center gap-2">
-                <span className="font-display rounded-lg border-2 border-ink bg-cream px-2 text-lg text-ink">
-                  {b.label}
+                <span className="inline-flex items-center rounded-lg border-2 border-ink bg-cream px-2 font-display text-lg text-ink">
+                  <span className="pts">{b.label}</span>
                 </span>
                 <span className="text-[11px] font-extrabold uppercase tracking-wide text-ink-soft">
                   {b.key === "hard"
@@ -180,7 +180,7 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
           <span className="text-[10px] font-extrabold uppercase text-ink-soft">
             Score
           </span>
-          <span className="font-display text-2xl text-ink">{total}</span>
+          <span className="pts font-display text-2xl text-ink">{total}</span>
         </div>
         <button
           onClick={() => dispatch({ type: "CONFIRM_REVIEW" })}

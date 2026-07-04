@@ -67,9 +67,9 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         <button
           onClick={() => dispatch({ type: "PAUSE" })}
           aria-label="Pause"
-          className="btn btn-cream h-11 w-11 shrink-0 rounded-full text-lg"
+          className="btn btn-cream h-11 w-11 shrink-0 rounded-full"
         >
-          ⏸
+          <span className="pause-bars text-2xl font-black">=</span>
         </button>
       </header>
 
@@ -84,9 +84,11 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             onClick={() => dispatch({ type: "PLUS_ONE" })}
             className="chunk relative flex flex-1 flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           >
-            <Badge className="bg-ink text-cream">+1</Badge>
-            <span className="font-display text-4xl leading-tight text-ink">
-              {cur.card.easy}
+            <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+              <PointChip label="+1" className="bg-ink text-cream" />
+              <span className="font-display text-4xl leading-tight text-ink">
+                {cur.card.easy}
+              </span>
             </span>
             <span className="mt-2 text-xs font-bold text-ink-soft">
               tap when they guess it
@@ -119,9 +121,11 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           className="chunk relative flex flex-[1.25] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           style={{ background: "#fffdf5" }}
         >
-          <Badge className="bg-amber-400 text-ink">+3 ⭐</Badge>
-          <span className="font-display text-3xl leading-tight text-ink">
-            {cur.card.hard}
+          <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+            <PointChip label="+3 ⭐" className="bg-amber-400 text-ink" />
+            <span className="font-display text-3xl leading-tight text-ink">
+              {cur.card.hard}
+            </span>
           </span>
           <span className="mt-2 text-xs font-bold text-ink-soft">
             {cur.banked1 ? "go for the big one!" : "tap for the bonus phrase"}
@@ -139,7 +143,10 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             <>Skip ▶</>
           ) : (
             <>
-              Pass <span className="rounded-full bg-cream/20 px-2 text-base">−1</span>
+              Pass{" "}
+              <span className="inline-flex items-center rounded-full bg-cream/20 px-2 text-base">
+                <span className="pts">−1</span>
+              </span>
             </>
           )}
         </button>
@@ -151,7 +158,9 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 p-8"
           style={{ background: c.base, color: c.onBase }}
         >
-          <div className="animate-wiggle text-6xl">⏸️</div>
+          <div className="animate-wiggle font-display text-shadow-pop text-7xl leading-none">
+            <span className="pause-bars inline-block">=</span>
+          </div>
           <h2 className="font-display text-shadow-pop text-4xl">Paused</h2>
           <p className="text-center text-sm font-bold opacity-90">
             Words hidden. No peeking, {active.playerName}!
@@ -176,18 +185,18 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   );
 }
 
-function Badge({
-  children,
+function PointChip({
+  label,
   className,
 }: {
-  children: React.ReactNode;
+  label: string;
   className?: string;
 }) {
   return (
     <span
-      className={`absolute left-3 top-3 rounded-full border-2 border-ink px-2 py-0.5 font-display text-sm ${className ?? ""}`}
+      className={`inline-flex shrink-0 items-center rounded-full border-2 border-ink px-2 py-0.5 font-display text-sm ${className ?? ""}`}
     >
-      {children}
+      <span className="pts">{label}</span>
     </span>
   );
 }

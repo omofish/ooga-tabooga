@@ -22,7 +22,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#e3d2b3",
+  // Matches the average colour along the very top of the page, where the body's
+  // base tint (#e3d2b3) is lightened by the radial highlight — so the OS status
+  // bar blends into the background instead of reading a shade darker.
+  themeColor: "#e6d7bb",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

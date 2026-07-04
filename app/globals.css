@@ -45,6 +45,25 @@ body {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
 }
 
+/* The display face (Luckiest Guy) packs its ink into the top ~70% of the line
+   box — tall ascent, almost no descent — so numerals read as shoved upward and
+   the very top can clip. `.pts` optically re-centres a short display-font run:
+   use it on scores and the +1/+3/−1 chips that sit in a row with other text. */
+.pts {
+  display: inline-block;
+  line-height: 1;
+  transform: translateY(0.08em);
+}
+
+/* Pause glyph: two bars built from a display-font "=" turned 90°. Reads as a
+   proper pause icon in the game's own font instead of the OS pause emoji. */
+.pause-bars {
+  display: inline-block;
+  font-family: var(--font-display), system-ui, sans-serif;
+  line-height: 1;
+  transform: rotate(90deg);
+}
+
 /* ---- Cartoon "sticker" surface ---- */
 .chunk {
   border: 3px solid var(--color-ink);
