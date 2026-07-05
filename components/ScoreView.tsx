@@ -120,14 +120,20 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                       </span>
                     </div>
                   ) : isCurrent ? (
-                    <button
-                      onClick={() => dispatch({ type: "OPEN_MODAL", teamId: t.id })}
-                      aria-label={`Play round ${ri + 1} for ${t.name}`}
-                      className="btn flex h-12 w-12 items-center justify-center rounded-full text-xl"
-                      style={{ ...colorVars(c), background: c.base, color: c.onBase }}
-                    >
-                      ▶
-                    </button>
+                    // Shake to invite the tap; the wrapper animates so the
+                    // button keeps its own press (:active) feedback.
+                    <span className="animate-nudge inline-block">
+                      <button
+                        onClick={() =>
+                          dispatch({ type: "OPEN_MODAL", teamId: t.id })
+                        }
+                        aria-label={`Play round ${ri + 1} for ${t.name}`}
+                        className="btn flex h-12 w-12 items-center justify-center rounded-full text-xl"
+                        style={{ ...colorVars(c), background: c.base, color: c.onBase }}
+                      >
+                        ▶
+                      </button>
+                    </span>
                   ) : (
                     <span className="text-ink-soft/40">—</span>
                   )}

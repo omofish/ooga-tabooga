@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
-import { TURN_SECONDS } from "@/lib/game";
 import type { ScreenProps } from "./types";
 
 export default function Gameplay({ state, dispatch }: ScreenProps) {
@@ -12,30 +11,42 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
 
   const paused = active?.paused ?? false;
   const [now, setNow] = useState(() => Date.now());
+  const [timesUp, setTimesUp] = useState(false);
 
   // Tick the clock while playing (and not paused).
   useEffect(() => {
-    if (paused) return;
+    if (paused || timesUp) return;
     const id = setInterval(() => setNow(Date.now()), 200);
     return () => clearInterval(id);
-  }, [paused]);
+  }, [paused, timesUp]);
 
   const remaining = paused
     ? active?.remainingWhilePaused ?? 0
     : Math.max(0, (active?.endsAt ?? 0) - now);
 
-  // End the turn when the clock runs out.
+  // When the clock runs out, flash a quick "Time's Up!" splash…
   useEffect(() => {
     if (!paused && active && remaining <= 0) {
-      dispatch({ type: "END_TURN" });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTimesUp(true);
     }
-  }, [paused, remaining, active, dispatch]);
+  }, [paused, remaining, active]);
+
+  // …then end the turn (→ review) a beat later.
+  useEffect(() => {
+    if (!timesUp) return;
+    const id = setTimeout(() => dispatch({ type: "END_TURN" }), 1400);
+    return () => clearTimeout(id);
+  }, [timesUp, dispatch]);
 
   if (!active?.current) return null;
 
   const cur = active.current;
   const seconds = Math.ceil(remaining / 1000);
-  const progress = Math.max(0, Math.min(1, remaining / (TURN_SECONDS * 1000)));
+  const progress = Math.max(
+    0,
+    Math.min(1, remaining / (state.turnSeconds * 1000)),
+  );
   const low = seconds <= 10;
 
   return (
@@ -51,7 +62,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         <div className="flex-1">
           <div className="flex items-baseline gap-2">
             <span
-              className={`font-display text-3xl leading-none ${low ? "animate-pulse-soft" : ""}`}
+              className={`font-display text-3xl leading-none ${low ? "animate-flash origin-left" : ""}`}
             >
               {seconds}
             </span>
@@ -167,6 +178,19 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
               Give Up 🏳️
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Time's-up splash — shown briefly before the round is scored */}
+      {timesUp && (
+        <div
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 p-8"
+          style={{ background: c.base, color: c.onBase }}
+        >
+          <div className="animate-boom text-7xl">⏰</div>
+          <h2 className="animate-boom font-display text-shadow-pop text-5xl">
+            Time&apos;s Up!
+          </h2>
         </div>
       )}
     </div>

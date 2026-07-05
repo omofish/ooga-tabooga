@@ -239,6 +239,44 @@ body {
   animation: pulse-soft 0.9s ease-in-out infinite;
 }
 
+/* Urgent countdown flash for the last few seconds of a round. */
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.12);
+  }
+}
+.animate-flash {
+  animation: flash 0.6s ease-in-out infinite;
+}
+
+/* Periodic attention shake — mostly still, then a quick wobble each cycle.
+   Used to nudge players toward the "take your turn" button. */
+@keyframes nudge {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  78% {
+    transform: rotate(-7deg) scale(1.08);
+  }
+  86% {
+    transform: rotate(7deg) scale(1.08);
+  }
+  94% {
+    transform: rotate(-4deg) scale(1.04);
+  }
+}
+.animate-nudge {
+  animation: nudge 2s ease-in-out infinite;
+}
+
 @keyframes confetti-fall {
   0% {
     transform: translateY(-12vh) rotate(0deg);
@@ -279,6 +317,8 @@ body {
   .animate-wiggle,
   .animate-tada,
   .animate-pulse-soft,
+  .animate-flash,
+  .animate-nudge,
   .animate-rise,
   .confetti-piece {
     animation-duration: 0.01ms !important;

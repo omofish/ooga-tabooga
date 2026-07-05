@@ -14,8 +14,9 @@ import { randomCaveName } from "./names";
 import { WORD_SETS, wordSetById } from "./words";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
-export const STATE_VERSION = 1;
-export const TURN_SECONDS = 60;
+export const STATE_VERSION = 2;
+export const TURN_SECONDS = 60; // default round length
+export const TURN_OPTIONS = [60, 90, 120] as const;
 export const MAX_TEAMS = 3;
 
 export function defaultState(): GameState {
@@ -24,6 +25,7 @@ export function defaultState(): GameState {
     phase: "setup",
     numTeams: 2,
     wordSetId: WORD_SETS[0].id,
+    turnSeconds: TURN_SECONDS,
     teams: [],
     deck: [],
     deckCursor: 0,
@@ -77,6 +79,7 @@ export type Action =
   | { type: "HYDRATE"; state: GameState }
   | { type: "SET_NUM_TEAMS"; n: number }
   | { type: "SET_WORDSET"; id: string }
+  | { type: "SET_TURN_SECONDS"; seconds: number }
   | { type: "START_GAME" }
   | { type: "OPEN_MODAL"; teamId: string }
   | { type: "SET_NAME"; name: string }
@@ -139,6 +142,9 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "SET_WORDSET":
       return { ...state, wordSetId: action.id };
+
+    case "SET_TURN_SECONDS":
+      return { ...state, turnSeconds: action.seconds };
 
     case "START_GAME": {
       const teams = buildTeams(state.numTeams);
@@ -206,7 +212,7 @@ export function reducer(state: GameState, action: Action): GameState {
           ...state.active,
           current: { card: first, banked1: false },
           cursor: state.active.cursor + 1,
-          endsAt: Date.now() + TURN_SECONDS * 1000,
+          endsAt: Date.now() + state.turnSeconds * 1000,
           paused: false,
         },
       };

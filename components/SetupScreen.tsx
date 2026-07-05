@@ -1,6 +1,6 @@
 "use client";
 
-import { MAX_TEAMS } from "@/lib/game";
+import { MAX_TEAMS, TURN_OPTIONS } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
 import { WORD_SETS } from "@/lib/words";
 import type { ScreenProps } from "./types";
@@ -66,6 +66,28 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
               {c.teamName}
             </span>
           ))}
+        </div>
+      </section>
+
+      {/* Round length */}
+      <section>
+        <h2 className="font-display mb-2 text-xl text-ink">Round length</h2>
+        <div className="grid grid-cols-3 gap-3">
+          {TURN_OPTIONS.map((sec) => {
+            const selected = state.turnSeconds === sec;
+            return (
+              <button
+                key={sec}
+                onClick={() =>
+                  dispatch({ type: "SET_TURN_SECONDS", seconds: sec })
+                }
+                className={`btn ${selected ? "btn-ink" : "btn-cream"} flex flex-col items-center gap-0.5 py-4`}
+              >
+                <span className="font-display text-3xl">{sec}</span>
+                <span className="text-xs font-bold opacity-80">seconds</span>
+              </button>
+            );
+          })}
         </div>
       </section>
 

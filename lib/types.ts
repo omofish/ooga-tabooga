@@ -63,6 +63,7 @@ export type GameState = {
   phase: Phase;
   numTeams: number;
   wordSetId: string;
+  turnSeconds: number; // round length in seconds (60 / 90 / 120)
   teams: Team[];
   deck: WordCard[]; // shuffled cards for this game
   deckCursor: number; // shared pointer so turns don't repeat cards
