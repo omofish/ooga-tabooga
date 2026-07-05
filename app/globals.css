@@ -52,6 +52,14 @@ body {
     text-box-edge: cap alphabetic;
   }
 }
+/* Opt an element out of the cap-trim above. The huge countdown/reveal numerals
+   have round tops that overshoot the cap line, and iOS Safari clips the ink to
+   it — so they must NOT be trimmed. This is unlayered CSS placed *after*
+   `.font-display`, so it wins the cascade where a Tailwind `[text-box-trim:none]`
+   utility (in the utilities layer) would lose to the unlayered `.font-display`. */
+.no-text-trim {
+  text-box-trim: none;
+}
 .text-shadow-pop {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
 }

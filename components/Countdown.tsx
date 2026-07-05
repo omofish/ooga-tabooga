@@ -31,7 +31,7 @@ export default function Countdown({ state, dispatch }: ScreenProps) {
       </p>
       <div
         key={n}
-        className="animate-boom font-display text-shadow-pop my-8 text-[9rem] leading-[1.25] [text-box-trim:none]"
+        className="animate-boom font-display no-text-trim text-shadow-pop my-8 text-[9rem] leading-[1.25]"
       >
         {n === 0 ? "GO!" : n}
       </div>

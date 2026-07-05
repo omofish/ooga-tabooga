@@ -82,7 +82,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         {!cur.banked1 ? (
           <button
             onClick={() => dispatch({ type: "PLUS_ONE" })}
-            className="chunk relative flex flex-1 flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
+            className="chunk relative flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           >
             <span className="font-display text-4xl leading-tight text-ink">
               {cur.card.easy}
@@ -92,7 +92,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         ) : (
           <button
             onClick={() => dispatch({ type: "NEXT_WORD" })}
-            className="btn btn-team flex flex-1 flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
+            className="btn btn-team flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
           >
             <span className="tbx font-display text-3xl">Next Word ▶</span>
             <span className="text-xs font-bold opacity-80">
@@ -104,7 +104,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         {/* +3 phrase */}
         <button
           onClick={() => dispatch({ type: "PLUS_THREE" })}
-          className="chunk relative flex flex-[1.25] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
+          className="chunk relative flex min-h-0 flex-[1.25_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           style={{ background: "#fffdf5" }}
         >
           <span className="font-display text-3xl leading-tight text-ink">
@@ -118,7 +118,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       <footer className="p-4 pt-0">
         <button
           onClick={() => dispatch({ type: "PASS" })}
-          className="btn btn-ink flex w-full items-center justify-center gap-2 py-4 font-display text-xl"
+          className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 font-display text-xl"
         >
           {cur.banked1 ? (
             <span className="tbx">Skip ▶</span>
