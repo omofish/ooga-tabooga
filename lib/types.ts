@@ -71,4 +71,10 @@ export type GameState = {
   rounds: Round[];
   currentRound: number;
   active: ActiveTurn | null;
+  /**
+   * Per-word-set memory of cards already played, keyed by wordSetId → list of
+   * `${easy}|${hard}` keys. Persisted across games so words don't repeat until
+   * the whole set is exhausted. Cleared by the "reset words" action.
+   */
+  seen: Record<string, string[]>;
 };

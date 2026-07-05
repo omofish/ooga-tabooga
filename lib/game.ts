@@ -14,7 +14,7 @@ import { randomCaveName } from "./names";
 import { WORD_SETS, wordSetById } from "./words";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
-export const STATE_VERSION = 2;
+export const STATE_VERSION = 3;
 export const TURN_SECONDS = 60; // default round length
 export const TURN_OPTIONS = [60, 90, 120] as const;
 export const MAX_TEAMS = 3;
@@ -32,6 +32,7 @@ export function defaultState(): GameState {
     rounds: [],
     currentRound: 0,
     active: null,
+    seen: {},
   };
 }
 
@@ -42,6 +43,33 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/** Stable identity for a card, used to remember which have been played. */
+export function cardKey(c: WordCard): string {
+  return `${c.easy}|${c.hard}`;
+}
+
+/**
+ * Build a game deck that puts not-yet-seen cards (shuffled) first, then any
+ * already-seen cards (shuffled) as a fallback. This guarantees a fresh game
+ * exhausts every unseen card before any repeat.
+ */
+function buildDeck(cards: WordCard[], seenKeys: string[]): WordCard[] {
+  const seenSet = new Set(seenKeys);
+  const unseen: WordCard[] = [];
+  const seen: WordCard[] = [];
+  for (const c of cards) (seenSet.has(cardKey(c)) ? seen : unseen).push(c);
+  return [...shuffle(unseen), ...shuffle(seen)];
+}
+
+/** How many of a set's cards have been played (for the reset UI). */
+export function seenCount(state: GameState, wordSetId: string): number {
+  const set = new Set((state.seen[wordSetId] ?? []).map((k) => k));
+  const cards = wordSetById(wordSetId).cards;
+  let n = 0;
+  for (const c of cards) if (set.has(cardKey(c))) n++;
+  return n;
 }
 
 function buildTeams(numTeams: number): Team[] {
@@ -101,6 +129,7 @@ export type Action =
   | { type: "ADD_ROUND" }
   | { type: "END_GAME" }
   | { type: "PLAY_AGAIN" }
+  | { type: "RESET_WORDS" }
   | { type: "RETURN_TO_START" };
 
 function drawCard(deck: WordCard[], cursor: number): WordCard {
@@ -149,7 +178,10 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "START_GAME": {
       const teams = buildTeams(state.numTeams);
-      const deck = shuffle(wordSetById(state.wordSetId).cards);
+      const deck = buildDeck(
+        wordSetById(state.wordSetId).cards,
+        state.seen[state.wordSetId] ?? [],
+      );
       const firstRound: Round = {};
       return {
         ...state,
@@ -331,11 +363,17 @@ export function reducer(state: GameState, action: Action): GameState {
       const rounds = state.rounds.map((r, i) =>
         i === roundIndex ? { ...r, [teamId]: result } : r,
       );
+      // Remember every card played this turn so it won't come back next game.
+      const prevSeen = state.seen[state.wordSetId] ?? [];
+      const merged = new Set(prevSeen);
+      for (const rc of resolved) merged.add(cardKey(rc.card));
+      const seen = { ...state.seen, [state.wordSetId]: [...merged] };
       return {
         ...state,
         phase: "reveal",
         rounds,
         deckCursor: cursor,
+        seen,
       };
     }
 
@@ -351,7 +389,10 @@ export function reducer(state: GameState, action: Action): GameState {
       return { ...state, phase: "gameover", active: null };
 
     case "PLAY_AGAIN": {
-      const deck = shuffle(wordSetById(state.wordSetId).cards);
+      const deck = buildDeck(
+        wordSetById(state.wordSetId).cards,
+        state.seen[state.wordSetId] ?? [],
+      );
       return {
         ...state,
         phase: "score",
@@ -363,8 +404,12 @@ export function reducer(state: GameState, action: Action): GameState {
       };
     }
 
+    case "RESET_WORDS":
+      return { ...state, seen: {} };
+
     case "RETURN_TO_START":
-      return defaultState();
+      // Keep the word memory so "new game" still avoids recently seen cards.
+      return { ...defaultState(), seen: state.seen };
 
     default:
       return state;
@@ -380,6 +425,7 @@ export function loadState(): GameState | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as GameState;
     if (parsed.version !== STATE_VERSION) return null;
+    if (!parsed.seen) parsed.seen = {};
     return parsed;
   } catch {
     return null;
