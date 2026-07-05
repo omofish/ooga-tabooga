@@ -69,5 +69,4 @@ export type GameState = {
   rounds: Round[];
   currentRound: number;
   active: ActiveTurn | null;
-  lastNames: Record<string, string>; // teamId -> last player name (default suggestion)
 };

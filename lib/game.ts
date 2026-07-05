@@ -30,7 +30,6 @@ export function defaultState(): GameState {
     rounds: [],
     currentRound: 0,
     active: null,
-    lastNames: {},
   };
 }
 
@@ -161,7 +160,7 @@ export function reducer(state: GameState, action: Action): GameState {
       const active: ActiveTurn = {
         teamId: action.teamId,
         roundIndex: state.currentRound,
-        playerName: state.lastNames[action.teamId] ?? randomCaveName(),
+        playerName: "",
         modalOpen: true,
         cursor: state.deckCursor,
         resolved: [],
@@ -186,7 +185,6 @@ export function reducer(state: GameState, action: Action): GameState {
       return {
         ...state,
         phase: "countdown",
-        lastNames: { ...state.lastNames, [state.active.teamId]: name },
         active: {
           ...state.active,
           playerName: name,
@@ -346,7 +344,7 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
     case "RETURN_TO_START":
-      return { ...defaultState(), lastNames: state.lastNames };
+      return defaultState();
 
     default:
       return state;
