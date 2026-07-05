@@ -56,22 +56,27 @@ body {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
 }
 
-/* The display face (Luckiest Guy) packs its ink into the top ~70% of the line
-   box — tall ascent, almost no descent — so numerals read as shoved upward.
-   `.pts` re-centres a short display-font run: use it on scores and the +1/+3/−1
-   chips. `text-box-trim` (Safari 18.2+/Chrome 133+) trims the box to the
-   cap→baseline ink so flex `items-center` centres it exactly; the transform is a
-   fallback nudge for browsers without it. */
-.pts {
+/* The global `.font-display` trim above can't reach a bare text node that is a
+   *direct* child of a flex/grid box (there's no element to carry the property),
+   so display text inside flex buttons still sits high. Wrap such a run in `.pts`
+   (number chips) or `.tbx` (button labels): both are inline-blocks that carry
+   the trim themselves, so flex `items-center` then centres the ink exactly. The
+   transform is a fallback nudge for browsers without `text-box-trim`. */
+.pts,
+.tbx {
   display: inline-block;
   line-height: 1;
   transform: translateY(0.09em);
 }
 @supports (text-box-trim: trim-both) {
-  .pts {
-    transform: none;
+  .pts,
+  .tbx {
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
+    /* Trimming lands the box on the cap line, but Luckiest Guy's round tops
+       overshoot it (~0.05em), leaving the ink centre a hair high in tight
+       chips. A visual-only nudge (no layout shift) lands it dead centre. */
+    transform: translateY(0.05em);
   }
 }
 

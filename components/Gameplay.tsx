@@ -90,24 +90,15 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             <PointChip label="+1" className="mt-4 bg-ink text-cream" />
           </button>
         ) : (
-          <div className="flex flex-1 flex-col gap-3">
-            <div className="chunk relative flex items-center justify-center gap-2 rounded-2xl py-3">
-              <span className="text-xl">✅</span>
-              <span className="font-display text-xl text-ink">
-                {cur.card.easy}
-              </span>
-              <span className="text-sm font-extrabold text-ink-soft">+1 in the bag</span>
-            </div>
-            <button
-              onClick={() => dispatch({ type: "NEXT_WORD" })}
-              className="btn btn-team flex flex-1 flex-col items-center justify-center rounded-2xl font-display text-2xl"
-            >
-              Next Word ▶
-              <span className="mt-1 text-xs font-bold opacity-80">
-                keep the +1, new card
-              </span>
-            </button>
-          </div>
+          <button
+            onClick={() => dispatch({ type: "NEXT_WORD" })}
+            className="btn btn-team flex flex-1 flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
+          >
+            <span className="tbx font-display text-3xl">Next Word ▶</span>
+            <span className="text-xs font-bold opacity-80">
+              ✅ “{cur.card.easy}” in the bag · +1
+            </span>
+          </button>
         )}
 
         {/* +3 phrase */}
@@ -130,10 +121,10 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           className="btn btn-ink flex w-full items-center justify-center gap-2 py-4 font-display text-xl"
         >
           {cur.banked1 ? (
-            <>Skip ▶</>
+            <span className="tbx">Skip ▶</span>
           ) : (
             <>
-              Pass{" "}
+              <span className="tbx">Pass</span>
               <span className="inline-flex items-center rounded-full bg-cream/20 px-2.5 py-1 text-base">
                 <span className="pts">−1</span>
               </span>

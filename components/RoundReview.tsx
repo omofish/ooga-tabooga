@@ -105,7 +105,7 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
         <h1 className="font-display text-shadow-pop text-2xl" style={{ color: c.deep }}>
           Sort the loot!
         </h1>
-        <p className="text-xs font-bold text-ink-soft">
+        <p className="mt-3 text-xs font-bold text-ink-soft">
           Drag or tap a card to fix where it landed. Then bank the score.
         </p>
       </header>

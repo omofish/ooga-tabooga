@@ -54,7 +54,7 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
           {result.playerName} · {team?.name}
         </p>
 
-        <div className="animate-boom my-6 font-display text-shadow-pop text-[7rem] leading-[1.15]">
+        <div className="animate-boom my-6 font-display text-shadow-pop text-[7rem] leading-[1.25] [text-box-trim:none]">
           {display}
         </div>
         <p className="font-display text-2xl">
