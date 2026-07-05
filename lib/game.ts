@@ -270,9 +270,10 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
     case "RESTART_TURN": {
-      // Replay the current player's turn from the top: rewind the deck to where
-      // this turn began (deckCursor only advances once a turn is banked), drop
-      // any resolved cards, and run the countdown again with a fresh clock.
+      // Replay the current player's turn: drop any resolved cards and run the
+      // countdown again with a fresh clock. The deck cursor is left where it is
+      // (not rewound to the turn's start) so the replay deals a *different* set
+      // of cards rather than repeating the same ones.
       if (!state.active) return state;
       return {
         ...state,
@@ -280,7 +281,6 @@ export function reducer(state: GameState, action: Action): GameState {
         active: {
           ...state.active,
           modalOpen: false,
-          cursor: state.deckCursor,
           resolved: [],
           current: null,
           paused: false,
