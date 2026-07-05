@@ -152,6 +152,12 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
               ▶ Resume
             </button>
             <button
+              onClick={() => dispatch({ type: "RESTART_TURN" })}
+              className="btn btn-cream py-3 font-display text-lg"
+            >
+              Restart Round 🔄
+            </button>
+            <button
               onClick={() => dispatch({ type: "END_TURN" })}
               className="btn btn-ink py-3 font-display text-lg"
             >

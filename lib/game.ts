@@ -90,6 +90,7 @@ export type Action =
   | { type: "PASS" } // pass / give up on this card
   | { type: "PAUSE" }
   | { type: "RESUME" }
+  | { type: "RESTART_TURN" } // pause menu: replay this player's turn from scratch
   | { type: "END_TURN" } // time up or "give up"
   | { type: "MOVE_CARD"; id: number; bucket: Bucket }
   | { type: "CONFIRM_REVIEW" }
@@ -258,6 +259,27 @@ export function reducer(state: GameState, action: Action): GameState {
           ...state.active,
           paused: false,
           endsAt: Date.now() + state.active.remainingWhilePaused,
+        },
+      };
+    }
+
+    case "RESTART_TURN": {
+      // Replay the current player's turn from the top: rewind the deck to where
+      // this turn began (deckCursor only advances once a turn is banked), drop
+      // any resolved cards, and run the countdown again with a fresh clock.
+      if (!state.active) return state;
+      return {
+        ...state,
+        phase: "countdown",
+        active: {
+          ...state.active,
+          modalOpen: false,
+          cursor: state.deckCursor,
+          resolved: [],
+          current: null,
+          paused: false,
+          remainingWhilePaused: 0,
+          endsAt: 0,
         },
       };
     }
