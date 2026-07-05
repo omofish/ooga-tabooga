@@ -95,6 +95,7 @@ export type Action =
   | { type: "RESTART_TURN" } // pause menu: replay this player's turn from scratch
   | { type: "END_TURN" } // time up or "give up"
   | { type: "MOVE_CARD"; id: number; bucket: Bucket }
+  | { type: "ADJUST_SCORE"; delta: number } // manual +/- tweak in review
   | { type: "CONFIRM_REVIEW" }
   | { type: "REVEAL_DONE" }
   | { type: "ADD_ROUND" }
@@ -174,6 +175,7 @@ export function reducer(state: GameState, action: Action): GameState {
         endsAt: 0,
         paused: false,
         remainingWhilePaused: 0,
+        scoreAdjust: 0,
       };
       return { ...state, active };
     }
@@ -306,13 +308,25 @@ export function reducer(state: GameState, action: Action): GameState {
       return { ...state, active: { ...state.active, resolved } };
     }
 
+    case "ADJUST_SCORE": {
+      if (!state.active) return state;
+      return {
+        ...state,
+        active: {
+          ...state.active,
+          scoreAdjust: (state.active.scoreAdjust ?? 0) + action.delta,
+        },
+      };
+    }
+
     case "CONFIRM_REVIEW": {
       if (!state.active) return state;
-      const { teamId, roundIndex, playerName, resolved, cursor } = state.active;
+      const { teamId, roundIndex, playerName, resolved, cursor, scoreAdjust } =
+        state.active;
       const result: TurnResult = {
         playerName,
         cards: resolved,
-        score: scoreTurn(resolved),
+        score: scoreTurn(resolved) + (scoreAdjust ?? 0),
       };
       const rounds = state.rounds.map((r, i) =>
         i === roundIndex ? { ...r, [teamId]: result } : r,

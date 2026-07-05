@@ -56,6 +56,7 @@ export type ActiveTurn = {
   endsAt: number; // epoch ms the timer hits zero
   paused: boolean;
   remainingWhilePaused: number; // ms left, captured when paused
+  scoreAdjust: number; // manual +/- tweak applied at review time
 };
 
 export type GameState = {

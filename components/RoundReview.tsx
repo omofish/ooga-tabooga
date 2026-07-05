@@ -93,7 +93,8 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
 
   if (!active) return null;
 
-  const total = scoreTurn(cards);
+  const adjust = active.scoreAdjust ?? 0;
+  const total = scoreTurn(cards) + adjust;
   const draggingCard = drag ? cards.find((cc) => cc.id === drag.id) : null;
 
   return (
@@ -174,20 +175,46 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
         })}
       </div>
 
-      {/* Live total + confirm */}
-      <footer className="mt-3 flex items-center gap-3">
-        <div className="chunk flex flex-col items-center rounded-2xl px-4 py-2">
-          <span className="text-[10px] font-extrabold uppercase text-ink-soft">
-            Score
+      {/* Manual adjustment + live total + confirm */}
+      <footer className="mt-3 flex flex-col gap-2.5">
+        {/* Nudge the score by hand for anything the buckets can't capture. */}
+        <div className="flex items-center justify-center gap-3">
+          <span className="text-[11px] font-extrabold uppercase tracking-wide text-ink-soft">
+            Adjust
           </span>
-          <span className="pts font-display text-2xl text-ink">{total}</span>
+          <button
+            onClick={() => dispatch({ type: "ADJUST_SCORE", delta: -1 })}
+            aria-label="Subtract one point"
+            className="btn btn-cream flex h-9 w-12 items-center justify-center rounded-xl font-display text-lg"
+          >
+            <span className="tbx">−1</span>
+          </button>
+          <span className="w-8 text-center font-display text-lg text-ink">
+            {adjust > 0 ? `+${adjust}` : adjust}
+          </span>
+          <button
+            onClick={() => dispatch({ type: "ADJUST_SCORE", delta: 1 })}
+            aria-label="Add one point"
+            className="btn btn-cream flex h-9 w-12 items-center justify-center rounded-xl font-display text-lg"
+          >
+            <span className="tbx">+1</span>
+          </button>
         </div>
-        <button
-          onClick={() => dispatch({ type: "CONFIRM_REVIEW" })}
-          className="btn btn-team flex-1 py-4 font-display text-xl"
-        >
-          Bank Score ✓
-        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="chunk flex flex-col items-center rounded-2xl px-4 py-2">
+            <span className="text-[10px] font-extrabold uppercase text-ink-soft">
+              Score
+            </span>
+            <span className="pts font-display text-2xl text-ink">{total}</span>
+          </div>
+          <button
+            onClick={() => dispatch({ type: "CONFIRM_REVIEW" })}
+            className="btn btn-team flex-1 py-4 font-display text-xl"
+          >
+            Bank Score ✓
+          </button>
+        </div>
       </footer>
 
       {/* Floating drag ghost */}
