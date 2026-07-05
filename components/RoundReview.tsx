@@ -130,7 +130,7 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
               }}
             >
               <div className="mb-1.5 flex items-center gap-2">
-                <span className="inline-flex items-center rounded-lg border-2 border-ink bg-cream px-2 font-display text-lg text-ink">
+                <span className="inline-flex items-center rounded-lg border-2 border-ink bg-cream px-2.5 py-1.5 font-display text-lg text-ink">
                   <span className="pts">{b.label}</span>
                 </span>
                 <span className="text-[11px] font-extrabold uppercase tracking-wide text-ink-soft">

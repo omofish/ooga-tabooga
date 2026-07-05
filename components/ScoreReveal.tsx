@@ -54,7 +54,7 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
           {result.playerName} · {team?.name}
         </p>
 
-        <div className="animate-boom my-3 font-display text-shadow-pop text-[7rem] leading-[1.15] pt-[0.08em]">
+        <div className="animate-boom my-6 font-display text-shadow-pop text-[7rem] leading-[1.15]">
           {display}
         </div>
         <p className="font-display text-2xl">
@@ -62,7 +62,7 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
         </p>
 
         <div className="mt-6 flex gap-2 text-sm font-extrabold">
-          <Pill n={counts.hard} label="×3⭐" />
+          <Pill n={counts.hard} label="×3" />
           <Pill n={counts.easy} label="×1" />
           <Pill n={counts.pass} label="×−1" />
         </div>

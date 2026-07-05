@@ -67,9 +67,9 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         <button
           onClick={() => dispatch({ type: "PAUSE" })}
           aria-label="Pause"
-          className="btn btn-cream h-11 w-11 shrink-0 rounded-full"
+          className="btn btn-cream flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink"
         >
-          <span className="pause-bars text-2xl font-black">=</span>
+          <PauseIcon className="text-[19px]" />
         </button>
       </header>
 
@@ -84,15 +84,10 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             onClick={() => dispatch({ type: "PLUS_ONE" })}
             className="chunk relative flex flex-1 flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           >
-            <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-              <PointChip label="+1" className="bg-ink text-cream" />
-              <span className="font-display text-4xl leading-tight text-ink">
-                {cur.card.easy}
-              </span>
+            <span className="font-display text-4xl leading-tight text-ink">
+              {cur.card.easy}
             </span>
-            <span className="mt-2 text-xs font-bold text-ink-soft">
-              tap when they guess it
-            </span>
+            <PointChip label="+1" className="mt-4 bg-ink text-cream" />
           </button>
         ) : (
           <div className="flex flex-1 flex-col gap-3">
@@ -121,15 +116,10 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           className="chunk relative flex flex-[1.25] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           style={{ background: "#fffdf5" }}
         >
-          <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-            <PointChip label="+3 ⭐" className="bg-amber-400 text-ink" />
-            <span className="font-display text-3xl leading-tight text-ink">
-              {cur.card.hard}
-            </span>
+          <span className="font-display text-3xl leading-tight text-ink">
+            {cur.card.hard}
           </span>
-          <span className="mt-2 text-xs font-bold text-ink-soft">
-            {cur.banked1 ? "go for the big one!" : "tap for the bonus phrase"}
-          </span>
+          <PointChip label="+3" className="mt-4 bg-amber-400 text-ink" />
         </button>
       </main>
 
@@ -144,7 +134,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           ) : (
             <>
               Pass{" "}
-              <span className="inline-flex items-center rounded-full bg-cream/20 px-2 text-base">
+              <span className="inline-flex items-center rounded-full bg-cream/20 px-2.5 py-1 text-base">
                 <span className="pts">−1</span>
               </span>
             </>
@@ -158,9 +148,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 p-8"
           style={{ background: c.base, color: c.onBase }}
         >
-          <div className="animate-wiggle font-display text-shadow-pop text-7xl leading-none">
-            <span className="pause-bars inline-block">=</span>
-          </div>
+          <PauseIcon className="animate-wiggle text-7xl drop-shadow-[0_3px_0_rgba(0,0,0,0.18)]" />
           <h2 className="font-display text-shadow-pop text-4xl">Paused</h2>
           <p className="text-center text-sm font-bold opacity-90">
             Words hidden. No peeking, {active.playerName}!
@@ -194,9 +182,24 @@ function PointChip({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-full border-2 border-ink px-2 py-0.5 font-display text-sm ${className ?? ""}`}
+      className={`inline-flex shrink-0 items-center rounded-full border-[3px] border-ink px-5 py-2.5 font-display text-3xl ${className ?? ""}`}
     >
       <span className="pts">{label}</span>
+    </span>
+  );
+}
+
+/** Pause icon: two rounded bars, sized in `em` so `text-*` controls the scale
+   and `currentColor` sets the fill. Gives clean spacing + centring the rotated
+   font glyph couldn't. */
+function PauseIcon({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`inline-flex items-center justify-center gap-[0.24em] ${className ?? ""}`}
+    >
+      <span className="h-[1em] w-[0.3em] rounded-full bg-current" />
+      <span className="h-[1em] w-[0.3em] rounded-full bg-current" />
     </span>
   );
 }
