@@ -16,7 +16,7 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
   const winColor = colorForKey(top.team.colorKey);
 
   return (
-    <div className="relative flex min-h-[100dvh] flex-col overflow-hidden px-5 pb-6 pt-8">
+    <div className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-6 pt-8">
       <Confetti />
 
       <header className="relative z-10 text-center">
@@ -32,7 +32,7 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
               className="animate-tada font-display text-shadow-pop text-4xl"
               style={{ color: winColor.deep }}
             >
-              {winColor.mascot} {top.team.name}
+              {top.team.emoji || winColor.mascot} {top.team.name}
             </h1>
             <p className="font-display text-2xl text-ink">{top.total} points</p>
           </>
@@ -50,7 +50,7 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
               style={{ background: c.soft, animationDelay: `${i * 80}ms` }}
             >
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{c.mascot}</span>
+                <span className="text-2xl">{s.team.emoji || c.mascot}</span>
                 <span className="font-display text-lg" style={{ color: c.deep }}>
                   {s.team.name}
                 </span>

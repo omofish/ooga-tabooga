@@ -43,13 +43,13 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
 
   return (
     <div
-      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6"
+      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6"
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       {celebrate && <Confetti />}
 
       <div className="relative z-10 flex flex-col items-center text-center">
-        <div className="animate-wiggle text-5xl">{celebrate ? c.mascot : "🦴"}</div>
+        <div className="animate-wiggle text-5xl">{celebrate ? team?.emoji || c.mascot : "🦴"}</div>
         <p className="mt-2 font-display text-xl opacity-90">
           {result.playerName} · {team?.name}
         </p>

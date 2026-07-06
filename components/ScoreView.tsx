@@ -87,7 +87,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                 className="flex flex-col items-center gap-0.5 border-l-[3px] border-ink px-1 py-2 text-center active:translate-y-[1px]"
                 style={{ background: c.base, color: c.onBase }}
               >
-                <span className="text-2xl leading-none">{c.mascot}</span>
+                <span className="text-2xl leading-none">{t.emoji || c.mascot}</span>
                 <span className="text-[11px] font-extrabold leading-tight underline decoration-dotted underline-offset-2">
                   {t.name}
                 </span>

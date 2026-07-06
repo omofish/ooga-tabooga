@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import { randomCaveName } from "@/lib/names";
 import Modal from "./Modal";
@@ -7,15 +8,25 @@ import type { ScreenProps } from "./types";
 
 export default function StartRoundModal({ state, dispatch }: ScreenProps) {
   const active = state.active;
+  // A suggested caveman name shown as the greyed placeholder; if the poet
+  // leaves the field blank we use this exact name, so it matches what they saw.
+  const [suggested] = useState(randomCaveName);
   if (!active) return null;
   const team = state.teams.find((t) => t.id === active.teamId);
   if (!team) return null;
   const c = colorForKey(team.colorKey);
 
+  const start = () => {
+    if (!active.playerName.trim()) {
+      dispatch({ type: "SET_NAME", name: suggested });
+    }
+    dispatch({ type: "START_TURN" });
+  };
+
   return (
     <Modal onClose={() => dispatch({ type: "CLOSE_MODAL" })} style={colorVars(c)}>
       <div className="text-center">
-        <div className="animate-wiggle text-5xl">{c.mascot}</div>
+        <div className="animate-wiggle text-5xl">{team.emoji || c.mascot}</div>
         <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-ink-soft">
           Round {active.roundIndex + 1}
         </p>
@@ -32,8 +43,8 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
           value={active.playerName}
           onChange={(e) => dispatch({ type: "SET_NAME", name: e.target.value })}
           maxLength={16}
-          placeholder="Caveman name"
-          className="chunk w-full rounded-xl px-3 py-3 text-lg font-extrabold text-ink outline-none focus:translate-y-[-1px]"
+          placeholder={suggested}
+          className="chunk w-full rounded-xl px-3 py-3 text-lg font-extrabold text-ink outline-none placeholder:font-extrabold placeholder:text-ink/35 focus:translate-y-[-1px]"
           style={{ boxShadow: "0 4px 0 0 var(--color-ink)" }}
         />
         <button
@@ -46,7 +57,7 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
       </div>
 
       <button
-        onClick={() => dispatch({ type: "START_TURN" })}
+        onClick={start}
         className="btn btn-team mt-6 w-full py-4 font-display text-xl"
       >
         Start Round ▶

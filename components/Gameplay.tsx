@@ -54,7 +54,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       // Fixed to the viewport with no overflow and touch-action:none so the
       // screen can't scroll or pan — a small finger-drag while tapping a card
       // stays a tap instead of being stolen as a scroll gesture (misclick).
-      className="relative flex h-[100dvh] touch-none flex-col overflow-hidden no-select"
+      className="relative flex h-[100svh] touch-none flex-col overflow-hidden no-select"
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       {/* Top bar: timer + pause */}

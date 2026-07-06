@@ -39,6 +39,7 @@ export type Team = {
   id: string; // "team-0"
   colorKey: string; // key into TEAM_COLORS
   name: string; // display name, e.g. "Red Rocks"
+  emoji?: string; // custom tribe emoji; falls back to the colour's mascot
 };
 
 /** rounds[i] maps teamId -> that team's result for round i (undefined = not played yet). */

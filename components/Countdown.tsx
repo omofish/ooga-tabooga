@@ -23,11 +23,11 @@ export default function Countdown({ state, dispatch }: ScreenProps) {
 
   return (
     <div
-      className="flex min-h-[100dvh] flex-col items-center justify-center"
+      className="flex min-h-[100svh] flex-col items-center justify-center"
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       <p className="font-display text-xl opacity-90">
-        {c.mascot} {team?.name}
+        {team?.emoji || c.mascot} {team?.name}
       </p>
       <div
         key={n}

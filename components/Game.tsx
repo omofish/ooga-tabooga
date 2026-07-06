@@ -37,14 +37,14 @@ export default function Game() {
 
   if (!hydrated) {
     return (
-      <main className="flex min-h-[100dvh] items-center justify-center">
+      <main className="flex min-h-[100svh] items-center justify-center">
         <div className="font-display animate-wiggle text-5xl">🦴</div>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col">
+    <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />
       )}

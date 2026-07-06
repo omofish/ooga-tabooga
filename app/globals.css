@@ -32,7 +32,7 @@ body {
     radial-gradient(circle at 85% 80%, rgba(120, 80, 40, 0.18) 0, transparent 45%),
     radial-gradient(rgba(120, 84, 45, 0.09) 1.5px, transparent 1.6px);
   background-size: 100% 100%, 100% 100%, 22px 22px;
-  min-height: 100dvh;
+  min-height: 100svh;
   overscroll-behavior: none;
 }
 

@@ -106,7 +106,7 @@ export function scoreTurn(cards: ResolvedCard[]): number {
 export type Action =
   | { type: "HYDRATE"; state: GameState }
   | { type: "SET_NUM_TEAMS"; n: number }
-  | { type: "SET_TEAM_NAME"; teamId: string; name: string }
+  | { type: "SET_TEAM_NAME"; teamId: string; name: string; emoji?: string }
   | { type: "SET_WORDSET"; id: string }
   | { type: "SET_TURN_SECONDS"; seconds: number }
   | { type: "START_GAME" }
@@ -175,7 +175,13 @@ export function reducer(state: GameState, action: Action): GameState {
       return {
         ...state,
         teams: state.teams.map((t) =>
-          t.id === action.teamId ? { ...t, name: action.name } : t,
+          t.id === action.teamId
+            ? {
+                ...t,
+                name: action.name,
+                ...(action.emoji !== undefined ? { emoji: action.emoji } : {}),
+              }
+            : t,
         ),
       };
 
