@@ -1,0 +1,89 @@
+import type { WordCard } from "./types";
+import { cross, dedupe, fromTable } from "./gen";
+
+// Animals: the easy 1-point word is an animal; the hard 3-point phrase is an
+// expression, idiom or compound that involves it (e.g. Dog → "Downward Dog").
+// A curated table carries the real idioms/compounds; a descriptor × animal
+// cross ("Baby Elephant", "Sea Otter") tops the set up with more phrases.
+
+const TABLE: [string, string[]][] = [
+  ["Dog", ["Downward Dog", "Top Dog", "Lap Dog", "Guard Dog", "Sheep Dog", "Watch Dog", "Dog House", "Dog Park", "Hot Dog", "Dog Tag", "Dog Days", "Sausage Dog"]],
+  ["Cat", ["Copy Cat", "Cat Nap", "Cat Walk", "Fat Cat", "Cool Cat", "Scaredy Cat", "Wild Cat", "Cat Burglar", "Cat Call", "Alley Cat", "Cat Flap"]],
+  ["Horse", ["Dark Horse", "Horse Play", "Horse Power", "Race Horse", "Sea Horse", "Horse Shoe", "High Horse", "Work Horse", "Rocking Horse", "Horse Back"]],
+  ["Bird", ["Early Bird", "Love Bird", "Black Bird", "Bird Bath", "Bird Cage", "Bird Watch", "Song Bird", "Bird Brain", "Bird Seed", "Bird Nest"]],
+  ["Owl", ["Night Owl", "Wise Owl", "Barn Owl", "Snowy Owl", "Screech Owl"]],
+  ["Duck", ["Sitting Duck", "Lucky Duck", "Rubber Duck", "Duck Pond", "Duck Face", "Wild Duck", "Duck Bill"]],
+  ["Fish", ["Cat Fish", "Gold Fish", "Cold Fish", "Big Fish", "Fish Tank", "Fish Bowl", "Fish Hook", "Fish Net", "Jelly Fish", "Fish Finger"]],
+  ["Bee", ["Busy Bee", "Spelling Bee", "Queen Bee", "Bee Line", "Bee Hive", "Bumble Bee", "Bee Sting", "Worker Bee"]],
+  ["Bear", ["Bear Hug", "Teddy Bear", "Polar Bear", "Papa Bear", "Mama Bear", "Grizzly Bear", "Bear Market", "Care Bear", "Bear Trap", "Sun Bear"]],
+  ["Bull", ["Bull Market", "Bull Horn", "Bull Ride", "Bull Pen", "Bull Fight", "Pit Bull", "Bull Frog", "Bull Dozer"]],
+  ["Wolf", ["Lone Wolf", "Wolf Pack", "Cry Wolf", "Sea Wolf", "Were Wolf", "Wolf Whistle", "Wolf Cub"]],
+  ["Snake", ["Snake Bite", "Snake Eyes", "Snake Pit", "Snake Skin", "Snake Oil", "Rattle Snake", "Sea Snake", "Snake Charmer"]],
+  ["Pig", ["Guinea Pig", "Pig Pen", "Pig Tail", "Pig Out", "Piggy Bank", "Pig Sty", "Pig Skin"]],
+  ["Cow", ["Cash Cow", "Cow Boy", "Cow Bell", "Holy Cow", "Sea Cow", "Cow Girl", "Mad Cow", "Cow Hide"]],
+  ["Elephant", ["White Elephant", "Baby Elephant", "Elephant Seal", "Elephant Ear", "Elephant Trunk"]],
+  ["Monkey", ["Monkey Bars", "Monkey Business", "Sea Monkey", "Grease Monkey", "Monkey Wrench", "Spider Monkey", "Monkey Bread"]],
+  ["Frog", ["Leap Frog", "Bull Frog", "Tree Frog", "Frog Legs", "Frog Spawn", "Pond Frog"]],
+  ["Rat", ["Rat Race", "Gym Rat", "Lab Rat", "Rat Trap", "Pack Rat", "Mall Rat", "Rat Pack"]],
+  ["Mouse", ["Church Mouse", "Field Mouse", "Mouse Trap", "Mouse Pad", "Mouse Hole", "Pet Mouse"]],
+  ["Rabbit", ["Rabbit Hole", "Rabbit Ears", "Rabbit Foot", "Jack Rabbit", "Rabbit Hutch"]],
+  ["Turtle", ["Sea Turtle", "Turtle Neck", "Turtle Shell", "Snapping Turtle", "Turtle Dove"]],
+  ["Lion", ["Sea Lion", "Lion Heart", "Mountain Lion", "Lion Tamer", "Lion Cub", "Lion Mane"]],
+  ["Tiger", ["Paper Tiger", "Tiger Shark", "Tiger Lily", "Tiger Cub", "Tiger Stripe", "Bengal Tiger"]],
+  ["Shark", ["Card Shark", "Loan Shark", "Tiger Shark", "Great White Shark", "Shark Tank", "Shark Bite", "Whale Shark"]],
+  ["Whale", ["Blue Whale", "Killer Whale", "Whale Song", "Whale Watch", "Baby Whale"]],
+  ["Butterfly", ["Social Butterfly", "Butterfly Effect", "Butterfly Stroke", "Butterfly Kiss", "Monarch Butterfly"]],
+  ["Spider", ["Spider Web", "Spider Sense", "Sea Spider", "Spider Plant", "Water Spider", "Spider Bite"]],
+  ["Ant", ["Fire Ant", "Ant Hill", "Ant Farm", "Army Ant", "Ant Eater", "Carpenter Ant"]],
+  ["Chicken", ["Spring Chicken", "Chicken Out", "Rubber Chicken", "Chicken Feed", "Chicken Pox", "Chicken Dance", "Chicken Scratch", "Chicken Coop"]],
+  ["Goat", ["Scape Goat", "Mountain Goat", "Billy Goat", "Goat Cheese", "Old Goat", "Goat Herd"]],
+  ["Sheep", ["Black Sheep", "Sheep Dog", "Sheep Skin", "Counting Sheep", "Lost Sheep", "Sheep Pen"]],
+  ["Deer", ["Deer Park", "Mule Deer", "Deer Hunter", "Baby Deer", "Red Deer"]],
+  ["Fox", ["Sly Fox", "Fox Hole", "Fox Hunt", "Fox Trot", "Silver Fox", "Fox Glove"]],
+  ["Bat", ["Fruit Bat", "Vampire Bat", "Bat Cave", "Baseball Bat", "Bat Wing"]],
+  ["Crab", ["Hermit Crab", "Crab Cake", "King Crab", "Crab Apple", "Crab Grass", "Crab Walk"]],
+  ["Worm", ["Book Worm", "Ear Worm", "Silk Worm", "Glow Worm", "Worm Hole", "Tape Worm"]],
+  ["Bug", ["Love Bug", "Litter Bug", "Lady Bug", "Bed Bug", "June Bug", "Fire Bug", "Stink Bug"]],
+  ["Crocodile", ["Crocodile Tears", "Crocodile Skin", "Crocodile Smile"]],
+  ["Beaver", ["Eager Beaver", "Beaver Dam", "Busy Beaver"]],
+  ["Kangaroo", ["Kangaroo Court", "Baby Kangaroo", "Kangaroo Pouch"]],
+  ["Penguin", ["Emperor Penguin", "Baby Penguin", "Penguin Suit"]],
+  ["Dolphin", ["Bottlenose Dolphin", "Dolphin Kick", "Dolphin Show"]],
+  ["Eagle", ["Bald Eagle", "Eagle Eye", "Legal Eagle", "Golden Eagle", "Eagle Scout"]],
+  ["Hawk", ["Night Hawk", "Hawk Eye", "War Hawk", "Chicken Hawk"]],
+  ["Swan", ["Swan Song", "Swan Lake", "Swan Dive", "Black Swan", "Baby Swan"]],
+  ["Squirrel", ["Ground Squirrel", "Flying Squirrel", "Squirrel Nest"]],
+  ["Hamster", ["Hamster Wheel", "Hamster Ball", "Pet Hamster"]],
+  ["Moth", ["Night Moth", "Moth Ball", "Silk Moth"]],
+  ["Lizard", ["Lounge Lizard", "Lizard King", "Lizard Tail"]],
+  ["Buffalo", ["Water Buffalo", "Buffalo Wing", "Buffalo Herd"]],
+  ["Donkey", ["Donkey Ride", "Donkey Years", "Donkey Cart"]],
+  ["Zebra", ["Zebra Crossing", "Zebra Stripe", "Baby Zebra"]],
+  ["Snail", ["Snail Mail", "Snail Shell", "Snail Trail", "Sea Snail"]],
+  ["Parrot", ["Pet Parrot", "Talking Parrot", "Sea Parrot"]],
+  ["Beetle", ["Dung Beetle", "Stag Beetle", "Beetle Wing"]],
+  ["Octopus", ["Giant Octopus", "Octopus Ink", "Octopus Arm"]],
+];
+
+// Descriptor × animal for extra "phrase involving the animal" variety.
+const DESCRIPTOR = [
+  "Baby", "Wild", "Giant", "Sea", "Sleepy", "Spotted", "Golden", "Dancing",
+  "Angry", "Fluffy", "Striped", "Tiny", "Grumpy", "Curious",
+];
+const ANIMALS = [
+  "Otter", "Sloth", "Panda", "Koala", "Camel", "Llama", "Moose", "Badger",
+  "Hedgehog", "Raccoon", "Ferret", "Gecko", "Toucan", "Flamingo", "Pelican",
+  "Walrus", "Seal", "Jaguar", "Leopard", "Cheetah", "Panther", "Hyena",
+  "Gorilla", "Chimp", "Baboon", "Lemur", "Meerkat", "Armadillo", "Platypus",
+  "Peacock", "Ostrich", "Emu", "Falcon", "Robin", "Sparrow", "Magpie",
+  "Starfish", "Seahorse", "Jellyfish", "Lobster", "Shrimp", "Clam", "Oyster",
+  "Mole", "Newt", "Toad", "Salamander", "Cobra", "Python", "Viper",
+  "Boar", "Bison", "Antelope", "Gazelle", "Rhino", "Hippo", "Warthog",
+  "Mongoose", "Weasel", "Chipmunk", "Porcupine", "Skunk", "Possum", "Wombat",
+  "Dingo", "Vulture", "Crow", "Raven", "Woodpecker", "Kingfisher", "Puffin",
+];
+
+export const ANIMAL_CARDS: WordCard[] = dedupe([
+  ...fromTable(TABLE),
+  ...cross(DESCRIPTOR, ANIMALS),
+]);

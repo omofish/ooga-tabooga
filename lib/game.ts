@@ -14,7 +14,7 @@ import { randomCaveName } from "./names";
 import { WORD_SETS, wordSetById } from "./words";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
-export const STATE_VERSION = 3;
+export const STATE_VERSION = 4;
 export const TURN_SECONDS = 60; // default round length
 export const TURN_OPTIONS = [60, 90, 120] as const;
 export const MAX_TEAMS = 3;
