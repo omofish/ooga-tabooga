@@ -55,18 +55,6 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
             );
           })}
         </div>
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {TEAM_COLORS.slice(0, state.numTeams).map((c) => (
-            <span
-              key={c.key}
-              className="chunk flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-extrabold"
-              style={{ background: c.base, color: c.onBase }}
-            >
-              <span>{c.mascot}</span>
-              {c.teamName}
-            </span>
-          ))}
-        </div>
       </section>
 
       {/* Round length */}
