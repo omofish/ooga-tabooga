@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Luckiest_Guy, Nunito } from "next/font/google";
 import "./globals.css";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const displayFont = Luckiest_Guy({
   weight: "400",
@@ -19,6 +20,19 @@ export const metadata: Metadata = {
   description:
     "A mobile party game — grunt one-syllable clues, guess the words, bonk the club. Ug good!",
   applicationName: "Ooga Tabooga",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Ooga Tabooga",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -42,7 +56,10 @@ export default function RootLayout({
       lang="en"
       className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }
