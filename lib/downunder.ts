@@ -1,8 +1,10 @@
 import type { WordCard } from "./types";
+import { build } from "./gen";
 
-// Down Under: Aussie animals, servo snacks, slang and landmarks.
-export const DOWN_UNDER_CARDS: WordCard[] = [
-  { easy: "Roo", hard: "Boxing Kangaroo" },
+// Down Under: Aussie animals, servo snacks, slang and landmarks. Each easy word
+// appears in its hard phrase (build() drops any that don't).
+export const DOWN_UNDER_CARDS: WordCard[] = build([
+  { easy: "Kangaroo", hard: "Boxing Kangaroo" },
   { easy: "Joey", hard: "Baby Joey" },
   { easy: "Koala", hard: "Sleepy Koala" },
   { easy: "Emu", hard: "Giant Emu" },
@@ -18,18 +20,18 @@ export const DOWN_UNDER_CARDS: WordCard[] = [
   { easy: "Possum", hard: "Ring Tail Possum" },
   { easy: "Bat", hard: "Fruit Bat" },
   { easy: "Fly", hard: "Bush Fly" },
-  { easy: "Parrot", hard: "White Cockatoo" },
-  { easy: "Bird", hard: "Laughing Kookaburra" },
+  { easy: "Cockatoo", hard: "White Cockatoo" },
+  { easy: "Kookaburra", hard: "Laughing Kookaburra" },
   { easy: "Wallaby", hard: "Rock Wallaby" },
   { easy: "Pie", hard: "Meat Pie" },
-  { easy: "Snag", hard: "Sausage Sizzle" },
+  { easy: "Sausage", hard: "Sausage Sizzle" },
   { easy: "Chook", hard: "Roast Chook" },
   { easy: "Prawn", hard: "Prawn On The Barbie" },
   { easy: "Roll", hard: "Sausage Roll" },
   { easy: "Toast", hard: "Vegemite Toast" },
   { easy: "Tim Tam", hard: "Choc Tim Tam" },
-  { easy: "Cake", hard: "Coconut Lamington" },
-  { easy: "Pav", hard: "Fruit Pavlova" },
+  { easy: "Lamington", hard: "Coconut Lamington" },
+  { easy: "Pavlova", hard: "Fruit Pavlova" },
   { easy: "Bread", hard: "Fairy Bread" },
   { easy: "Bikkie", hard: "Anzac Bikkie" },
   { easy: "Chips", hard: "Hot Chips" },
@@ -45,15 +47,15 @@ export const DOWN_UNDER_CARDS: WordCard[] = [
   { easy: "Doona", hard: "Warm Doona" },
   { easy: "Dunny", hard: "Outback Dunny" },
   { easy: "Tinnie", hard: "Cold Tinnie" },
-  { easy: "Bang", hard: "Wooden Boomerang" },
-  { easy: "Pipe", hard: "Droning Didgeridoo" },
+  { easy: "Boomerang", hard: "Wooden Boomerang" },
+  { easy: "Didgeridoo", hard: "Droning Didgeridoo" },
   { easy: "Reef", hard: "Great Barrier Reef" },
   { easy: "Rock", hard: "Uluru Rock" },
-  { easy: "Bush", hard: "The Outback" },
+  { easy: "Outback", hard: "The Outback" },
   { easy: "Beach", hard: "Bondi Beach" },
   { easy: "Surf", hard: "Surf Life Saver" },
   { easy: "Tree", hard: "Gum Tree" },
-  { easy: "Star", hard: "Southern Cross" },
+  { easy: "Cross", hard: "Southern Cross" },
   { easy: "Hat", hard: "Cork Hat" },
   { easy: "House", hard: "Opera House" },
-];
+]);

@@ -1,10 +1,9 @@
 import type { WordCard } from "./types";
-import { cross, dedupe, fromTable } from "./gen";
+import { fromTable } from "./gen";
 
-// Animals: the easy 1-point word is an animal; the hard 3-point phrase is an
-// expression, idiom or compound that involves it (e.g. Dog → "Downward Dog").
-// A curated table carries the real idioms/compounds; a descriptor × animal
-// cross ("Baby Elephant", "Sea Otter") tops the set up with more phrases.
+// Animals: the easy 1-point word is an animal; the hard 3-point phrase is a
+// real expression, idiom or compound that contains it (Dog → "Downward Dog").
+// Curated only — no generated "adjective + animal" filler.
 
 const TABLE: [string, string[]][] = [
   ["Dog", ["Downward Dog", "Top Dog", "Lap Dog", "Guard Dog", "Sheep Dog", "Watch Dog", "Dog House", "Dog Park", "Hot Dog", "Dog Tag", "Dog Days", "Sausage Dog"]],
@@ -19,7 +18,7 @@ const TABLE: [string, string[]][] = [
   ["Bull", ["Bull Market", "Bull Horn", "Bull Ride", "Bull Pen", "Bull Fight", "Pit Bull", "Bull Frog", "Bull Dozer"]],
   ["Wolf", ["Lone Wolf", "Wolf Pack", "Cry Wolf", "Sea Wolf", "Were Wolf", "Wolf Whistle", "Wolf Cub"]],
   ["Snake", ["Snake Bite", "Snake Eyes", "Snake Pit", "Snake Skin", "Snake Oil", "Rattle Snake", "Sea Snake", "Snake Charmer"]],
-  ["Pig", ["Guinea Pig", "Pig Pen", "Pig Tail", "Pig Out", "Piggy Bank", "Pig Sty", "Pig Skin"]],
+  ["Pig", ["Guinea Pig", "Pig Pen", "Pig Tail", "Pig Out", "Pig Sty", "Pig Skin"]],
   ["Cow", ["Cash Cow", "Cow Boy", "Cow Bell", "Holy Cow", "Sea Cow", "Cow Girl", "Mad Cow", "Cow Hide"]],
   ["Elephant", ["White Elephant", "Baby Elephant", "Elephant Seal", "Elephant Ear", "Elephant Trunk"]],
   ["Monkey", ["Monkey Bars", "Monkey Business", "Sea Monkey", "Grease Monkey", "Monkey Wrench", "Spider Monkey", "Monkey Bread"]],
@@ -65,25 +64,4 @@ const TABLE: [string, string[]][] = [
   ["Octopus", ["Giant Octopus", "Octopus Ink", "Octopus Arm"]],
 ];
 
-// Descriptor × animal for extra "phrase involving the animal" variety.
-const DESCRIPTOR = [
-  "Baby", "Wild", "Giant", "Sea", "Sleepy", "Spotted", "Golden", "Dancing",
-  "Angry", "Fluffy", "Striped", "Tiny", "Grumpy", "Curious",
-];
-const ANIMALS = [
-  "Otter", "Sloth", "Panda", "Koala", "Camel", "Llama", "Moose", "Badger",
-  "Hedgehog", "Raccoon", "Ferret", "Gecko", "Toucan", "Flamingo", "Pelican",
-  "Walrus", "Seal", "Jaguar", "Leopard", "Cheetah", "Panther", "Hyena",
-  "Gorilla", "Chimp", "Baboon", "Lemur", "Meerkat", "Armadillo", "Platypus",
-  "Peacock", "Ostrich", "Emu", "Falcon", "Robin", "Sparrow", "Magpie",
-  "Starfish", "Seahorse", "Jellyfish", "Lobster", "Shrimp", "Clam", "Oyster",
-  "Mole", "Newt", "Toad", "Salamander", "Cobra", "Python", "Viper",
-  "Boar", "Bison", "Antelope", "Gazelle", "Rhino", "Hippo", "Warthog",
-  "Mongoose", "Weasel", "Chipmunk", "Porcupine", "Skunk", "Possum", "Wombat",
-  "Dingo", "Vulture", "Crow", "Raven", "Woodpecker", "Kingfisher", "Puffin",
-];
-
-export const ANIMAL_CARDS: WordCard[] = dedupe([
-  ...fromTable(TABLE),
-  ...cross(DESCRIPTOR, ANIMALS),
-]);
+export const ANIMAL_CARDS: WordCard[] = fromTable(TABLE);

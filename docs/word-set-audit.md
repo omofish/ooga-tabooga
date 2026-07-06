@@ -5,7 +5,27 @@ Audit of the eight word sets against
 from `npx tsx scripts/audit-word-sets.mts`; the "well-known" judgements are by
 inspection.
 
-## Summary
+## Status: RESOLVED
+
+The remediation below has been applied. Every set now passes the containment
+rule (100%), the cross-product generators are gone, and each hard phrase is a
+curated, real, well-known phrase containing its easy word. The deck shrank from
+7,717 padded cards to **3,473 quality cards** — the intended trade (Rule 1).
+
+| Set | Before → After | Contains easy |
+|---|---|---:|
+| Standard | 2509 → 2509 | 100% |
+| Fantasy | 2409 → 193 | 100% |
+| Movies | 154 → 48 | 100% |
+| Munchies | 1041 → 211 | 100% |
+| Down Under | 54 → 54 | 100% |
+| Sunny Singapore | 122 → 103 | 100% |
+| Songs | 116 → 38 | 100% |
+| Animals | 1312 → 317 | 100% |
+
+The original findings are kept below as the record of *why*.
+
+## Original findings (pre-fix)
 
 | Set | Cards | Contains easy (Rule 2) | Well-known / not-nonsense (Rules 3–4) | Verdict |
 |---|---:|---:|---|---|
@@ -18,8 +38,8 @@ inspection.
 | Songs | 116 | **43.1%** | Titles are famous | ❌ Rebuild (containment) |
 | Animals | 1312 | 99.9% | **Half bad** — descriptor cross | ⚠️ Trim to table |
 
-Overall containment (96.3%) is **misleading**: it's propped up by the three
-huge generated sets. The curated themed sets fail badly.
+Overall containment (96.3%) was **misleading**: it was propped up by the three
+huge generated sets. The curated themed sets failed badly.
 
 ## Two systemic failure modes
 

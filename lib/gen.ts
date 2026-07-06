@@ -1,58 +1,43 @@
 import type { WordCard } from "./types";
 
-// Shared helpers for building large word sets from compact source data.
+// Shared helpers for building word sets from compact source data.
+//
+// Rule 2 (docs/word-set-guidelines.md) is enforced here: a card is only kept if
+// the hard phrase contains the easy word as a whole word. That makes it
+// impossible to ship a containment violation regardless of the source data —
+// the audit script is the backstop, this is the guard rail.
 
-/** Drop single-word "hards", self-references, and duplicate hard phrases. */
-export function dedupe(cards: WordCard[]): WordCard[] {
-  const seen = new Set<string>();
-  const out: WordCard[] = [];
-  for (const c of cards) {
-    const easy = c.easy.trim();
-    const hard = c.hard.trim();
-    if (!hard.includes(" ")) continue;
-    if (easy.toLowerCase() === hard.toLowerCase()) continue;
-    const key = hard.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({ easy, hard });
-  }
-  return out;
+function esc(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** True if `hard` contains `easy` as a whole word (case-insensitive). */
+export function containsEasy(card: WordCard): boolean {
+  return new RegExp(`\\b${esc(card.easy)}\\b`, "i").test(card.hard);
 }
 
 /**
- * Dedupe by hard phrase and drop self-references, but KEEP single-word hards.
- * Used for curated title sets (Movies, Songs) where "Frozen" or "Titanic" are
- * legitimate one-word answers.
+ * Keep only valid, unique cards:
+ *  - the hard phrase must contain the easy word (Rule 2),
+ *  - drop self-references (easy === hard),
+ *  - drop duplicate hard phrases.
  */
-export function unique(cards: WordCard[]): WordCard[] {
+export function build(cards: WordCard[]): WordCard[] {
   const seen = new Set<string>();
   const out: WordCard[] = [];
-  for (const c of cards) {
-    const easy = c.easy.trim();
-    const hard = c.hard.trim();
-    if (easy.toLowerCase() === hard.toLowerCase()) continue;
-    const key = hard.toLowerCase();
+  for (const raw of cards) {
+    const card = { easy: raw.easy.trim(), hard: raw.hard.trim() };
+    if (card.easy.toLowerCase() === card.hard.toLowerCase()) continue;
+    if (!containsEasy(card)) continue;
+    const key = card.hard.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push({ easy, hard });
+    out.push(card);
   }
   return out;
 }
 
-/** Expand a [easy, [hard, ...]] table into cards. */
+/** Expand a `[easy, [hard, …]]` table into validated cards. */
 export function fromTable(table: [string, string[]][]): WordCard[] {
-  return dedupe(
-    table.flatMap(([easy, hards]) => hards.map((hard) => ({ easy, hard }))),
-  );
-}
-
-/**
- * Cross a list of modifiers with a list of nouns → "Modifier Noun" cards, with
- * the noun as the easy 1-point word. Adjective+noun almost always reads
- * naturally, which keeps generated themed sets sensible.
- */
-export function cross(modifiers: string[], nouns: string[]): WordCard[] {
-  return dedupe(
-    nouns.flatMap((n) => modifiers.map((m) => ({ easy: n, hard: `${m} ${n}` }))),
-  );
+  return build(table.flatMap(([easy, hards]) => hards.map((hard) => ({ easy, hard }))));
 }
