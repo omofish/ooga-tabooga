@@ -106,6 +106,7 @@ export function scoreTurn(cards: ResolvedCard[]): number {
 export type Action =
   | { type: "HYDRATE"; state: GameState }
   | { type: "SET_NUM_TEAMS"; n: number }
+  | { type: "SET_TEAM_NAME"; teamId: string; name: string }
   | { type: "SET_WORDSET"; id: string }
   | { type: "SET_TURN_SECONDS"; seconds: number }
   | { type: "START_GAME" }
@@ -169,6 +170,14 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "SET_NUM_TEAMS":
       return { ...state, numTeams: Math.min(MAX_TEAMS, Math.max(2, action.n)) };
+
+    case "SET_TEAM_NAME":
+      return {
+        ...state,
+        teams: state.teams.map((t) =>
+          t.id === action.teamId ? { ...t, name: action.name } : t,
+        ),
+      };
 
     case "SET_WORDSET":
       return { ...state, wordSetId: action.id };

@@ -15,10 +15,10 @@ const bodyFont = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Poetry for Neanderthals",
+  title: "Ooga Tabooga",
   description:
     "A mobile party game — grunt one-syllable clues, guess the words, bonk the club. Ug good!",
-  applicationName: "Poetry for Neanderthals",
+  applicationName: "Ooga Tabooga",
 };
 
 export const viewport: Viewport = {

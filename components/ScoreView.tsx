@@ -5,6 +5,7 @@ import { colorForKey, colorVars } from "@/lib/colors";
 import { roundComplete, teamSummary } from "@/lib/game";
 import { wordSetById } from "@/lib/words";
 import Modal from "./Modal";
+import RenameTeamModal from "./RenameTeamModal";
 import type { ScreenProps } from "./types";
 
 export default function ScoreView({ state, dispatch }: ScreenProps) {
@@ -12,6 +13,8 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
   const complete = roundComplete(state);
   const wordSet = wordSetById(state.wordSetId);
   const [quitOpen, setQuitOpen] = useState(false);
+  const [renameTeamId, setRenameTeamId] = useState<string | null>(null);
+  const renameTeam = teams.find((t) => t.id === renameTeamId);
 
   const cols = `minmax(2.2rem,auto) repeat(${teams.length}, minmax(0,1fr))`;
 
@@ -61,6 +64,14 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
         </Modal>
       )}
 
+      {renameTeam && (
+        <RenameTeamModal
+          team={renameTeam}
+          dispatch={dispatch}
+          onClose={() => setRenameTeamId(null)}
+        />
+      )}
+
       {/* Matrix */}
       <div className="chunk-lg overflow-hidden rounded-2xl">
         {/* Team header row */}
@@ -69,16 +80,18 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           {teams.map((t) => {
             const c = colorForKey(t.colorKey);
             return (
-              <div
+              <button
                 key={t.id}
-                className="flex flex-col items-center gap-0.5 border-l-[3px] border-ink px-1 py-2 text-center"
+                onClick={() => setRenameTeamId(t.id)}
+                aria-label={`Rename ${t.name}`}
+                className="flex flex-col items-center gap-0.5 border-l-[3px] border-ink px-1 py-2 text-center active:translate-y-[1px]"
                 style={{ background: c.base, color: c.onBase }}
               >
                 <span className="text-2xl leading-none">{c.mascot}</span>
-                <span className="text-[11px] font-extrabold leading-tight">
+                <span className="text-[11px] font-extrabold leading-tight underline decoration-dotted underline-offset-2">
                   {t.name}
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>

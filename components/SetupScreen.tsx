@@ -19,12 +19,9 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
       {/* Hero */}
       <header className="text-center">
         <div className="mb-1 text-6xl">🦴</div>
-        <h1 className="font-display text-shadow-pop text-4xl leading-[1.05] text-ink">
-          Poetry
-          <span className="mt-1 block text-lg tracking-widest text-ink-soft">
-            FOR
-          </span>
-          Neanderthals
+        <h1 className="font-display text-shadow-pop text-5xl leading-[1.05] text-ink">
+          Ooga
+          <span className="mt-1 block">Tabooga</span>
         </h1>
         <p className="mt-3 text-sm font-bold text-ink-soft">
           Grunt one-syllable clues. Guess the words. Ug good.
