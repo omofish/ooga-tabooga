@@ -1,9 +1,10 @@
 import type { WordCard } from "./types";
 import { build } from "./gen";
 
-// Movies: the hard 3-point answer is a famous film (1990s onward). The easy
-// 1-point word is a word taken *from the title* so it satisfies containment —
-// one-word titles (Frozen, Shrek) can't be used and are left out.
+// Movies: the hard 3-point answer is a famous film, from all-time classics to
+// recent hits. The easy 1-point word is a word taken *from the title* so it
+// satisfies containment — one-word titles (Frozen, Shrek, Titanic) can't be
+// used and are left out.
 export const MOVIE_CARDS: WordCard[] = build([
   { easy: "Toy", hard: "Toy Story" },
   { easy: "Lion", hard: "The Lion King" },
@@ -53,4 +54,94 @@ export const MOVIE_CARDS: WordCard[] = build([
   { easy: "Beast", hard: "Beauty And The Beast" },
   { easy: "Mermaid", hard: "The Little Mermaid" },
   { easy: "Wreck", hard: "Wreck It Ralph" },
+
+  // All-time classics (pre-90s)
+  { easy: "Wizard", hard: "The Wizard Of Oz" },
+  { easy: "Wind", hard: "Gone With The Wind" },
+  { easy: "Music", hard: "The Sound Of Music" },
+  { easy: "Rain", hard: "Singin In The Rain" },
+  { easy: "Snow", hard: "Snow White" },
+  { easy: "Peter", hard: "Peter Pan" },
+  { easy: "Trek", hard: "Star Trek" },
+  { easy: "Planet", hard: "Planet Of The Apes" },
+  { easy: "Ark", hard: "Raiders Of The Lost Ark" },
+  { easy: "Future", hard: "Back To The Future" },
+  { easy: "Blues", hard: "The Blues Brothers" },
+  { easy: "Escape", hard: "The Great Escape" },
+  { easy: "Breakfast", hard: "The Breakfast Club" },
+  { easy: "Karate", hard: "The Karate Kid" },
+  { easy: "Princess", hard: "The Princess Bride" },
+  { easy: "Chocolate", hard: "Charlie And The Chocolate Factory" },
+  { easy: "Pretty", hard: "Pretty Woman" },
+  { easy: "Dirty", hard: "Dirty Dancing" },
+  { easy: "Weapon", hard: "Lethal Weapon" },
+  { easy: "Dead", hard: "Dead Poets Society" },
+
+  // 90s
+  { easy: "Groundhog", hard: "Groundhog Day" },
+  { easy: "Show", hard: "The Truman Show" },
+  { easy: "Independence", hard: "Independence Day" },
+  { easy: "Free", hard: "Free Willy" },
+  { easy: "Cool", hard: "Cool Runnings" },
+  { easy: "Rush", hard: "Rush Hour" },
+  { easy: "Fight", hard: "Fight Club" },
+  { easy: "Sense", hard: "The Sixth Sense" },
+  { easy: "Green", hard: "The Green Mile" },
+  { easy: "Fiction", hard: "Pulp Fiction" },
+  { easy: "Lambs", hard: "The Silence Of The Lambs" },
+  { easy: "List", hard: "Schindlers List" },
+  { easy: "Private", hard: "Saving Private Ryan" },
+  { easy: "Will", hard: "Good Will Hunting" },
+  { easy: "American", hard: "American Beauty" },
+
+  // 2000s
+  { easy: "Chicken", hard: "Chicken Run" },
+  { easy: "Oceans", hard: "Oceans Eleven" },
+  { easy: "Bill", hard: "Kill Bill" },
+  { easy: "Cast", hard: "Cast Away" },
+  { easy: "Groove", hard: "The Emperors New Groove" },
+  { easy: "Stitch", hard: "Lilo And Stitch" },
+  { easy: "Giant", hard: "The Iron Giant" },
+  { easy: "Love", hard: "Love Actually" },
+  { easy: "Devil", hard: "The Devil Wears Prada" },
+  { easy: "Mean", hard: "Mean Girls" },
+  { easy: "Polar", hard: "The Polar Express" },
+  { easy: "Christmas", hard: "A Christmas Carol" },
+  { easy: "Nightmare", hard: "A Nightmare On Elm Street" },
+  { easy: "Treasure", hard: "National Treasure" },
+  { easy: "Golden", hard: "The Golden Compass" },
+  { easy: "Alice", hard: "Alice In Wonderland" },
+  { easy: "Narnia", hard: "The Chronicles Of Narnia" },
+  { easy: "Step", hard: "Step Brothers" },
+  { easy: "Happy", hard: "Happy Feet" },
+
+  // 2010s onward
+  { easy: "Speech", hard: "The Kings Speech" },
+  { easy: "Life", hard: "Life Of Pi" },
+  { easy: "Wolf", hard: "The Wolf Of Wall Street" },
+  { easy: "Land", hard: "La La Land" },
+  { easy: "Water", hard: "The Shape Of Water" },
+  { easy: "Hotel", hard: "The Grand Budapest Hotel" },
+  { easy: "Player", hard: "Ready Player One" },
+  { easy: "Beasts", hard: "Fantastic Beasts" },
+  { easy: "World", hard: "Jurassic World" },
+  { easy: "Inside", hard: "Inside Out" },
+  { easy: "Dory", hard: "Finding Dory" },
+  { easy: "Hero", hard: "Big Hero Six" },
+  { easy: "Boots", hard: "Puss In Boots" },
+  { easy: "Dinosaur", hard: "The Good Dinosaur" },
+  { easy: "Pets", hard: "The Secret Life Of Pets" },
+  { easy: "Red", hard: "Turning Red" },
+  { easy: "Everything", hard: "Everything Everywhere All At Once" },
+  { easy: "Moon", hard: "Killers Of The Flower Moon" },
+  { easy: "Poor", hard: "Poor Things" },
+
+  // Superheroes
+  { easy: "Hulk", hard: "The Incredible Hulk" },
+  { easy: "Thor", hard: "Thor Ragnarok" },
+  { easy: "Avengers", hard: "Avengers Endgame" },
+  { easy: "Steel", hard: "Man Of Steel" },
+  { easy: "Justice", hard: "Justice League" },
+  { easy: "Squad", hard: "Suicide Squad" },
+  { easy: "Four", hard: "Fantastic Four" },
 ]);

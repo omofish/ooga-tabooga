@@ -10,13 +10,14 @@ inspection.
 The remediation below has been applied. Every set now passes the containment
 rule (100%), the cross-product generators are gone, and each hard phrase is a
 curated, real, well-known phrase containing its easy word. The deck shrank from
-7,717 padded cards to **3,473 quality cards** — the intended trade (Rule 1).
+7,717 padded cards to **3,553 quality cards** — the intended trade (Rule 1).
+(Movies was later expanded with more famous films across the decades.)
 
 | Set | Before → After | Contains easy |
 |---|---|---:|
 | Standard | 2509 → 2509 | 100% |
 | Fantasy | 2409 → 193 | 100% |
-| Movies | 154 → 48 | 100% |
+| Movies | 154 → 128 | 100% |
 | Munchies | 1041 → 211 | 100% |
 | Down Under | 54 → 54 | 100% |
 | Sunny Singapore | 122 → 103 | 100% |

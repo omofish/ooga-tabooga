@@ -40,7 +40,7 @@ export const WORD_SETS: WordSet[] = [
     id: "movies",
     name: "Movies",
     emoji: "🎬",
-    blurb: "Famous films from the 90s on",
+    blurb: "Famous films across the decades",
     cards: MOVIE_CARDS,
   },
   {
