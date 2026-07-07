@@ -90,6 +90,33 @@ easy-word duplication lets you refill the count with strong phrases instead.
 
 When in doubt, cut. There is always another strong phrase to add instead.
 
+### 5. The 3-point phrase must be two distinct, real words
+
+`hard` has to read as **two separate words that each stand on their own** and
+keep their own meaning. The phrase is played two words at a time — the poet
+clues one half, then the other — so both halves have to be real, cluable words.
+Cut a phrase if:
+
+- **a half isn't a real word** — `Yester Day`, `Uni Corn`, `Cran Berry`,
+  `Lemon Ade`, `Nut Meg`, `Holi Day` (there is no "yester", "uni", "cran",
+  "ade", "meg", "holi"); or
+- **it's really one word wearing a space** — a fused compound whose halves have
+  lost their meaning, so reading them apart does *not* rebuild the phrase:
+  `Net Work` (a network isn't "work"), `Cup Board` (a cupboard isn't a "board"),
+  `Under Stand`, `Over Come`. Say the two halves out loud: if a fluent speaker
+  wouldn't reassemble the phrase from them, cut it.
+
+| ✅ Two real words that combine | ❌ Fake split / fused word |
+|---|---|
+| `Camp Fire` (a fire at a camp) | `Net Work` (network ≠ net + work) |
+| `Sea Horse` (horse of the sea) | `Yester Day` ("yester" isn't a word) |
+| `Night Owl` (owl of the night) | `Cup Board` ("cubberd", not cup + board) |
+
+Transparent noun+noun compounds like `Water Melon`, `Straw Berry` and
+`Pine Apple` are fine — each half is a real word you can say aloud. This is a
+judgement call (like Rules 3–4) and is only partly auto-checked; the audit
+flags the common non-word fragments but the "fused word" cases need a human eye.
+
 ## Writing a set
 
 1. Pick a theme and brainstorm **easy anchor words** (Fire, Dog, Rice…).
@@ -110,9 +137,11 @@ npx tsx scripts/audit-word-sets.mts
 ```
 
 Reports, per set, how many cards satisfy Rule 2 (containment) and lists the
-failures. It exits non-zero if any set has a containment violation. Rules 3 and
-4 (well-known / not-nonsense) are judgement calls and are **not** auto-checked —
-review those by reading the cards.
+failures. It exits non-zero if any set has a containment violation. It also
+flags, as a warning, any `hard` whose other half is a known non-word fragment
+(Rule 5, e.g. `Yester Day`, `Uni Corn`). Rules 3 and 4 (well-known /
+not-nonsense) and the "fused word" half of Rule 5 are judgement calls and are
+**not** auto-checked — review those by reading the cards.
 
 ## Per-set intent
 
