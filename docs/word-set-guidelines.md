@@ -26,6 +26,12 @@ There is **no target card count**. A tight set of 150 great cards beats 1,500
 padded ones. Never add cards just to hit a number, and never generate filler by
 brute force. Delete a card if you're not sure it's good.
 
+**Easy words may repeat within a set.** The same 1-point word can anchor many
+cards — `Fire → Fire Hose` and `Fire → Wild Fire` are both welcome. This is the
+main way to keep quantity up while holding a high bar: rather than reach for a
+weak phrase, add another strong phrase under a word you already use. Only the
+`hard` phrase must be unique across the set; the `easy` word need not be.
+
 ### 2. The 3-point phrase MUST contain the 1-point word
 
 `hard` must contain `easy` as a **whole word** (case-insensitive). A simple
@@ -64,15 +70,25 @@ a loop. The `cross()` helper in `lib/gen.ts` is therefore **banned** for new
 work; `fromTable()` (curated `[easy, [hard, …]]` lists) is fine because a person
 picks each phrase.
 
-### 4. Phrases should be fairly well known
+### 4. Phrases must be well known — cut anything even 10% a stretch
 
-Aim for phrases a typical adult would recognise. Prefer the common one.
+Aim high. A card only earns its place if a typical adult would recognise the
+phrase **instantly**. The test: if you suspect **even ~10%** that a phrase is a
+stretch — obscure, technical, archaic, awkwardly split, or "technically a word
+but rarely said" — **cut it**. Quality beats quantity every time, and Rule 1's
+easy-word duplication lets you refill the count with strong phrases instead.
 
-- ✅ `Meat Pie`, `Hot Dog`, `Night Owl`, `The Lion King`
-- ⚠️ Obscure regional slang, deep-cut song B-sides, niche jargon — cut them.
+- ✅ `Meat Pie`, `Hot Dog`, `Night Owl`, `Camp Fire`, `The Lion King`
+- ❌ Cut jargon / technical: `Grace Note`, `Under Score`, `Sine Wave`,
+  `Tectonic Plate`, `Cotter Pin`.
+- ❌ Cut niche / obscure: `Salt Lick`, `Rock Pool`, `Sally Port`, `Coal Scuttle`,
+  `Nut Hatch`, `Dew Claw`.
+- ❌ Cut awkward splits of a single word: `Frost Ing`, `Ham String`, `Over Alls`.
 - For themed name sets (Movies/Songs), the title must be genuinely famous **and**
   contain the easy word (Rule 2). If a famous title has no simple word to pull
   out (`Frozen`, `Titanic`), it can't be a card — that's fine, leave it out.
+
+When in doubt, cut. There is always another strong phrase to add instead.
 
 ## Writing a set
 
