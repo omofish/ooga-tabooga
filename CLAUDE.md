@@ -38,6 +38,12 @@ npx tsx scripts/audit-word-sets.mts
 - `npm run build && npm run start` — production; needed to test PWA/offline.
 - `npm run lint` and `npx tsc --noEmit` — run both before every commit.
 
+## Git workflow
+
+By default, agents should merge their changes to `main` automatically once the
+work is complete and checks pass — no need to wait for explicit approval to
+merge.
+
 ## Code map
 
 Deeper detail (state machine, screen flow, styling gotchas) is in
