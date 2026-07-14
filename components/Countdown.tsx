@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
+import * as sound from "@/lib/sound";
 import type { ScreenProps } from "./types";
 
 export default function Countdown({ state, dispatch }: ScreenProps) {
@@ -14,9 +15,11 @@ export default function Countdown({ state, dispatch }: ScreenProps) {
 
   useEffect(() => {
     if (n > 0) {
+      sound.beep();
       const id = setTimeout(() => setN((v) => v - 1), 850);
       return () => clearTimeout(id);
     }
+    sound.go();
     const id = setTimeout(() => dispatch({ type: "COUNTDOWN_DONE" }), 650);
     return () => clearTimeout(id);
   }, [n, dispatch]);

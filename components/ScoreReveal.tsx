@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
+import * as sound from "@/lib/sound";
 import type { ScreenProps } from "./types";
 import Confetti from "./Confetti";
 
@@ -27,6 +28,11 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
+  }, [target]);
+
+  // Sting to match the reveal: a happy arpeggio for a positive turn, else a sigh.
+  useEffect(() => {
+    sound.reveal(target > 0);
   }, [target]);
 
   const counts = useMemo(() => {

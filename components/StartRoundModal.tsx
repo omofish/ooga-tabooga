@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import { randomCaveName } from "@/lib/names";
+import { unlockAudio } from "@/lib/sound";
 import Modal from "./Modal";
 import type { ScreenProps } from "./types";
 
@@ -17,6 +18,9 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
   const c = colorForKey(team.colorKey);
 
   const start = () => {
+    // This tap is the user gesture that lets audio play for the whole turn
+    // (countdown pips, ticks, buzzer), per the browser autoplay policy.
+    unlockAudio();
     if (!active.playerName.trim()) {
       dispatch({ type: "SET_NAME", name: suggested });
     }

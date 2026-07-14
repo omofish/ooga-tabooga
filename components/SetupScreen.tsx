@@ -2,7 +2,9 @@
 
 import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
+import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/words";
+import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";
 
 const TEAM_OPTIONS = Array.from(
@@ -15,7 +17,8 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const total = wordSetById(state.wordSetId).cards.length;
 
   return (
-    <div className="flex flex-1 flex-col gap-7 px-5 pb-10 pt-8">
+    <div className="relative flex flex-1 flex-col gap-7 px-5 pb-10 pt-8">
+      <MuteToggle className="btn btn-cream absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full text-ink" />
       {/* Hero */}
       <header className="text-center">
         <div className="mb-1 text-6xl">🦴</div>
@@ -130,7 +133,10 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
       </section>
 
       <button
-        onClick={() => dispatch({ type: "START_GAME" })}
+        onClick={() => {
+          unlockAudio();
+          dispatch({ type: "START_GAME" });
+        }}
         className="btn btn-team mt-auto py-5 font-display text-2xl"
         style={{
           // Setup uses the first team's colour as a friendly accent.

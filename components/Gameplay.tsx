@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
+import * as sound from "@/lib/sound";
+import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";
 
 export default function Gameplay({ state, dispatch }: ScreenProps) {
@@ -23,6 +25,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const remaining = paused
     ? active?.remainingWhilePaused ?? 0
     : Math.max(0, (active?.endsAt ?? 0) - now);
+  const seconds = Math.ceil(remaining / 1000);
 
   // When the clock runs out, flash a quick "Time's Up!" splash…
   useEffect(() => {
@@ -32,17 +35,26 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     }
   }, [paused, remaining, active]);
 
-  // …then end the turn (→ review) a beat later.
+  // …then sound the buzzer and end the turn (→ review) a beat later.
   useEffect(() => {
     if (!timesUp) return;
+    sound.timeUp();
+    sound.vibrate([90, 50, 90]);
     const id = setTimeout(() => dispatch({ type: "END_TURN" }), 1400);
     return () => clearTimeout(id);
   }, [timesUp, dispatch]);
 
+  // Tick once per second through the final ten seconds (more urgent at the end).
+  // Depending on the whole-second value keeps it to one tick per second even
+  // though the clock re-renders several times a second.
+  useEffect(() => {
+    if (paused || timesUp) return;
+    if (seconds >= 1 && seconds <= 10) sound.tick(seconds <= 3);
+  }, [seconds, paused, timesUp]);
+
   if (!active?.current) return null;
 
   const cur = active.current;
-  const seconds = Math.ceil(remaining / 1000);
   const progress = Math.max(
     0,
     Math.min(1, remaining / (state.turnSeconds * 1000)),
@@ -78,6 +90,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             />
           </div>
         </div>
+        <MuteToggle />
         <button
           onClick={() => dispatch({ type: "PAUSE" })}
           aria-label="Pause"
@@ -95,7 +108,11 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         {/* +1 word / next-word */}
         {!cur.banked1 ? (
           <button
-            onClick={() => dispatch({ type: "PLUS_ONE" })}
+            onClick={() => {
+              sound.bank();
+              sound.vibrate(15);
+              dispatch({ type: "PLUS_ONE" });
+            }}
             className="chunk relative flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           >
             <span className="font-display text-4xl leading-tight text-ink">
@@ -117,7 +134,11 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
 
         {/* +3 phrase */}
         <button
-          onClick={() => dispatch({ type: "PLUS_THREE" })}
+          onClick={() => {
+            sound.big();
+            sound.vibrate([12, 30, 12]);
+            dispatch({ type: "PLUS_THREE" });
+          }}
           className="chunk relative flex min-h-0 flex-[1.25_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
           style={{ background: "#fffdf5" }}
         >
@@ -131,7 +152,14 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       {/* Pass */}
       <footer className="p-4 pt-0">
         <button
-          onClick={() => dispatch({ type: "PASS" })}
+          onClick={() => {
+            // A skip (already banked +1) carries no penalty — no buzzer.
+            if (!cur.banked1) {
+              sound.pass();
+              sound.vibrate(35);
+            }
+            dispatch({ type: "PASS" });
+          }}
           className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 font-display text-xl"
         >
           {cur.banked1 ? (

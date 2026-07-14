@@ -1,11 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import { colorForKey } from "@/lib/colors";
 import { teamSummary } from "@/lib/game";
+import * as sound from "@/lib/sound";
 import type { ScreenProps } from "./types";
 import Confetti from "./Confetti";
 
 export default function GameOver({ state, dispatch }: ScreenProps) {
+  // Fanfare on arrival.
+  useEffect(() => {
+    sound.win();
+  }, []);
+
   const standings = state.teams
     .map((t) => ({ team: t, ...teamSummary(state, t.id) }))
     .sort((a, b) => b.total - a.total);
