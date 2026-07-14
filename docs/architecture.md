@@ -65,6 +65,10 @@ handlers/effects — **the reducer stays pure** (no side effects in `lib/game.ts
   shared `MuteToggle` button on `SetupScreen` and in the `Gameplay` header.
 - `Gameplay` ticks once per second through the final 10 seconds (higher pitch for
   the last 3), then sounds the time-up buzzer.
+- A single document-level `click` listener in `Game.tsx` plays a soft `click()`
+  on **every** button press app-wide (mouse, touch, or keyboard activation);
+  screens with their own richer sounds just layer over it. `MuteToggle` renders a
+  flat inline-SVG speaker (`currentColor`), not an emoji.
 
 ## Word sets
 

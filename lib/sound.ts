@@ -137,6 +137,12 @@ export function vibrate(pattern: number | number[]): void {
 
 // ---- Semantic game sounds ------------------------------------------------
 
+/** Soft, short UI click for any button press, app-wide. */
+export function click(): void {
+  if (muted) return;
+  tone({ freq: 520, duration: 0.025, type: "triangle", gain: 0.07, slideTo: 380 });
+}
+
 /** +1 word banked: a quick bright blip. */
 export function bank(): void {
   if (muted) return;

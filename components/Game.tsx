@@ -7,6 +7,7 @@ import {
   reducer,
   saveState,
 } from "@/lib/game";
+import * as sound from "@/lib/sound";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
 import StartRoundModal from "./StartRoundModal";
@@ -34,6 +35,21 @@ export default function Game() {
   useEffect(() => {
     if (hydrated) saveState(state);
   }, [state, hydrated]);
+
+  // A soft click on every button press, app-wide. One document-level listener
+  // (fires for mouse, touch, and keyboard activation) keeps this out of every
+  // component. Screens with their own richer sounds simply layer over it.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const el = e.target as Element | null;
+      if (el?.closest("button")) {
+        sound.unlockAudio();
+        sound.click();
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
 
   if (!hydrated) {
     return (

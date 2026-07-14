@@ -18,7 +18,11 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
   return (
     <div className="relative flex flex-1 flex-col gap-7 px-5 pb-10 pt-8">
-      <MuteToggle className="btn btn-cream absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full text-ink" />
+      {/* Positioned via a plain wrapper: `.btn` forces position:relative, so the
+          button itself can't be `.absolute`. Right/top match the px-5 gutter. */}
+      <div className="absolute right-5 top-5">
+        <MuteToggle />
+      </div>
       {/* Hero */}
       <header className="text-center">
         <div className="mb-1 text-6xl">🦴</div>
