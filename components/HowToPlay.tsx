@@ -17,7 +17,7 @@ export default function HowToPlay({ className }: { className?: string }) {
           "btn btn-cream flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink"
         }
       >
-        <span className="tbx font-display text-2xl leading-none">?</span>
+        <span className="font-display text-2xl">?</span>
       </button>
 
       {open && (
@@ -76,9 +76,9 @@ export default function HowToPlay({ className }: { className?: string }) {
 
           <button
             onClick={() => setOpen(false)}
-            className="btn btn-ink mt-6 w-full py-4 font-display text-xl"
+            className="btn btn-ink mt-6 w-full py-4 text-xl"
           >
-            <span className="tbx">Got It</span>
+            <span className="font-display">Got It</span>
           </button>
         </Modal>
       )}
@@ -111,9 +111,9 @@ function Chip({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-full border-[3px] border-ink px-3 py-1 font-display text-lg ${className ?? ""}`}
+      className={`inline-flex shrink-0 items-center rounded-full border-[3px] border-ink px-3 py-1 text-lg ${className ?? ""}`}
     >
-      <span className="pts">{children}</span>
+      <span className="font-display">{children}</span>
     </span>
   );
 }

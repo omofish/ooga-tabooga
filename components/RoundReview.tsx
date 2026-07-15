@@ -131,8 +131,8 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
               }}
             >
               <div className="mb-1.5 flex items-center gap-2">
-                <span className="inline-flex items-center rounded-lg border-2 border-ink bg-cream px-2.5 py-1.5 font-display text-lg text-ink">
-                  <span className="pts">{b.label}</span>
+                <span className="inline-flex items-center rounded-lg border-2 border-ink bg-cream px-2.5 py-1.5 text-lg text-ink">
+                  <span className="font-display">{b.label}</span>
                 </span>
                 <span className="text-[11px] font-extrabold uppercase tracking-wide text-ink-soft">
                   {b.key === "hard"
@@ -185,9 +185,9 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
           <button
             onClick={() => dispatch({ type: "ADJUST_SCORE", delta: -1 })}
             aria-label="Subtract one point"
-            className="btn btn-cream flex h-9 w-12 items-center justify-center rounded-xl font-display text-lg"
+            className="btn btn-cream flex h-9 w-12 items-center justify-center rounded-xl text-lg"
           >
-            <span className="tbx">−1</span>
+            <span className="font-display">−1</span>
           </button>
           <span className="w-8 text-center font-display text-lg text-ink">
             {adjust > 0 ? `+${adjust}` : adjust}
@@ -195,9 +195,9 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
           <button
             onClick={() => dispatch({ type: "ADJUST_SCORE", delta: 1 })}
             aria-label="Add one point"
-            className="btn btn-cream flex h-9 w-12 items-center justify-center rounded-xl font-display text-lg"
+            className="btn btn-cream flex h-9 w-12 items-center justify-center rounded-xl text-lg"
           >
-            <span className="tbx">+1</span>
+            <span className="font-display">+1</span>
           </button>
         </div>
 
@@ -206,13 +206,13 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
             <span className="text-[10px] font-extrabold uppercase text-ink-soft">
               Score
             </span>
-            <span className="pts font-display text-2xl text-ink">{total}</span>
+            <span className="font-display text-2xl text-ink">{total}</span>
           </div>
           <button
             onClick={() => dispatch({ type: "CONFIRM_REVIEW" })}
-            className="btn btn-team flex-1 py-4 font-display text-xl"
+            className="btn btn-team flex-1 py-4 text-xl"
           >
-            Bank Score ✓
+            <span className="font-display">Bank Score ✓</span>
           </button>
         </div>
       </footer>

@@ -74,7 +74,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         <div className="flex-1">
           <div className="flex items-baseline gap-2">
             <span
-              className={`font-display text-3xl leading-none ${low ? "animate-flash origin-left" : ""}`}
+              className={`font-display text-3xl ${low ? "animate-flash origin-left" : ""}`}
             >
               {seconds}
             </span>
@@ -125,7 +125,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             onClick={() => dispatch({ type: "NEXT_WORD" })}
             className="btn btn-team flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
           >
-            <span className="tbx font-display text-3xl">Next Word ▶</span>
+            <span className="font-display text-3xl">Next Word ▶</span>
             <span className="text-xs font-bold opacity-80">
               ✅ “{cur.card.easy}” in the bag · +1
             </span>
@@ -160,15 +160,15 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             }
             dispatch({ type: "PASS" });
           }}
-          className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 font-display text-xl"
+          className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 text-xl"
         >
           {cur.banked1 ? (
-            <span className="tbx">Skip ▶</span>
+            <span className="font-display">Skip ▶</span>
           ) : (
             <>
-              <span className="tbx">Pass</span>
+              <span className="font-display">Pass</span>
               <span className="inline-flex items-center rounded-full bg-cream/20 px-2.5 py-1 text-base">
-                <span className="pts">−1</span>
+                <span className="font-display">−1</span>
               </span>
             </>
           )}
@@ -189,21 +189,21 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           <div className="flex w-full max-w-xs flex-col gap-3">
             <button
               onClick={() => dispatch({ type: "RESUME" })}
-              className="btn btn-cream py-4 font-display text-xl"
+              className="btn btn-cream py-4 text-xl"
             >
-              ▶ Resume
+              <span className="font-display">▶ Resume</span>
             </button>
             <button
               onClick={() => dispatch({ type: "RESTART_TURN" })}
-              className="btn btn-cream py-3 font-display text-lg"
+              className="btn btn-cream py-3 text-lg"
             >
-              Restart Round 🔄
+              <span className="font-display">Restart Round 🔄</span>
             </button>
             <button
               onClick={() => dispatch({ type: "END_TURN" })}
-              className="btn btn-ink py-3 font-display text-lg"
+              className="btn btn-ink py-3 text-lg"
             >
-              Give Up 🏳️
+              <span className="font-display">Give Up 🏳️</span>
             </button>
           </div>
         </div>
@@ -234,9 +234,9 @@ function PointChip({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-full border-[3px] border-ink px-5 py-2.5 font-display text-3xl ${className ?? ""}`}
+      className={`inline-flex shrink-0 items-center rounded-full border-[3px] border-ink px-5 py-2.5 text-3xl ${className ?? ""}`}
     >
-      <span className="pts">{label}</span>
+      <span className="font-display">{label}</span>
     </span>
   );
 }

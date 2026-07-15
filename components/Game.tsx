@@ -54,7 +54,7 @@ export default function Game() {
   if (!hydrated) {
     return (
       <main className="flex min-h-[100svh] items-center justify-center">
-        <div className="font-display animate-wiggle text-5xl">🦴</div>
+        <div className="animate-wiggle text-5xl">🦴</div>
       </main>
     );
   }

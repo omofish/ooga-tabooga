@@ -88,15 +88,15 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
       <div className="relative z-10 mt-4 flex flex-col gap-3">
         <button
           onClick={() => dispatch({ type: "PLAY_AGAIN" })}
-          className="btn btn-ink py-4 font-display text-xl"
+          className="btn btn-ink py-4 text-xl"
         >
-          Play Again — Same Tribes 🔁
+          <span className="font-display">Play Again — Same Tribes 🔁</span>
         </button>
         <button
           onClick={() => dispatch({ type: "RETURN_TO_START" })}
-          className="btn btn-cream py-3 font-display text-lg"
+          className="btn btn-cream py-3 text-lg"
         >
-          New Game 🏠
+          <span className="font-display">New Game 🏠</span>
         </button>
       </div>
     </div>

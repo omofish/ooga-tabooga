@@ -146,14 +146,14 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           unlockAudio();
           dispatch({ type: "START_GAME" });
         }}
-        className="btn btn-team mt-auto py-5 font-display text-2xl"
+        className="btn btn-team mt-auto py-5 text-2xl"
         style={{
           // Setup uses the first team's colour as a friendly accent.
           ["--team-base" as string]: TEAM_COLORS[0].base,
           ["--team-on" as string]: TEAM_COLORS[0].onBase,
         }}
       >
-        Start Game 🔥
+        <span className="font-display">Start Game 🔥</span>
       </button>
     </div>
   );

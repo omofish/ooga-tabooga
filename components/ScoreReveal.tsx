@@ -76,9 +76,9 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
 
       <button
         onClick={() => dispatch({ type: "REVEAL_DONE" })}
-        className="btn btn-cream relative z-10 mt-10 w-full max-w-xs py-4 font-display text-xl"
+        className="btn btn-cream relative z-10 mt-10 w-full max-w-xs py-4 text-xl"
       >
-        Back to Board ▶
+        <span className="font-display">Back to Board ▶</span>
       </button>
     </div>
   );
