@@ -50,11 +50,12 @@ saved to `localStorage` on every change.
 - Chunky "sticker" aesthetic: `.chunk` / `.btn`, hard drop-shadows, and per-team
   `--team-*` CSS vars applied with `colorVars()` from `lib/colors.ts`.
 - **Flat icons, not emoji, for buttons/controls.** A control's icon must be a
-  flat inline-SVG (or shaped `<span>`) using `currentColor`, sized in `em` /
-  `text-*` — see `PauseIcon` (`Gameplay.tsx`), `MuteToggle`'s speaker, the
-  `HowToPlay` "?", and the `Modal` close "✕". Emoji render inconsistently across
-  platforms and ignore theme color, so never use an emoji glyph as a control's
-  icon. (Decorative emoji inside text labels/headings/hints are fine.)
+  flat inline-SVG, a shaped `<span>`, or a display-font glyph — all using
+  `currentColor` and sized in `em` / `text-*`. See `PauseIcon` (`Gameplay.tsx`),
+  `MuteToggle`'s speaker SVG, the `Modal` close "✕", and `HowToPlay`'s display-
+  font "?". Emoji render inconsistently across platforms and ignore theme color,
+  so never use an emoji glyph as a control's icon. (Decorative emoji inside text
+  labels/headings/hints are fine.)
 
 ## Sound & haptics
 

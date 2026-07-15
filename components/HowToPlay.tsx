@@ -17,23 +17,23 @@ export default function HowToPlay({ className }: { className?: string }) {
           "btn btn-cream flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink"
         }
       >
-        <HelpIcon className="h-5 w-5" />
+        <span className="tbx font-display text-2xl leading-none">?</span>
       </button>
 
       {open && (
         <Modal onClose={() => setOpen(false)}>
           <div className="text-center">
             <div className="animate-wiggle text-5xl">🦴</div>
-            <h2 className="mt-1 font-display text-3xl text-ink">How to Play</h2>
+            <h2 className="mt-1 font-display text-3xl text-ink">How Play Game</h2>
           </div>
 
           {/* Rules scroll within a capped height so the card never overflows a
               small phone; the sticky Got-It button below stays reachable. */}
-          <div className="mt-4 max-h-[58vh] space-y-4 overflow-y-auto pr-1">
-            <Rule title="Few word">
+          <div className="mt-4 max-h-[58vh] space-y-5 overflow-y-auto pr-1">
+            <p className="text-sm font-bold leading-relaxed text-ink-soft">
               One player hold phone, is chief. Chief grunt clues. Tribe guess
               word on the card. Bad talk get bonk. Tribe change when time end.
-            </Rule>
+            </p>
 
             <Rule title="Talk way">
               Clue with one-syllable words only. “Big wet sky drop” — fine.
@@ -90,7 +90,7 @@ function Rule({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
       <RuleTitle>{title}</RuleTitle>
-      <p className="mt-1 text-sm font-bold leading-snug text-ink-soft">
+      <p className="mt-1.5 text-sm font-bold leading-relaxed text-ink-soft">
         {children}
       </p>
     </div>
@@ -115,25 +115,5 @@ function Chip({
     >
       <span className="pts">{children}</span>
     </span>
-  );
-}
-
-/** Flat question-mark glyph (currentColor) — matches PauseIcon / MuteToggle,
-   not an emoji. */
-function HelpIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      focusable="false"
-    >
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" strokeWidth="2.2" />
-      <path d="M12 17h.01" strokeWidth="2.4" />
-    </svg>
   );
 }
