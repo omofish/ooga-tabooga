@@ -16,8 +16,8 @@ export type WordSet = {
   cards: WordCard[];
 };
 
-// In Poetry for Neanderthals the "caveman" twist is the *mechanic* — you may
-// only clue using single-syllable words — not the cards. Each card has a simple
+// The "caveman" twist is the *mechanic* — you may only clue using
+// single-syllable words — not the cards. Each card has a simple
 // one-point word and a harder three-point term. Ordering here is the order
 // shown on the setup screen.
 

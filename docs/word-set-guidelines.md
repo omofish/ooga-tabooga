@@ -16,7 +16,7 @@ Each card is one `WordCard`:
 - **`easy`** — the **1-point** word. Simple, guessable on its own.
 - **`hard`** — the **3-point** phrase. A harder, more specific answer.
 
-During a turn the poet tries for the 3-pointer; the 1-pointer is the fallback.
+During a turn the clue giver tries for the 3-pointer; the 1-pointer is the fallback.
 
 ## The rules
 
@@ -45,7 +45,7 @@ inflection of the same root (plural/possessive) is acceptable.
 
 This is the one rule a machine can check — see [the audit](#automated-audit).
 It exists so the 1-point fallback is always *inside* the 3-point answer: the
-poet who gets teammates to "Camp ___" after they've said "Fire" has a clean path
+clue giver who gets teammates to "Camp ___" after they've said "Fire" has a clean path
 to the bonus. If the easy word isn't in the phrase, the two are unrelated and
 the card feels broken.
 
@@ -93,7 +93,7 @@ When in doubt, cut. There is always another strong phrase to add instead.
 ### 5. The 3-point phrase must be two distinct, real words
 
 `hard` has to read as **two separate words that each stand on their own** and
-keep their own meaning. The phrase is played two words at a time — the poet
+keep their own meaning. The phrase is played two words at a time — the clue giver
 clues one half, then the other — so both halves have to be real, cluable words.
 Cut a phrase if:
 

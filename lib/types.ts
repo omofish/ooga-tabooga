@@ -1,4 +1,4 @@
-// Core domain types for Poetry for Neanderthals
+// Core domain types for Ooga Tabooga
 
 export type Phase =
   | "setup" // choosing teams + word set

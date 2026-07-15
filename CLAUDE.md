@@ -2,19 +2,20 @@
 
 # Ooga Tabooga
 
-A mobile-first party word-guessing game — a clone of **Poetry for Neanderthals**.
-Single-page Next.js 16 (App Router) app; **all logic is client-side**, no backend.
+A mobile-first party word-guessing game built around a caveman one-syllable-clue
+gimmick. Single-page Next.js 16 (App Router) app; **all logic is client-side**,
+no backend.
 
 ## How the game works
 
-Teams take turns. One player (the "poet") clues their team using **only
+Teams take turns. One player (the "clue giver") clues their team using **only
 one-syllable words** — that caveman constraint is the whole gimmick. Each card
 has two answers:
 
 - **easy** word → **+1** (simple, the fallback)
 - **hard** phrase → **+3** (harder, and it always *contains* the easy word)
 
-On a timed turn (60/90/120s) the poet gets the team to guess as many cards as
+On a timed turn (60/90/120s) the clue giver gets the team to guess as many cards as
 they can: nail the hard phrase for +3, settle for the easy word for +1, or
 pass/skip (−1). Highest total across rounds wins.
 
