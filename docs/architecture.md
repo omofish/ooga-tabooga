@@ -33,7 +33,8 @@ saved to `localStorage` on every change.
 | gameover | `GameOver` | winner / standings |
 
 `Modal` is the standard dialog — reuse it; never hand-roll an overlay or use
-`window.confirm`.
+`window.confirm`. `HowToPlay` (a flat "?" button that opens the rules in a
+`Modal`) sits in the top-left of `SetupScreen`, mirroring the `MuteToggle`.
 
 ## Styling (Tailwind v4 in `app/globals.css`) — gotchas
 
@@ -48,6 +49,12 @@ saved to `localStorage` on every change.
   their round tops clip.
 - Chunky "sticker" aesthetic: `.chunk` / `.btn`, hard drop-shadows, and per-team
   `--team-*` CSS vars applied with `colorVars()` from `lib/colors.ts`.
+- **Flat icons, not emoji, for buttons/controls.** A control's icon must be a
+  flat inline-SVG (or shaped `<span>`) using `currentColor`, sized in `em` /
+  `text-*` — see `PauseIcon` (`Gameplay.tsx`), `MuteToggle`'s speaker, the
+  `HowToPlay` "?", and the `Modal` close "✕". Emoji render inconsistently across
+  platforms and ignore theme color, so never use an emoji glyph as a control's
+  icon. (Decorative emoji inside text labels/headings/hints are fine.)
 
 ## Sound & haptics
 

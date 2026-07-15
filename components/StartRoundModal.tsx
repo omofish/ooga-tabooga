@@ -9,7 +9,7 @@ import type { ScreenProps } from "./types";
 
 export default function StartRoundModal({ state, dispatch }: ScreenProps) {
   const active = state.active;
-  // A suggested caveman name shown as the greyed placeholder; if the poet
+  // A suggested caveman name shown as the greyed placeholder; if the chief
   // leaves the field blank we use this exact name, so it matches what they saw.
   const [suggested] = useState(randomCaveName);
   if (!active) return null;
@@ -40,7 +40,7 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
       </div>
 
       <label className="mt-5 block text-sm font-extrabold text-ink-soft">
-        Who be the poet?
+        Who be the chief?
       </label>
       <div className="mt-1.5 flex gap-2">
         <input

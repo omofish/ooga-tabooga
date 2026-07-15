@@ -4,6 +4,7 @@ import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/words";
+import HowToPlay from "./HowToPlay";
 import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";
 
@@ -18,8 +19,12 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
   return (
     <div className="relative flex flex-1 flex-col gap-7 px-5 pb-10 pt-8">
-      {/* Positioned via a plain wrapper: `.btn` forces position:relative, so the
-          button itself can't be `.absolute`. Right/top match the px-5 gutter. */}
+      {/* Positioned via plain wrappers: `.btn` forces position:relative, so the
+          buttons themselves can't be `.absolute`. Left/right/top match the px-5
+          gutter — help on the left, mute mirrored on the right. */}
+      <div className="absolute left-5 top-5">
+        <HowToPlay />
+      </div>
       <div className="absolute right-5 top-5">
         <MuteToggle />
       </div>
