@@ -23,7 +23,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
       {/* Header */}
       <header className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl leading-none text-ink">
+          <h1 className="font-display text-2xl text-ink">
             Scoreboard
           </h1>
           <p className="text-xs font-bold text-ink-soft">
@@ -50,15 +50,15 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               onClick={() => setQuitOpen(false)}
-              className="btn btn-cream py-3 font-display text-lg"
+              className="btn btn-cream py-3 text-lg"
             >
-              Keep Playing
+              <span className="font-display">Keep Playing</span>
             </button>
             <button
               onClick={() => dispatch({ type: "RETURN_TO_START" })}
-              className="btn btn-ink py-3 font-display text-lg"
+              className="btn btn-ink py-3 text-lg"
             >
-              Quit
+              <span className="font-display">Quit</span>
             </button>
           </div>
         </Modal>
@@ -103,8 +103,8 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
             className="grid items-stretch border-t-[3px] border-ink"
             style={{ gridTemplateColumns: cols }}
           >
-            <div className="flex items-center justify-center bg-ink/5 font-display text-sm text-ink-soft">
-              {ri + 1}
+            <div className="flex items-center justify-center bg-ink/5 text-sm text-ink-soft">
+              <span className="font-display">{ri + 1}</span>
             </div>
             {teams.map((t) => {
               const c = colorForKey(t.colorKey);
@@ -123,7 +123,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                   {result ? (
                     <div className="flex flex-col items-center leading-none">
                       <span
-                        className="pts font-display text-2xl"
+                        className="font-display text-2xl"
                         style={{ color: c.deep }}
                       >
                         {result.score}
@@ -172,7 +172,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                 key={t.id}
                 className="flex items-center justify-center border-l-[3px] border-cream/20 py-2"
               >
-                <span className="pts font-display text-xl" style={{ color: c.base }}>
+                <span className="font-display text-xl" style={{ color: c.base }}>
                   {total}
                 </span>
               </div>
@@ -191,15 +191,15 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => dispatch({ type: "ADD_ROUND" })}
-                className="btn btn-cream py-4 font-display text-lg"
+                className="btn btn-cream py-4 text-lg"
               >
-                Next Round ▶
+                <span className="font-display">Next Round ▶</span>
               </button>
               <button
                 onClick={() => dispatch({ type: "END_GAME" })}
-                className="btn btn-ink py-4 font-display text-lg"
+                className="btn btn-ink py-4 text-lg"
               >
-                End Game 🏆
+                <span className="font-display">End Game 🏆</span>
               </button>
             </div>
           </div>

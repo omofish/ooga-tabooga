@@ -42,11 +42,17 @@ saved to `localStorage` on every change.
   `position: relative`, so `.btn.absolute` is NOT absolutely positioned — a
   positioned button must not use `.btn`. Watch for this with any property a
   custom class also sets.
-- **Display font (Luckiest Guy) sits high in its box.** `.font-display` is
-  centered via `text-box-trim`, but that can't reach a bare text node that is a
-  direct child of a flex button — wrap such text in `.tbx`, and number chips in
-  `.pts`. Opt giant numerals (countdown/reveal) out with `.no-text-trim`, or
-  their round tops clip.
+- **Display font (Luckiest Guy) sits ~0.145em high in its box** — it's all-caps
+  with no descenders but keeps a big phantom descent. `.font-display` is the
+  single fix and must go on the element that *directly* wraps the text run: a
+  heading, or a `<span>` around a button label — **never a `.btn` or flex/grid
+  container** (a `.btn` carries its own `:active` transform and its box/shadow
+  must not move, and the trim can't reach a bare text node inside a flex box).
+  So a button is `<button class="btn …"><span class="font-display">Label</span></button>`,
+  not `font-display` on the button. The class self-corrects in every engine:
+  `text-box-trim` where supported, an `inline-block` + `translateY(0.14em)` nudge
+  where not (Firefox, Samsung Internet). Opt giant numerals (countdown/reveal)
+  out with `.no-text-trim`, or their round tops clip.
 - Chunky "sticker" aesthetic: `.chunk` / `.btn`, hard drop-shadows, and per-team
   `--team-*` CSS vars applied with `colorVars()` from `lib/colors.ts`.
 - **Flat icons, not emoji, for buttons/controls.** A control's icon must be a

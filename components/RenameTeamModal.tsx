@@ -109,9 +109,9 @@ export default function RenameTeamModal({
 
       <button
         onClick={save}
-        className="btn btn-team mt-6 w-full py-4 font-display text-xl"
+        className="btn btn-team mt-6 w-full py-4 text-xl"
       >
-        Save ✓
+        <span className="font-display">Save ✓</span>
       </button>
     </Modal>
   );

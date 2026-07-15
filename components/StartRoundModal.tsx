@@ -62,9 +62,9 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
 
       <button
         onClick={start}
-        className="btn btn-team mt-6 w-full py-4 font-display text-xl"
+        className="btn btn-team mt-6 w-full py-4 text-xl"
       >
-        Start Round ▶
+        <span className="font-display">Start Round ▶</span>
       </button>
     </Modal>
   );
