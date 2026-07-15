@@ -24,7 +24,7 @@ export default function HowToPlay({ className }: { className?: string }) {
         <Modal onClose={() => setOpen(false)}>
           <div className="text-center">
             <div className="animate-wiggle text-5xl">🦴</div>
-            <h2 className="mt-1 font-display text-3xl text-ink">How Play Game</h2>
+            <h2 className="mt-2 font-display text-3xl text-ink">How Play Game</h2>
           </div>
 
           {/* Rules scroll within a capped height so the card never overflows a

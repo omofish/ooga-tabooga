@@ -30,7 +30,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
       </div>
       {/* Hero */}
       <header className="text-center">
-        <div className="mb-1 text-6xl">🦴</div>
+        <div className="mb-3 text-6xl">🦴</div>
         <h1 className="font-display text-shadow-pop text-5xl leading-[1.05] text-ink">
           Ooga
           <span className="mt-1 block">Tabooga</span>

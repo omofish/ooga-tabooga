@@ -27,7 +27,7 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
       <Confetti />
 
       <header className="relative z-10 text-center">
-        <div className="animate-wiggle text-5xl">🏆</div>
+        <div className="animate-wiggle mb-2 text-5xl">🏆</div>
         {isTie ? (
           <h1 className="font-display text-shadow-pop text-3xl text-ink">
             It&apos;s a Tie!
