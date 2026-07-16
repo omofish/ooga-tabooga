@@ -163,17 +163,60 @@ export function pass(): void {
 }
 
 /**
- * Clock tick for the final ten seconds — one per second. `urgent` (the last few
- * seconds) makes it higher and a touch louder.
+ * Clock tick, one per second. Pass the seconds remaining: above ten it's a calm,
+ * quiet clock tick; through the final ten it escalates — rising in pitch, volume
+ * and punch as the number falls — and the last three add a frantic double-tick.
  */
-export function tick(urgent = false): void {
+export function tick(secondsLeft: number): void {
   if (muted) return;
-  tone({
-    freq: urgent ? 1500 : 1050,
-    duration: urgent ? 0.05 : 0.035,
-    type: "square",
-    gain: urgent ? 0.12 : 0.08,
-  });
+
+  // Plenty of time left: a soft, low, ambient tick.
+  if (secondsLeft > 10) {
+    tone({ freq: 900, duration: 0.03, type: "square", gain: 0.05 });
+    return;
+  }
+
+  // Final ten: urgency climbs from ~0.1 (at 10s) to 1.0 (at 1s).
+  const urgency = (11 - secondsLeft) / 10;
+  const freq = 1050 + urgency * 900; // ~1140 → 1950 Hz
+  const gain = 0.09 + urgency * 0.1; // ~0.10 → 0.19
+  tone({ freq, duration: 0.05, type: "square", gain });
+
+  // The very last few seconds get a second, higher blip — a frantic double-tick.
+  if (secondsLeft <= 3) {
+    tone({
+      freq: freq * 1.35,
+      duration: 0.045,
+      type: "square",
+      gain: gain * 0.8,
+      startAt: 0.07,
+    });
+  }
+}
+
+/**
+ * Spoken milestone announcement ("30 seconds…"). Uses the Web Speech API — no
+ * audio asset, works offline with the system voice — preceded by a short chime
+ * so it lands even where speech synthesis is unavailable. Gated by the mute flag.
+ */
+export function announce(secondsLeft: number): void {
+  if (muted || typeof window === "undefined") return;
+
+  // Two-note "attention" chime, so there's always an audible marker.
+  tone({ freq: 784, duration: 0.12, type: "triangle", gain: 0.14 });
+  tone({ freq: 1047, duration: 0.16, type: "triangle", gain: 0.14, startAt: 0.11 });
+
+  try {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const u = new SpeechSynthesisUtterance(`${secondsLeft} seconds`);
+    u.rate = 1;
+    u.volume = 1;
+    synth.cancel(); // drop any still-queued announcement
+    synth.speak(u);
+  } catch {
+    // No speech synthesis — the chime above still played.
+  }
 }
 
 /** Time's up: a harsh two-blast buzzer. */
