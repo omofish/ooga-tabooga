@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { build } from "./gen";
 
 // Songs: the hard 3-point answer is a famous song (1990s onward). The easy

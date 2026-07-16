@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { build } from "./gen";
 
 // Movies: the hard 3-point answer is a famous film, from all-time classics to

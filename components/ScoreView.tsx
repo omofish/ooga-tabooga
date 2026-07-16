@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import { roundComplete, teamSummary } from "@/lib/game";
-import { wordSetById } from "@/lib/words";
+import { wordSetById } from "@/lib/word-sets";
 import Modal from "./Modal";
 import RenameTeamModal from "./RenameTeamModal";
 import type { ScreenProps } from "./types";

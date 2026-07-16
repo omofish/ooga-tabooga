@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { fromTable } from "./gen";
 
 // Munchies: food, drink and tasty treats. Curated real dishes only — each hard

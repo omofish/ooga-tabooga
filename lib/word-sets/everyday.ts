@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { fromTable, type Entry } from "./gen";
 
 // The default "Standard" deck. Built from a curated table of base words, each

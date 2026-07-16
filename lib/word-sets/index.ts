@@ -1,9 +1,9 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { EVERYDAY_CARDS } from "./everyday";
 import { FANTASY_CARDS } from "./fantasy";
 import { MOVIE_CARDS } from "./movies";
 import { MUNCHIES_CARDS } from "./munchies";
-import { DOWN_UNDER_CARDS } from "./downunder";
+import { DOWN_UNDER_CARDS } from "./down-under";
 import { SINGAPORE_CARDS } from "./singapore";
 import { SONG_CARDS } from "./songs";
 import { ANIMAL_CARDS } from "./animals";

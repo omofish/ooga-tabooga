@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { fromTable } from "./gen";
 
 // Animals: the easy 1-point word is an animal; the hard 3-point phrase is a

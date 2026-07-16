@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { build } from "./gen";
 
 // Sunny Singapore: local food, places, culture and slang. The easy 1-point word

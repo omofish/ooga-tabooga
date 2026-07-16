@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 
 /** A compact source row: one easy word and the hard phrases that contain it. */
 export type Entry = [easy: string, hards: string[]];

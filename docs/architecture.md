@@ -86,10 +86,11 @@ handlers/effects — **the reducer stays pure** (no side effects in `lib/game.ts
 
 ## Word sets
 
-`lib/words.ts` registers every set in `WORD_SETS`. Each set is `lib/<name>.ts`
-exporting `<NAME>_CARDS`, built from a compact table through `fromTable()`/
-`build()` in `lib/gen.ts`, which **enforces the containment rule** (hard phrase
-must contain the easy word) and dedupes. Authoring rules and the audit script:
+Everything word-set lives under `lib/word-sets/`. `index.ts` registers every set
+in `WORD_SETS`. Each set is `lib/word-sets/<name>.ts` exporting `<NAME>_CARDS`,
+built from a compact table through `fromTable()`/`build()` in
+`lib/word-sets/gen.ts`, which **enforces the containment rule** (hard phrase must
+contain the easy word) and dedupes. Authoring rules and the audit script:
 [`word-set-guidelines.md`](word-set-guidelines.md).
 
 ## PWA / offline

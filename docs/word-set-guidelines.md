@@ -1,9 +1,9 @@
 # Word-set guidelines
 
-How to write and review the word sets in `lib/` (`everyday.ts`, `fantasy.ts`,
-`movies.ts`, `munchies.ts`, `downunder.ts`, `singapore.ts`, `songs.ts`,
-`animals.ts`). These rules exist so every card plays cleanly in a party game
-where clues can only use one-syllable words.
+How to write and review the word sets in `lib/word-sets/` (`everyday.ts`,
+`fantasy.ts`, `movies.ts`, `munchies.ts`, `down-under.ts`, `singapore.ts`,
+`songs.ts`, `animals.ts`). These rules exist so every card plays cleanly in a
+party game where clues can only use one-syllable words.
 
 ## The card model
 
@@ -66,9 +66,9 @@ modifier onto a noun.
 adjective list by a noun list ("Ancient/Cursed/Frost × Dragon/Sword/Angel")
 produces grammatical but meaningless combinations and directly violates this
 rule. Every card should be chosen by a human (or checked by one), not emitted by
-a loop. The `cross()` helper in `lib/gen.ts` is therefore **banned** for new
-work; `fromTable()` (curated `[easy, [hard, …]]` lists) is fine because a person
-picks each phrase.
+a loop. Cross-product generators are therefore **banned**; `fromTable()` in
+`lib/word-sets/gen.ts` (curated `[easy, [hard, …]]` lists) is fine because a
+person picks each phrase.
 
 ### 4. Phrases must be well known — cut anything even 10% a stretch
 

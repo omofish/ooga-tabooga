@@ -25,9 +25,9 @@ Adding or editing a word set is the main reason to touch this repo. The card
 rules are **strict and auto-audited** — always **read
 [`docs/word-set-guidelines.md`](docs/word-set-guidelines.md) first**.
 
-To add a set: create `lib/<name>.ts` exporting `<NAME>_CARDS` (built via
-`fromTable()`/`build()` from `lib/gen.ts`), then register it in `WORD_SETS` in
-`lib/words.ts`. Then run the audit and fix every failure:
+To add a set: create `lib/word-sets/<name>.ts` exporting `<NAME>_CARDS` (built
+via `fromTable()`/`build()` from `lib/word-sets/gen.ts`), then register it in
+`WORD_SETS` in `lib/word-sets/index.ts`. Then run the audit and fix every failure:
 
 ```bash
 npx tsx scripts/audit-word-sets.mts
@@ -54,7 +54,7 @@ Deeper detail (state machine, screen flow, styling gotchas) is in
 - `components/` — one component per screen; `Game.tsx` routes by `state.phase`; `Modal` is the shared dialog.
 - `lib/game.ts` — the reducer + all game logic + localStorage persistence (the brain).
 - `lib/{colors,names,tribes}.ts` — team themes and default player/tribe names.
-- `lib/words.ts` + `lib/<set>.ts` + `lib/gen.ts` — word-set registry, the sets, and build helpers.
+- `lib/word-sets/` — `index.ts` (the `WORD_SETS` registry), `<set>.ts` (the sets), and `gen.ts` (build helpers).
 - `docs/` — this documentation.
 
 ## Keep these docs current

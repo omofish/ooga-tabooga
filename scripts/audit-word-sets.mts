@@ -9,8 +9,8 @@
  *   case-insensitive). "Well-known" and "not-nonsense" are judgement calls and
  *   are only flagged heuristically (single-word hards, easy===hard).
  */
-import { WORD_SETS } from "../lib/words.ts";
-import { containsEasy } from "../lib/gen.ts";
+import { WORD_SETS } from "../lib/word-sets/index.ts";
+import { containsEasy } from "../lib/word-sets/gen.ts";
 import type { WordCard } from "../lib/types.ts";
 
 /**

@@ -3,7 +3,7 @@
 import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
 import { unlockAudio } from "@/lib/sound";
-import { WORD_SETS, wordSetById } from "@/lib/words";
+import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import HowToPlay from "./HowToPlay";
 import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";

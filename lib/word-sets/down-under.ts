@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { build } from "./gen";
 
 // Down Under: Aussie animals, servo snacks, slang and landmarks. Each easy word

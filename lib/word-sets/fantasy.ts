@@ -1,4 +1,4 @@
-import type { WordCard } from "./types";
+import type { WordCard } from "../types";
 import { fromTable } from "./gen";
 
 // Fantasy: magic, dragons, elves, medieval. Curated real phrases only — each

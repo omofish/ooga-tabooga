@@ -11,7 +11,7 @@ import {
 } from "./types";
 import { TEAM_COLORS } from "./colors";
 import { randomCaveName } from "./names";
-import { WORD_SETS, wordSetById } from "./words";
+import { WORD_SETS, wordSetById } from "./word-sets";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
 export const STATE_VERSION = 4;
