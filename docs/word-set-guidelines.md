@@ -1,9 +1,9 @@
 # Word-set guidelines
 
 How to write and review the word sets in `lib/word-sets/` (`everyday.ts`,
-`fantasy.ts`, `movies.ts`, `munchies.ts`, `down-under.ts`, `singapore.ts`,
-`songs.ts`, `animals.ts`). These rules exist so every card plays cleanly in a
-party game where clues can only use one-syllable words.
+`fantasy.ts`, `movies.ts`, `munchies.ts`, `singapore.ts`, `animals.ts`). These
+rules exist so every card plays cleanly in a party game where clues can only use
+one-syllable words.
 
 ## The card model
 
@@ -13,7 +13,8 @@ Each card is one `WordCard`:
 { easy: "Fire", hard: "Camp Fire" }
 ```
 
-- **`easy`** — the **1-point** word. Simple, guessable on its own.
+- **`easy`** — the **1-point** word. Simple, guessable on its own, and ideally a
+  **concrete noun** (see Rule 6).
 - **`hard`** — the **3-point** phrase. A harder, more specific answer.
 
 During a turn the clue giver tries for the 3-pointer; the 1-pointer is the fallback.
@@ -31,6 +32,11 @@ cards — `Fire → Fire Hose` and `Fire → Wild Fire` are both welcome. This i
 main way to keep quantity up while holding a high bar: rather than reach for a
 weak phrase, add another strong phrase under a word you already use. Only the
 `hard` phrase must be unique across the set; the `easy` word need not be.
+
+Those repeats are a **variety pool, not repetition in play**: a single game
+deals **at most one card per base word** (see Rule 7), so listing five `Fire`
+phrases doesn't mean players see "Fire" five times in one game — it means a
+different `Fire` phrase can surface across different games.
 
 ### 2. The 3-point phrase MUST contain the 1-point word
 
@@ -84,7 +90,7 @@ easy-word duplication lets you refill the count with strong phrases instead.
 - ❌ Cut niche / obscure: `Salt Lick`, `Rock Pool`, `Sally Port`, `Coal Scuttle`,
   `Nut Hatch`, `Dew Claw`.
 - ❌ Cut awkward splits of a single word: `Frost Ing`, `Ham String`, `Over Alls`.
-- For themed name sets (Movies/Songs), the title must be genuinely famous **and**
+- For themed name sets (e.g. Movies), the title must be genuinely famous **and**
   contain the easy word (Rule 2). If a famous title has no simple word to pull
   out (`Frozen`, `Titanic`), it can't be a card — that's fine, leave it out.
 
@@ -117,16 +123,50 @@ Transparent noun+noun compounds like `Water Melon`, `Straw Berry` and
 judgement call (like Rules 3–4) and is only partly auto-checked; the audit
 flags the common non-word fragments but the "fused word" cases need a human eye.
 
+### 6. The 1-point base word should be a noun
+
+Strongly prefer **concrete nouns** for `easy`. The base word is the fallback a
+clue giver falls back to under time pressure, and nouns are the easiest thing to
+get a team to shout. Function words make miserable clues — `Over`, `Up`, `Out`,
+`Under`, `Down` are impossible to act out or hint at with one-syllable words, so
+a card built on them just stalls.
+
+- ✅ nouns: `Fire`, `Dog`, `Rice`, `Star`, `Bear`.
+- ❌ prepositions / particles / adverbs / pronouns: `Over`, `Up`, `Out`,
+  `Under`, `Down`, `Off`, `Very`, `Just`.
+- ⚠️ verbs and bare adjectives are weaker too (`Run`, `Old`) — allowed only when
+  the word is also a strong, guessable thing in its own right (colours like
+  `Red`/`White` are fine); otherwise pick a noun anchor instead.
+
+The audit warns on base words that are known function words (the ❌ list); the
+verb/adjective cases are a judgement call and need a human eye.
+
+### 7. A base word never repeats within a game
+
+Even though a set may list many phrases under one anchor (Rule 1), the deck
+builder (`buildDeck` in `lib/game.ts`) deals **only the first card it reaches
+for each base word**, so **the same +1 word never comes up twice in a single
+game**. Unseen cards are preferred, so which phrase represents a base word can
+differ game to game. Two consequences for authoring:
+
+- Repeats under one anchor are good — they widen the pool the game draws from
+  across sessions — but they do **not** grow a single game's deck.
+- A set's real per-game size is its count of **distinct base words**, which the
+  audit prints as `unique-base`. Keep that healthy, not just the raw card count.
+
 ## Writing a set
 
-1. Pick a theme and brainstorm **easy anchor words** (Fire, Dog, Rice…).
+1. Pick a theme and brainstorm **easy anchor words** — concrete nouns (Fire,
+   Dog, Rice…); avoid function words (Rule 6).
 2. For each anchor, list only the `hard` phrases you're confident are **real
    and well-known and contain the anchor**. Stop when you run dry — don't reach.
 3. Put them in a `[easy, [hard, …]]` table and expand with `fromTable()`.
-4. `dedupe()` removes duplicate `hard` phrases and self-references.
-5. Run the audit; fix or delete every containment failure.
+4. `build()` (which `fromTable()` calls) drops duplicate `hard` phrases,
+   self-references, and any card that fails containment (Rule 2).
+5. Run the audit; fix or delete every containment failure and review the
+   base-word and Rule 5 warnings.
 
-Themed name sets (Movies, Songs) are the exception to the table shape: they're
+Themed name sets (e.g. Movies) are the exception to the table shape: they're
 flat `[easy, hard]` lists where `easy` is a word **taken from** the title
 (`Toy` → `Toy Story`, `Star` → `A Star Is Born`).
 
@@ -136,12 +176,15 @@ flat `[easy, hard]` lists where `easy` is a word **taken from** the title
 npx tsx scripts/audit-word-sets.mts
 ```
 
-Reports, per set, how many cards satisfy Rule 2 (containment) and lists the
-failures. It exits non-zero if any set has a containment violation. It also
-flags, as a warning, any `hard` whose other half is a known non-word fragment
-(Rule 5, e.g. `Yester Day`, `Uni Corn`). Rules 3 and 4 (well-known /
-not-nonsense) and the "fused word" half of Rule 5 are judgement calls and are
-**not** auto-checked — review those by reading the cards.
+Reports, per set: how many cards satisfy Rule 2 (containment) and lists the
+failures, and the `unique-base` count (distinct base words = the real per-game
+deck size, Rule 7). It exits non-zero if any set has a containment violation. As
+**warnings** (never failures) it also flags any `hard` whose other half is a
+known non-word fragment (Rule 5, e.g. `Yester Day`, `Uni Corn`) and any base
+word that is a known function word (Rule 6, e.g. `Over`, `Up`). Rules 3 and 4
+(well-known / not-nonsense), the verb/adjective half of Rule 6, and the "fused
+word" half of Rule 5 are judgement calls and are **not** auto-checked — review
+those by reading the cards.
 
 ## Per-set intent
 
@@ -151,7 +194,5 @@ not-nonsense) and the "fused word" half of Rule 5 are judgement calls and are
 | Fantasy | magic, dragons, medieval | Real fantasy compounds only (`Dragon Fire`, `Magic Spell`). |
 | Movies | famous films, 90s→ | `easy` is a word inside the title. |
 | Munchies | food & drink | Real dishes; ethnic dishes welcome, no local slang venues. |
-| Down Under | Australia | Aussie phrases; `easy` must appear in them. |
 | Sunny Singapore | Singapore | Local food/places/slang; `easy` must appear in them. |
-| Songs | famous songs, 90s→ | `easy` is a word inside the title. |
 | Animals | animal idioms | `easy` is an animal; `hard` a real phrase it's in (`Night Owl`). |

@@ -3,9 +3,7 @@ import { EVERYDAY_CARDS } from "./everyday";
 import { FANTASY_CARDS } from "./fantasy";
 import { MOVIE_CARDS } from "./movies";
 import { MUNCHIES_CARDS } from "./munchies";
-import { DOWN_UNDER_CARDS } from "./down-under";
 import { SINGAPORE_CARDS } from "./singapore";
-import { SONG_CARDS } from "./songs";
 import { ANIMAL_CARDS } from "./animals";
 
 // The "caveman" twist is the *mechanic* — you may only clue using
@@ -43,25 +41,11 @@ export const WORD_SETS: WordSet[] = [
     cards: MUNCHIES_CARDS,
   },
   {
-    id: "down-under",
-    name: "Down Under",
-    emoji: "🦘",
-    blurb: "Roos, servo snacks and the outback",
-    cards: DOWN_UNDER_CARDS,
-  },
-  {
     id: "singapore",
     name: "Sunny Singapore",
     emoji: "🦁",
     blurb: "Hawker food, lah, and local icons",
     cards: SINGAPORE_CARDS,
-  },
-  {
-    id: "songs",
-    name: "Songs",
-    emoji: "🎵",
-    blurb: "Hit songs from the 90s on",
-    cards: SONG_CARDS,
   },
   {
     id: "animals",

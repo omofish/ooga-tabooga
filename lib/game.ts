@@ -50,17 +50,35 @@ export function cardKey(c: WordCard): string {
   return `${c.easy}|${c.hard}`;
 }
 
+/** The base (+1) word of a card, normalised for uniqueness comparisons. */
+function baseKey(c: WordCard): string {
+  return c.easy.toLowerCase();
+}
+
 /**
  * Build a game deck that puts not-yet-seen cards (shuffled) first, then any
- * already-seen cards (shuffled) as a fallback. This guarantees a fresh game
- * exhausts every unseen card before any repeat.
+ * already-seen cards (shuffled) as a fallback, and then keeps only the first
+ * card for each base (+1) word. This guarantees a fresh game exhausts every
+ * unseen card before any repeat, and that **the same base word never comes up
+ * twice in one game** (a card the source lists many phrases for contributes
+ * exactly one card per game — a different phrase can surface next game). See
+ * docs/word-set-guidelines.md, "Base words must not repeat in a game".
  */
 function buildDeck(cards: WordCard[], seenKeys: string[]): WordCard[] {
   const seenSet = new Set(seenKeys);
   const unseen: WordCard[] = [];
   const seen: WordCard[] = [];
   for (const c of cards) (seenSet.has(cardKey(c)) ? seen : unseen).push(c);
-  return [...shuffle(unseen), ...shuffle(seen)];
+  const ordered = [...shuffle(unseen), ...shuffle(seen)];
+  const usedBase = new Set<string>();
+  const deck: WordCard[] = [];
+  for (const c of ordered) {
+    const base = baseKey(c);
+    if (usedBase.has(base)) continue;
+    usedBase.add(base);
+    deck.push(c);
+  }
+  return deck;
 }
 
 /** How many of a set's cards have been played (for the reset UI). */

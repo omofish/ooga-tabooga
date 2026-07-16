@@ -212,12 +212,7 @@ const TABLE: Entry[] = [
   ["Black", ["Black Bird", "Black Board", "Black Berry", "Black Out", "Black Smith", "Black Mail", "Black Belt"]],
   ["White", ["White Wash", "White Board", "Egg White", "White Out", "Snow White", "White House"]],
   ["Red", ["Red Head", "Red Wood", "Red Neck", "Red Coat", "Red Card", "Red Carpet"]],
-  ["Under", ["Under Dog", "Under Wear", "Under Water", "Under Ground", "Under Cover"]],
-  ["Over", ["Over Board", "Over Coat", "Over Head", "Over Pass", "Over Night"]],
-  ["Out", ["Out Side", "Out Break", "Out Law", "Out Post", "Out Fit"]],
   ["Back", ["Back Bone", "Back Fire", "Back Ground", "Back Pack", "Back Yard", "Feed Back", "Come Back"]],
-  ["Down", ["Down Fall", "Down Hill", "Down Load", "Down Pour", "Down Town", "Count Down"]],
-  ["Up", ["Up Grade", "Up Hill", "Up Load", "Up Set", "Up Town", "Up Stairs"]],
   ["Cross", ["Cross Bow", "Cross Fire", "Cross Road", "Cross Walk", "Cross Word", "Cross Over"]],
 ];
 
