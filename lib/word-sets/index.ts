@@ -1,4 +1,4 @@
-import type { WordCard } from "../types";
+import type { WordSet } from "../types";
 import { EVERYDAY_CARDS } from "./everyday";
 import { FANTASY_CARDS } from "./fantasy";
 import { MOVIE_CARDS } from "./movies";
@@ -7,14 +7,6 @@ import { DOWN_UNDER_CARDS } from "./down-under";
 import { SINGAPORE_CARDS } from "./singapore";
 import { SONG_CARDS } from "./songs";
 import { ANIMAL_CARDS } from "./animals";
-
-export type WordSet = {
-  id: string;
-  name: string;
-  emoji: string;
-  blurb: string;
-  cards: WordCard[];
-};
 
 // The "caveman" twist is the *mechanic* — you may only clue using
 // single-syllable words — not the cards. Each card has a simple

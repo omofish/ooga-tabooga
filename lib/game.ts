@@ -65,7 +65,7 @@ function buildDeck(cards: WordCard[], seenKeys: string[]): WordCard[] {
 
 /** How many of a set's cards have been played (for the reset UI). */
 export function seenCount(state: GameState, wordSetId: string): number {
-  const set = new Set((state.seen[wordSetId] ?? []).map((k) => k));
+  const set = new Set(state.seen[wordSetId] ?? []);
   const cards = wordSetById(wordSetId).cards;
   let n = 0;
   for (const c of cards) if (set.has(cardKey(c))) n++;

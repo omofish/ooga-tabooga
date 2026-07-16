@@ -12,6 +12,15 @@ export type Phase =
 /** A single game card: an easy one-point word and a hard three-point phrase. */
 export type WordCard = { easy: string; hard: string };
 
+/** A registered word set (a themed deck) as listed on the setup screen. */
+export type WordSet = {
+  id: string;
+  name: string;
+  emoji: string;
+  blurb: string;
+  cards: WordCard[];
+};
+
 /** Which bucket a resolved card ended up in. */
 export type Bucket = "hard" | "easy" | "pass"; // +3 / +1 / -1
 
