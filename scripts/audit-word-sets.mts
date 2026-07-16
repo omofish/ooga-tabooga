@@ -10,16 +10,8 @@
  *   are only flagged heuristically (single-word hards, easy===hard).
  */
 import { WORD_SETS } from "../lib/words.ts";
+import { containsEasy } from "../lib/gen.ts";
 import type { WordCard } from "../lib/types.ts";
-
-function esc(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/** Does the hard phrase contain the easy word as a whole word? */
-export function containsEasy(card: WordCard): boolean {
-  return new RegExp(`\\b${esc(card.easy)}\\b`, "i").test(card.hard);
-}
 
 /**
  * Rule 5 heuristic: known non-word fragments that only exist as a fake split of

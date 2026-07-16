@@ -1,4 +1,5 @@
 import type { WordCard } from "./types";
+import { fromTable, type Entry } from "./gen";
 
 // The default "Standard" deck. Built from a curated table of base words, each
 // paired with genuinely common compounds/phrases that contain it. The base is
@@ -10,8 +11,6 @@ import type { WordCard } from "./types";
 // single word ("Yester Day", "Net Work", "Cup Board", "Uni Corn"). Easy words
 // may repeat; only the hard phrase must be unique (dedupe drops repeats). The
 // set is kept intentionally tight (~1000) — quality dips when it grows past that.
-
-type Entry = [easy: string, hards: string[]];
 
 const TABLE: Entry[] = [
   ["Fire", ["Camp Fire", "Fire Fly", "Fire Truck", "Fire Wood", "Fire Place", "Fire Works", "Fire Man", "Fire Ball", "Wild Fire", "Fire Engine"]],
@@ -222,20 +221,4 @@ const TABLE: Entry[] = [
   ["Cross", ["Cross Bow", "Cross Fire", "Cross Road", "Cross Walk", "Cross Word", "Cross Over"]],
 ];
 
-function generate(): WordCard[] {
-  const cards: WordCard[] = [];
-  const seenHard = new Set<string>();
-  for (const [easy, hards] of TABLE) {
-    for (const hard of hards) {
-      if (!hard.includes(" ")) continue;
-      if (hard.toLowerCase() === easy.toLowerCase()) continue;
-      const key = hard.toLowerCase();
-      if (seenHard.has(key)) continue;
-      seenHard.add(key);
-      cards.push({ easy, hard });
-    }
-  }
-  return cards;
-}
-
-export const EVERYDAY_CARDS: WordCard[] = generate();
+export const EVERYDAY_CARDS: WordCard[] = fromTable(TABLE);

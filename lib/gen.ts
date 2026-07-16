@@ -1,5 +1,8 @@
 import type { WordCard } from "./types";
 
+/** A compact source row: one easy word and the hard phrases that contain it. */
+export type Entry = [easy: string, hards: string[]];
+
 // Shared helpers for building word sets from compact source data.
 //
 // Rule 2 (docs/word-set-guidelines.md) is enforced here: a card is only kept if
@@ -38,6 +41,6 @@ export function build(cards: WordCard[]): WordCard[] {
 }
 
 /** Expand a `[easy, [hard, …]]` table into validated cards. */
-export function fromTable(table: [string, string[]][]): WordCard[] {
+export function fromTable(table: Entry[]): WordCard[] {
   return build(table.flatMap(([easy, hards]) => hards.map((hard) => ({ easy, hard }))));
 }
