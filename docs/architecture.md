@@ -79,10 +79,11 @@ with a spoken milestone via the Web Speech API (system voice, still offline-safe
   `localStorage` key (`pfn-muted`) — separate from game state, so **no
   `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives the
   shared `MuteToggle` button on `SetupScreen` and in the `Gameplay` header.
-- `Gameplay` ticks once **every** second: a calm ambient tick that escalates in
-  pitch/volume through the final 10 (with a frantic double-tick in the last 3),
-  spoken `announce()` at the 90/60/30/10-second marks (only those below the turn
-  length), then the time-up buzzer.
+- `Gameplay` ticks once **every** second: a calm ambient tick that, through the
+  final 10, escalates in pitch/volume **and** switches to double time (an extra
+  off-beat tick at +0.5s, so the pulse runs twice as fast); spoken `announce()`
+  at the 90/60/30/10-second marks (only those below the turn length), then the
+  time-up buzzer.
 - A single document-level `click` listener in `Game.tsx` plays a soft `click()`
   on **every** button press app-wide (mouse, touch, or keyboard activation);
   screens with their own richer sounds just layer over it. `MuteToggle` renders a

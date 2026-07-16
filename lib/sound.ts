@@ -163,9 +163,10 @@ export function pass(): void {
 }
 
 /**
- * Clock tick, one per second. Pass the seconds remaining: above ten it's a calm,
- * quiet clock tick; through the final ten it escalates — rising in pitch, volume
- * and punch as the number falls — and the last three add a frantic double-tick.
+ * Clock tick, called once per second with the seconds remaining. Above ten it's
+ * a calm, quiet tick; through the final ten it both escalates — rising in pitch
+ * and volume as the number falls — and switches to double time, adding an
+ * off-beat tick half a second later so the pulse runs twice as fast.
  */
 export function tick(secondsLeft: number): void {
   if (muted) return;
@@ -176,22 +177,13 @@ export function tick(secondsLeft: number): void {
     return;
   }
 
-  // Final ten: urgency climbs from ~0.1 (at 10s) to 1.0 (at 1s).
+  // Final ten: urgency climbs from ~0.1 (at 10s) to 1.0 (at 1s)…
   const urgency = (11 - secondsLeft) / 10;
   const freq = 1050 + urgency * 900; // ~1140 → 1950 Hz
   const gain = 0.09 + urgency * 0.1; // ~0.10 → 0.19
+  // …and it ticks in double time: an on-beat tick now, an off-beat one at +0.5s.
   tone({ freq, duration: 0.05, type: "square", gain });
-
-  // The very last few seconds get a second, higher blip — a frantic double-tick.
-  if (secondsLeft <= 3) {
-    tone({
-      freq: freq * 1.35,
-      duration: 0.045,
-      type: "square",
-      gain: gain * 0.8,
-      startAt: 0.07,
-    });
-  }
+  tone({ freq, duration: 0.05, type: "square", gain, startAt: 0.5 });
 }
 
 /**
