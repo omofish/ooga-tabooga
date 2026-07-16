@@ -6,6 +6,9 @@ import * as sound from "@/lib/sound";
 import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";
 
+// Seconds-remaining marks that get a spoken announcement (when below the turn length).
+const ANNOUNCE_AT = [90, 60, 30, 10];
+
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
   const team = state.teams.find((t) => t.id === active?.teamId);
@@ -44,13 +47,19 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     return () => clearTimeout(id);
   }, [timesUp, dispatch]);
 
-  // Tick once per second through the final ten seconds (more urgent at the end).
-  // Depending on the whole-second value keeps it to one tick per second even
-  // though the clock re-renders several times a second.
+  // Tick once every second (escalating through the final ten), and announce the
+  // 90/60/30/10-second milestones. Depending on the whole-second value keeps it
+  // to one tick per second even though the clock re-renders several times a
+  // second. Milestones only fire when they're below the full turn length, so the
+  // starting number isn't announced.
   useEffect(() => {
     if (paused || timesUp) return;
-    if (seconds >= 1 && seconds <= 10) sound.tick(seconds <= 3);
-  }, [seconds, paused, timesUp]);
+    if (seconds < 1) return;
+    if (ANNOUNCE_AT.includes(seconds) && seconds < state.turnSeconds) {
+      sound.announce(seconds);
+    }
+    sound.tick(seconds);
+  }, [seconds, paused, timesUp, state.turnSeconds]);
 
   if (!active?.current) return null;
 

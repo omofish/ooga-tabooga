@@ -70,6 +70,8 @@ with an `OscillatorNode`, so there are no audio files and the offline PWA needs 
 extra cached assets. Screens call the semantic helpers (`bank`, `big`, `pass`,
 `tick`, `timeUp`, `beep`, `go`, `reveal`, `win`) and `vibrate()` from their event
 handlers/effects — **the reducer stays pure** (no side effects in `lib/game.ts`).
+`announce()` is the one exception to "no audio files": it layers a short chime
+with a spoken milestone via the Web Speech API (system voice, still offline-safe).
 
 - Playback is a no-op until `unlockAudio()` runs inside a user gesture (browser
   autoplay policy). It's called on "Start Game", "Start Round", and the mute toggle.
@@ -77,8 +79,11 @@ handlers/effects — **the reducer stays pure** (no side effects in `lib/game.ts
   `localStorage` key (`pfn-muted`) — separate from game state, so **no
   `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives the
   shared `MuteToggle` button on `SetupScreen` and in the `Gameplay` header.
-- `Gameplay` ticks once per second through the final 10 seconds (higher pitch for
-  the last 3), then sounds the time-up buzzer.
+- `Gameplay` ticks once **every** second: a calm ambient tick that, through the
+  final 10, escalates in pitch/volume **and** switches to double time (an extra
+  off-beat tick at +0.5s, so the pulse runs twice as fast); spoken `announce()`
+  at the 90/60/30/10-second marks (only those below the turn length), then the
+  time-up buzzer.
 - A single document-level `click` listener in `Game.tsx` plays a soft `click()`
   on **every** button press app-wide (mouse, touch, or keyboard activation);
   screens with their own richer sounds just layer over it. `MuteToggle` renders a

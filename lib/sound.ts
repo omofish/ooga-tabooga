@@ -163,17 +163,52 @@ export function pass(): void {
 }
 
 /**
- * Clock tick for the final ten seconds — one per second. `urgent` (the last few
- * seconds) makes it higher and a touch louder.
+ * Clock tick, called once per second with the seconds remaining. Above ten it's
+ * a calm, quiet tick; through the final ten it both escalates — rising in pitch
+ * and volume as the number falls — and switches to double time, adding an
+ * off-beat tick half a second later so the pulse runs twice as fast.
  */
-export function tick(urgent = false): void {
+export function tick(secondsLeft: number): void {
   if (muted) return;
-  tone({
-    freq: urgent ? 1500 : 1050,
-    duration: urgent ? 0.05 : 0.035,
-    type: "square",
-    gain: urgent ? 0.12 : 0.08,
-  });
+
+  // Plenty of time left: a soft, low, ambient tick.
+  if (secondsLeft > 10) {
+    tone({ freq: 900, duration: 0.03, type: "square", gain: 0.05 });
+    return;
+  }
+
+  // Final ten: urgency climbs from ~0.1 (at 10s) to 1.0 (at 1s)…
+  const urgency = (11 - secondsLeft) / 10;
+  const freq = 1050 + urgency * 900; // ~1140 → 1950 Hz
+  const gain = 0.09 + urgency * 0.1; // ~0.10 → 0.19
+  // …and it ticks in double time: an on-beat tick now, an off-beat one at +0.5s.
+  tone({ freq, duration: 0.05, type: "square", gain });
+  tone({ freq, duration: 0.05, type: "square", gain, startAt: 0.5 });
+}
+
+/**
+ * Spoken milestone announcement ("30 seconds…"). Uses the Web Speech API — no
+ * audio asset, works offline with the system voice — preceded by a short chime
+ * so it lands even where speech synthesis is unavailable. Gated by the mute flag.
+ */
+export function announce(secondsLeft: number): void {
+  if (muted || typeof window === "undefined") return;
+
+  // Two-note "attention" chime, so there's always an audible marker.
+  tone({ freq: 784, duration: 0.12, type: "triangle", gain: 0.14 });
+  tone({ freq: 1047, duration: 0.16, type: "triangle", gain: 0.14, startAt: 0.11 });
+
+  try {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const u = new SpeechSynthesisUtterance(`${secondsLeft} seconds`);
+    u.rate = 1;
+    u.volume = 1;
+    synth.cancel(); // drop any still-queued announcement
+    synth.speak(u);
+  } catch {
+    // No speech synthesis — the chime above still played.
+  }
 }
 
 /** Time's up: a harsh two-blast buzzer. */
