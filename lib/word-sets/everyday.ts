@@ -8,9 +8,13 @@ import { fromTable, type Entry } from "./gen";
 // Quality bar (see docs/word-set-guidelines.md): cut anything even ~10% a
 // stretch — no jargon, niche, archaic or awkwardly-split entries. Rule 5: the
 // hard phrase must read as two distinct, real words — no fake splits of a
-// single word ("Yester Day", "Net Work", "Cup Board", "Uni Corn"). Easy words
-// may repeat; only the hard phrase must be unique (dedupe drops repeats). The
-// set is kept intentionally tight (~1000) — quality dips when it grows past that.
+// single word ("Yester Day", "Net Work", "Cup Board", "Uni Corn"). Rule 6: the
+// base word should be a noun — no "Over"/"Up" function words.
+//
+// Easy words may repeat; only the hard phrase must be unique (build() drops
+// repeats). But per Rule 7 a game deals at most one card per base word, so the
+// real size of this set is its count of *distinct base words* — grow that (add
+// new noun anchors), not just the raw card count.
 
 const TABLE: Entry[] = [
   ["Fire", ["Camp Fire", "Fire Fly", "Fire Truck", "Fire Wood", "Fire Place", "Fire Works", "Fire Man", "Fire Ball", "Wild Fire", "Fire Engine"]],
@@ -214,6 +218,250 @@ const TABLE: Entry[] = [
   ["Red", ["Red Head", "Red Wood", "Red Neck", "Red Coat", "Red Card", "Red Carpet"]],
   ["Back", ["Back Bone", "Back Fire", "Back Ground", "Back Pack", "Back Yard", "Feed Back", "Come Back"]],
   ["Cross", ["Cross Bow", "Cross Fire", "Cross Road", "Cross Walk", "Cross Word", "Cross Over"]],
+
+  // --- Body ---
+  ["Arm", ["Arm Pit", "Arm Band", "Arm Rest", "Fore Arm"]],
+  ["Leg", ["Peg Leg", "Leg Room", "Leg Work"]],
+  ["Knee", ["Knee Deep", "Knee Jerk", "Knee High"]],
+  ["Neck", ["Neck Lace", "Neck Tie", "Turtle Neck", "Bottle Neck", "Neck Line"]],
+  ["Lip", ["Lip Stick", "Lip Balm", "Lip Gloss"]],
+  ["Skin", ["Skin Deep", "Skin Care", "Skin Tight"]],
+  ["Bone", ["Jaw Bone", "Wish Bone", "Bone Dry", "Funny Bone", "Collar Bone", "Bone Yard"]],
+  ["Brain", ["Brain Wash", "Brain Power", "Brain Child", "Brain Freeze"]],
+  ["Chest", ["Treasure Chest", "War Chest"]],
+  ["Rib", ["Rib Cage", "Spare Rib", "Prime Rib"]],
+  ["Tongue", ["Tongue Twister", "Mother Tongue", "Tongue Tied"]],
+  ["Finger", ["Finger Tip", "Lady Finger", "Finger Food", "Finger Paint"]],
+  ["Cell", ["Cell Phone", "Jail Cell", "Blood Cell", "Cell Block", "Brain Cell"]],
+  ["Pill", ["Pill Box", "Sleeping Pill", "Bitter Pill"]],
+
+  // --- Animals ---
+  ["Horse", ["Horse Power", "Horse Back", "Race Horse", "Rocking Horse", "Horse Radish", "Work Horse"]],
+  ["Lion", ["Lion Heart", "Mountain Lion", "Lion Cub"]],
+  ["Wolf", ["Wolf Pack", "Lone Wolf", "Wolf Whistle"]],
+  ["Fox", ["Fox Hole", "Fox Trot", "Silver Fox"]],
+  ["Rat", ["Rat Race", "Gym Rat", "Rat Trap", "Pack Rat", "Lab Rat"]],
+  ["Mouse", ["Mouse Trap", "Church Mouse", "Field Mouse", "Mouse Hole", "Mickey Mouse"]],
+  ["Rabbit", ["Rabbit Hole", "Rabbit Foot", "Rabbit Ears", "Jack Rabbit"]],
+  ["Goat", ["Mountain Goat", "Billy Goat", "Goat Cheese"]],
+  ["Crab", ["Crab Cake", "Hermit Crab", "Crab Apple", "King Crab", "Crab Grass"]],
+  ["Whale", ["Blue Whale", "Killer Whale", "Whale Song"]],
+  ["Shark", ["Loan Shark", "Card Shark", "Shark Bite", "Shark Fin", "Great White Shark"]],
+  ["Turtle", ["Sea Turtle", "Turtle Dove", "Turtle Shell", "Snapping Turtle"]],
+  ["Tiger", ["Paper Tiger", "Tiger Lily", "Tiger Cub", "Bengal Tiger"]],
+  ["Monkey", ["Monkey Wrench", "Grease Monkey", "Monkey Business", "Spider Monkey", "Sea Monkey"]],
+  ["Elephant", ["White Elephant", "Elephant Seal", "Elephant Ear"]],
+  ["Goose", ["Mother Goose", "Goose Egg", "Wild Goose"]],
+  ["Swan", ["Swan Dive", "Swan Lake", "Black Swan", "Swan Song"]],
+  ["Hawk", ["Night Hawk", "Hawk Eye", "Chicken Hawk"]],
+  ["Eagle", ["Bald Eagle", "Legal Eagle", "Golden Eagle", "Eagle Scout"]],
+
+  // --- Food & drink ---
+  ["Fruit", ["Fruit Cake", "Fruit Bat", "Passion Fruit", "Fruit Bowl", "Dragon Fruit", "Star Fruit"]],
+  ["Cookie", ["Cookie Jar", "Cookie Cutter", "Cookie Dough", "Fortune Cookie"]],
+  ["Candy", ["Candy Cane", "Cotton Candy", "Candy Floss", "Eye Candy", "Candy Corn"]],
+  ["Chocolate", ["Chocolate Cake", "Chocolate Milk", "Hot Chocolate", "Chocolate Box"]],
+  ["Jam", ["Jam Jar", "Traffic Jam", "Jam Session"]],
+  ["Pizza", ["Pizza Pie", "Pizza Slice", "Pizza Oven"]],
+  ["Sauce", ["Soy Sauce", "Hot Sauce", "Tomato Sauce"]],
+  ["Toast", ["French Toast", "Toast Master"]],
+  ["Dough", ["Sour Dough", "Play Dough", "Dough Boy"]],
+  ["Pepper", ["Pepper Mill", "Chilli Pepper", "Pepper Spray"]],
+  ["Pickle", ["Dill Pickle", "Pickle Jar", "Pickle Juice"]],
+  ["Onion", ["Onion Skin", "Spring Onion", "Onion Soup"]],
+  ["Potato", ["Couch Potato", "Mashed Potato", "Sweet Potato", "Hot Potato", "Potato Skin"]],
+  ["Tomato", ["Cherry Tomato", "Tomato Paste", "Tomato Juice"]],
+  ["Mint", ["Mint Condition", "Mint Green", "Mint Sauce"]],
+  ["Cracker", ["Fire Cracker", "Cream Cracker", "Nut Cracker", "Safe Cracker", "Cracker Jack"]],
+  ["Noodle", ["Noodle Soup", "Pool Noodle", "Noodle Bar"]],
+  ["Sausage", ["Sausage Roll", "Sausage Dog", "Sausage Link"]],
+  ["Steak", ["Steak House", "Rump Steak", "Steak Sauce"]],
+  ["Chop", ["Lamb Chop", "Karate Chop", "Chop Shop"]],
+  ["Roll", ["Drum Roll", "Bread Roll", "Barrel Roll", "Spring Roll", "Cinnamon Roll", "Roll Call"]],
+  ["Syrup", ["Maple Syrup", "Corn Syrup", "Cough Syrup"]],
+  ["Cereal", ["Cereal Bowl", "Cereal Box", "Breakfast Cereal"]],
+  ["Spice", ["Spice Rack", "All Spice", "Pumpkin Spice"]],
+  ["Gum", ["Chewing Gum", "Gum Ball", "Gum Drop", "Gum Tree", "Gum Boot"]],
+  ["Wine", ["Red Wine", "White Wine", "Wine Cellar", "Wine Rack"]],
+  ["Beer", ["Root Beer", "Ginger Beer", "Beer Belly", "Beer Can"]],
+  ["Soda", ["Soda Pop", "Soda Water", "Baking Soda", "Cream Soda", "Soda Fountain"]],
+  ["Punch", ["Punch Bag", "Fruit Punch", "Punch Bowl", "Sucker Punch"]],
+
+  // --- Household & objects ---
+  ["Window", ["Window Sill", "Window Pane", "Window Shop", "Bay Window", "Window Box"]],
+  ["Stair", ["Stair Case", "Stair Way", "Stair Well"]],
+  ["Brick", ["Brick Layer", "Brick Work", "Gold Brick"]],
+  ["Chimney", ["Chimney Sweep", "Chimney Pot", "Chimney Stack"]],
+  ["Basket", ["Bread Basket", "Waste Basket", "Basket Case", "Picnic Basket"]],
+  ["Bucket", ["Bucket List", "Bucket Hat", "Rust Bucket", "Bucket Seat"]],
+  ["Broom", ["Broom Stick", "Broom Closet"]],
+  ["Mirror", ["Mirror Ball", "Mirror Image", "Side Mirror"]],
+  ["Curtain", ["Curtain Call", "Shower Curtain", "Iron Curtain", "Curtain Rod"]],
+  ["Pillow", ["Pillow Case", "Pillow Fight", "Pillow Talk", "Throw Pillow"]],
+  ["Blanket", ["Wet Blanket", "Electric Blanket", "Security Blanket", "Blanket Fort"]],
+  ["Sheet", ["Bed Sheet", "Sheet Music", "Balance Sheet", "Ice Sheet", "Sheet Metal"]],
+  ["Rope", ["Jump Rope", "Tight Rope", "Rope Ladder", "Tow Rope"]],
+  ["String", ["Shoe String", "G String", "String Cheese", "Bow String"]],
+  ["Needle", ["Needle Point", "Pine Needle", "Needle Work"]],
+  ["Button", ["Belly Button", "Button Hole", "Push Button", "Panic Button"]],
+  ["Zip", ["Zip Code", "Zip Line", "Zip Lock"]],
+  ["Pocket", ["Pick Pocket", "Pocket Money", "Air Pocket", "Pocket Book"]],
+  ["Bench", ["Work Bench", "Bench Press", "Bench Warmer"]],
+  ["Desk", ["Desk Top", "Help Desk", "Front Desk", "Desk Job"]],
+  ["Cabinet", ["Filing Cabinet", "Cabinet Maker", "Medicine Cabinet"]],
+  ["Stool", ["Bar Stool", "Foot Stool", "Step Stool", "Toad Stool"]],
+
+  // --- Tools & machines ---
+  ["Hammer", ["Jack Hammer", "Sledge Hammer", "Hammer Head", "Claw Hammer"]],
+  ["Saw", ["See Saw", "Jig Saw", "Hack Saw", "Saw Dust", "Saw Mill", "Buzz Saw"]],
+  ["Drill", ["Fire Drill", "Drill Bit", "Drill Sergeant", "Power Drill"]],
+  ["Screw", ["Screw Driver", "Cork Screw", "Thumb Screw", "Screw Ball"]],
+  ["Axe", ["Battle Axe", "Pick Axe", "Ice Axe"]],
+  ["Ladder", ["Step Ladder", "Corporate Ladder", "Ladder Rung"]],
+  ["Wire", ["Live Wire", "Wire Tap", "Barbed Wire", "High Wire"]],
+  ["Tape", ["Duct Tape", "Tape Measure", "Red Tape", "Masking Tape"]],
+  ["Glue", ["Glue Stick", "Glue Gun", "Super Glue"]],
+  ["Clip", ["Hair Clip", "Clip Board", "Clip Art", "Money Clip"]],
+  ["Hook", ["Hook Worm", "Coat Hook", "Meat Hook", "Grappling Hook"]],
+  ["Rod", ["Fishing Rod", "Hot Rod", "Fly Rod"]],
+  ["Gear", ["Gear Box", "Gear Shift", "Head Gear", "Gear Stick"]],
+  ["Engine", ["Search Engine", "Engine Room", "Jet Engine"]],
+  ["Motor", ["Motor Way", "Motor Boat", "Motor Cycle", "Motor Home"]],
+  ["Jet", ["Jet Lag", "Jet Ski", "Jet Stream", "Jet Pack", "Jumbo Jet", "Jet Black"]],
+  ["Flag", ["Flag Pole", "Red Flag", "White Flag", "Flag Stone"]],
+
+  // --- Nature & landscape ---
+  ["Mountain", ["Mountain Top", "Mountain Range", "Mountain Side"]],
+  ["River", ["River Bank", "River Bed", "River Boat", "River Side"]],
+  ["Lake", ["Lake Side", "Lake House", "Lake Front"]],
+  ["Ocean", ["Ocean Floor", "Ocean Liner", "Ocean Front", "Ocean Wave"]],
+  ["Island", ["Desert Island", "Tropical Island", "Treasure Island", "Island Hop"]],
+  ["Desert", ["Desert Storm", "Desert Rat", "Desert Rose"]],
+  ["Forest", ["Forest Fire", "Forest Floor", "Forest Ranger"]],
+  ["Cave", ["Cave Man", "Bat Cave", "Cave Dweller"]],
+  ["Valley", ["Death Valley", "Silicon Valley", "Valley Girl"]],
+  ["Cliff", ["Cliff Hanger", "Cliff Edge", "Cliff Diving", "Cliff Top"]],
+  ["Jungle", ["Jungle Gym", "Concrete Jungle", "Jungle Cat"]],
+  ["Mud", ["Mud Pie", "Mud Bath", "Mud Slide", "Mud Guard"]],
+  ["Dirt", ["Dirt Road", "Dirt Cheap", "Dirt Track", "Pay Dirt"]],
+  ["Dust", ["Dust Bin", "Star Dust", "Gold Dust", "Dust Bunny"]],
+  ["Smoke", ["Smoke Stack", "Smoke Screen", "Smoke Alarm", "Smoke Bomb", "Smoke Detector"]],
+  ["Flame", ["Flame Thrower", "Old Flame"]],
+  ["Thunder", ["Thunder Bolt", "Thunder Bird"]],
+  ["Lightning", ["Lightning Bolt", "Lightning Bug", "Lightning Rod", "Lightning Strike"]],
+  ["Shadow", ["Eye Shadow", "Shadow Box", "Shadow Puppet"]],
+  ["Rose", ["Rose Bud", "Rose Bush", "Rose Water", "Rose Petal", "Rose Wood", "Rose Gold"]],
+  ["Root", ["Square Root", "Root Canal", "Tap Root"]],
+  ["Seed", ["Poppy Seed", "Sesame Seed", "Bird Seed"]],
+  ["Trunk", ["Tree Trunk", "Elephant Trunk", "Trunk Road"]],
+  ["Log", ["Log Cabin", "Log Book", "Yule Log", "Log Jam", "Back Log"]],
+  ["Cone", ["Pine Cone", "Traffic Cone", "Snow Cone", "Nose Cone"]],
+
+  // --- People & roles ---
+  ["King", ["King Fisher", "King Pin", "King Size", "King Cobra"]],
+  ["Queen", ["Drag Queen", "Queen Size", "Beauty Queen"]],
+  ["Man", ["Mail Man", "Super Man", "Man Hole", "Best Man", "Con Man", "Weather Man"]],
+  ["Boy", ["Tom Boy", "Bad Boy", "Boy Scout", "Paper Boy", "Boy Band"]],
+  ["Girl", ["Girl Friend", "Girl Scout", "Baby Girl"]],
+  ["Friend", ["Boy Friend", "Best Friend", "Friend Ship"]],
+  ["Doctor", ["Witch Doctor", "Spin Doctor"]],
+  ["Master", ["Head Master", "Task Master", "Master Piece", "Master Mind", "Master Key", "Grand Master"]],
+  ["Maid", ["Brides Maid", "House Maid", "Old Maid"]],
+
+  // --- Abstract but guessable ---
+  ["Dream", ["Dream Team", "Dream Land", "Dream Catcher", "Pipe Dream"]],
+  ["Peace", ["Peace Maker", "Peace Pipe", "Peace Sign", "Peace Keeper"]],
+  ["Love", ["Love Seat", "Love Sick", "Puppy Love", "Love Letter", "Love Bird", "Love Story"]],
+  ["Word", ["Pass Word", "Key Word", "Buzz Word", "Swear Word", "Word Search"]],
+  ["Voice", ["Voice Mail", "Voice Box", "Voice Over"]],
+  ["Sound", ["Sound Track", "Sound Proof", "Sound Bite", "Sound Check"]],
+  ["Song", ["Love Song", "Folk Song", "Theme Song", "Song Writer"]],
+  ["Story", ["Short Story", "Story Book", "Story Line", "Ghost Story", "Story Teller"]],
+  ["Dance", ["Rain Dance", "Tap Dance", "Belly Dance", "Break Dance", "Line Dance", "Square Dance"]],
+  ["Luck", ["Pot Luck", "Lady Luck", "Beginners Luck"]],
+
+  // --- Games & sport ---
+  ["Goal", ["Goal Post", "Goal Keeper", "Own Goal", "Goal Line"]],
+  ["Team", ["Team Mate", "Home Team", "Tag Team"]],
+  ["Race", ["Race Track", "Drag Race", "Arms Race", "Race Course"]],
+  ["Match", ["Match Stick", "Match Maker", "Match Point", "Boxing Match"]],
+  ["Kick", ["Side Kick", "Kick Stand", "Kick Off", "Drop Kick", "Free Kick", "Kick Start"]],
+  ["Bat", ["Vampire Bat", "Cricket Bat", "Bat Man", "Bat Boy"]],
+  ["Coach", ["Head Coach", "Life Coach", "Stage Coach", "Coach House"]],
+
+  // --- Money ---
+  ["Money", ["Money Bag", "Money Box", "Money Order", "Blood Money", "Money Maker"]],
+  ["Coin", ["Coin Toss", "Coin Slot", "Bit Coin"]],
+  ["Cash", ["Cash Cow", "Cash Flow", "Cash Register", "Cash Back", "Petty Cash", "Cash Machine"]],
+  ["Bank", ["Piggy Bank", "Bank Account", "Bank Robber", "Food Bank", "Bank Roll"]],
+  ["Diamond", ["Diamond Ring", "Diamond Back", "Blood Diamond", "Diamond Mine"]],
+  ["Crown", ["Crown Jewel", "Crown Prince", "Triple Crown"]],
+  ["Treasure", ["Treasure Hunt", "Treasure Map", "Buried Treasure", "Treasure Trove"]],
+
+  // --- Fantasy & play ---
+  ["Space", ["Space Craft", "Parking Space", "Space Age"]],
+  ["World", ["World War", "World Wide", "Under World", "World Record", "Third World"]],
+  ["Angel", ["Guardian Angel", "Angel Cake", "Angel Fish", "Angel Food", "Fallen Angel"]],
+  ["Ghost", ["Ghost Writer", "Holy Ghost", "Ghost Ship"]],
+  ["Witch", ["Witch Craft", "Witch Hunt", "Witch Hazel"]],
+  ["Monster", ["Sea Monster", "Cookie Monster", "Monster Mash"]],
+  ["Giant", ["Giant Panda", "Gentle Giant", "Giant Squid"]],
+  ["Dragon", ["Dragon Boat", "Komodo Dragon", "Bearded Dragon"]],
+  ["Clown", ["Clown Fish", "Class Clown", "Clown Car"]],
+  ["Toy", ["Toy Box", "Toy Store", "Toy Soldier"]],
+  ["Doll", ["Doll House", "Rag Doll", "Paper Doll", "Baby Doll"]],
+  ["Balloon", ["Water Balloon", "Balloon Animal", "Party Balloon"]],
+  ["Bubble", ["Bubble Gum", "Bubble Wrap", "Soap Bubble"]],
+
+  // --- Colours ---
+  ["Pink", ["Pink Slip", "Pink Eye", "Hot Pink"]],
+  ["Brown", ["Hash Brown", "Brown Bread", "Brown Nose", "Brown Stone"]],
+  ["Grey", ["Grey Hound", "Grey Area", "Earl Grey"]],
+  ["Yellow", ["Yellow Belly", "Yellow Fever", "Yellow Jacket", "Yellow Stone"]],
+
+  // --- Sounds & gestures ---
+  ["Kiss", ["French Kiss", "Butterfly Kiss", "Kiss Curl"]],
+  ["Laugh", ["Laugh Track", "Belly Laugh", "Last Laugh"]],
+  ["Cry", ["Battle Cry", "War Cry", "Far Cry"]],
+  ["Whistle", ["Dog Whistle", "Whistle Blower", "Tin Whistle", "Whistle Stop"]],
+
+  // --- Animal parts ---
+  ["Wing", ["Wing Span", "Wing Man", "Wing Nut", "Buffalo Wing", "Left Wing", "Wing Tip"]],
+  ["Tail", ["Pony Tail", "Fish Tail", "Cock Tail", "Tail Gate", "Tail Spin", "Tail Wind", "Cotton Tail"]],
+  ["Horn", ["Bull Horn", "French Horn", "Long Horn", "Car Horn"]],
+  ["Claw", ["Bear Claw", "Claw Foot", "Crab Claw"]],
+  ["Feather", ["Feather Weight", "Feather Bed", "Feather Duster"]],
+  ["Scale", ["Fish Scale", "Scale Model", "Pay Scale"]],
+  ["Shell", ["Clam Shell", "Shell Fish", "Shell Shock", "Bomb Shell"]],
+
+  // --- Weapons ---
+  ["Sword", ["Sword Play", "Sword Fight", "Broad Sword"]],
+  ["Gun", ["Gun Powder", "Gun Fire", "Shot Gun", "Machine Gun", "Squirt Gun", "Gun Fight", "Nail Gun"]],
+  ["Bomb", ["Time Bomb", "Car Bomb", "Bomb Squad", "Cherry Bomb", "Stink Bomb", "Bath Bomb"]],
+  ["Bullet", ["Bullet Proof", "Bullet Point", "Bullet Hole", "Silver Bullet"]],
+  ["Tank", ["Water Tank", "Think Tank", "Tank Top", "Gas Tank", "Shark Tank"]],
+
+  // --- Buildings & places ---
+  ["Church", ["Church Yard", "Church Bell", "Church Goer"]],
+  ["Tower", ["Bell Tower", "Water Tower", "Ivory Tower", "Control Tower", "Tower Block"]],
+  ["Hall", ["Study Hall", "Dance Hall", "Pool Hall", "Hall Pass"]],
+  ["Shop", ["Work Shop", "Book Shop", "Sweet Shop", "Shop Lift", "Pet Shop", "Gift Shop"]],
+  ["Store", ["Drug Store", "Store Room", "Book Store", "Store Front"]],
+  ["Market", ["Super Market", "Flea Market", "Stock Market", "Market Place", "Black Market"]],
+  ["Office", ["Post Office", "Box Office", "Office Worker", "Head Office"]],
+  ["Prison", ["Prison Guard", "Prison Break", "Prison Yard"]],
+  ["Jail", ["Jail Bird", "Jail Break", "Jail House", "Jail Time"]],
+  ["Border", ["Border Line", "Border Control", "Border Collie"]],
+
+  // --- Time & seasons ---
+  ["Week", ["Week End", "Week Day", "Mid Week", "Week Night"]],
+  ["Year", ["Year Book", "Leap Year", "New Year", "Light Year"]],
+  ["Hour", ["Rush Hour", "Happy Hour", "Hour Hand", "Lunch Hour"]],
+  ["Minute", ["Minute Hand", "Last Minute", "Minute Man"]],
+  ["Season", ["Season Ticket", "Off Season", "Open Season"]],
+  ["Spring", ["Spring Board", "Spring Time", "Hot Spring", "Spring Chicken", "Off Spring", "Spring Clean"]],
+  ["Summer", ["Summer Time", "Summer House", "Mid Summer", "Indian Summer"]],
+  ["Winter", ["Winter Time", "Winter Coat", "Mid Winter"]],
 ];
 
 export const EVERYDAY_CARDS: WordCard[] = fromTable(TABLE);
