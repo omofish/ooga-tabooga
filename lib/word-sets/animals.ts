@@ -62,6 +62,61 @@ const TABLE: [string, string[]][] = [
   ["Parrot", ["Pet Parrot", "Talking Parrot", "Sea Parrot"]],
   ["Beetle", ["Dung Beetle", "Stag Beetle", "Beetle Wing"]],
   ["Octopus", ["Giant Octopus", "Octopus Ink", "Octopus Arm"]],
+
+  // Birds
+  ["Fly", ["Fire Fly", "Dragon Fly", "Fruit Fly", "May Fly", "Horse Fly", "Fly Swatter"]],
+  ["Hen", ["Hen House", "Hen Party", "Mother Hen", "Hen Pecked"]],
+  ["Goose", ["Goose Bump", "Mother Goose", "Goose Egg", "Wild Goose", "Goose Step"]],
+  ["Turkey", ["Cold Turkey", "Turkey Trot", "Wild Turkey", "Turkey Leg"]],
+  ["Crow", ["Scare Crow", "Crow Bar", "Carrion Crow"]],
+  ["Dove", ["Mourning Dove", "Dove Tail", "Rock Dove"]],
+  ["Robin", ["Round Robin", "Robin Hood", "Robin Egg"]],
+  ["Pigeon", ["Clay Pigeon", "Carrier Pigeon", "Stool Pigeon", "Pigeon Hole", "Pigeon Toed"]],
+  ["Crane", ["Paper Crane", "Crane Kick", "Crane Fly"]],
+
+  // Farm & mammals
+  ["Pony", ["Pony Tail", "Pony Ride", "Show Pony", "Pony Express"]],
+  ["Lamb", ["Lamb Chop", "Spring Lamb", "Baby Lamb", "Roast Lamb"]],
+  ["Ox", ["Ox Cart", "Ox Tail", "Musk Ox", "Ox Bow"]],
+  ["Mule", ["Pack Mule", "Mule Kick", "Stubborn Mule"]],
+  ["Camel", ["Camel Toe", "Camel Hair", "Camel Back", "Camel Ride"]],
+  ["Hog", ["Hedge Hog", "Road Hog", "Ground Hog", "Hog Wash", "Wart Hog"]],
+  ["Buck", ["Buck Tooth", "Buck Shot", "Buck Skin", "Young Buck"]],
+  ["Stag", ["Stag Do", "Stag Night", "Stag Party", "Stag Beetle"]],
+  ["Cub", ["Bear Cub", "Cub Scout", "Fox Cub"]],
+  ["Puppy", ["Puppy Love", "Puppy Dog", "Puppy Fat", "Hush Puppy"]],
+  ["Bunny", ["Easter Bunny", "Bunny Ears", "Bunny Hop", "Bunny Slope"]],
+  ["Kitty", ["Kitty Cat", "Kitty Litter", "Kitty Corner"]],
+  ["Hound", ["Blood Hound", "Grey Hound", "Fox Hound", "Hound Dog"]],
+
+  // Wild mammals
+  ["Rhino", ["Rhino Horn", "White Rhino", "Baby Rhino"]],
+  ["Panda", ["Giant Panda", "Panda Bear", "Panda Eyes", "Red Panda"]],
+  ["Leopard", ["Snow Leopard", "Leopard Print", "Leopard Spot"]],
+  ["Seal", ["Navy Seal", "Seal Skin", "Fur Seal", "Seal Pup"]],
+
+  // Reptiles & bugs
+  ["Cobra", ["King Cobra", "Cobra Strike", "Spitting Cobra", "Cobra Venom"]],
+  ["Slug", ["Sea Slug", "Slug Fest", "Banana Slug"]],
+  ["Wasp", ["Wasp Nest", "Wasp Sting", "Paper Wasp"]],
+  ["Hornet", ["Hornet Nest", "Green Hornet", "Hornet Sting"]],
+  ["Cricket", ["Cricket Bat", "Cricket Ball", "Cricket Match"]],
+  ["Mosquito", ["Mosquito Bite", "Mosquito Net", "Mosquito Coil"]],
+  ["Flea", ["Flea Market", "Flea Bite", "Flea Circus", "Flea Collar"]],
+  ["Tick", ["Tick Bite", "Deer Tick", "Tick Tock"]],
+  ["Scorpion", ["Scorpion Sting", "Scorpion King", "Scorpion Tail"]],
+
+  // Sea creatures
+  ["Clam", ["Clam Shell", "Clam Chowder", "Clam Bake", "Giant Clam"]],
+  ["Oyster", ["Oyster Shell", "Oyster Bar", "Pearl Oyster"]],
+  ["Lobster", ["Lobster Tail", "Lobster Pot", "Lobster Trap"]],
+  ["Prawn", ["Prawn Cocktail", "Tiger Prawn", "King Prawn"]],
+  ["Eel", ["Electric Eel", "Moray Eel", "Eel Skin"]],
+  ["Salmon", ["Smoked Salmon", "Salmon Run", "Pink Salmon"]],
+  ["Tuna", ["Tuna Melt", "Tuna Fish", "Tuna Salad"]],
+  ["Cod", ["Cod Fish", "Cod Liver", "Salt Cod"]],
+  ["Herring", ["Red Herring", "Herring Bone", "Pickled Herring"]],
+  ["Chick", ["Baby Chick", "Chick Flick", "Chick Pea"]],
 ];
 
 export const ANIMAL_CARDS: WordCard[] = fromTable(TABLE);
