@@ -154,4 +154,33 @@ export const SINGAPORE_CARDS: WordCard[] = build([
   { easy: "Kopitiam", hard: "Old Kopitiam" },
   { easy: "Aircon", hard: "Aircon Room" },
   { easy: "Kampong", hard: "Kampong Spirit" },
+
+  // More Singlish slang
+  { easy: "Sotong", hard: "Blur Sotong" },
+  { easy: "Spider", hard: "Kancheong Spider" },
+  { easy: "Kaki", hard: "Makan Kaki" },
+  { easy: "Towkay", hard: "Big Towkay" },
+  { easy: "Paiseh", hard: "Very Paiseh" },
+  { easy: "Sian", hard: "So Sian" },
+  { easy: "Atas", hard: "Very Atas" },
+  { easy: "Jialat", hard: "Very Jialat" },
+  { easy: "Kaypoh", hard: "Very Kaypoh" },
+  { easy: "Lepak", hard: "Lepak Corner" },
+  { easy: "Sabo", hard: "Sabo King" },
+  { easy: "Bojio", hard: "Always Bojio" },
+  { easy: "Dabao", hard: "Dabao Lunch" },
+  { easy: "Steady", hard: "Steady Lah" },
+  { easy: "Chio", hard: "Chio Bu" },
+  { easy: "Kiam", hard: "Very Kiam" },
+  { easy: "Siao", hard: "Siao Lang" },
+
+  // More festivals & everyday culture
+  { easy: "Reunion", hard: "Reunion Dinner" },
+  { easy: "Pasar", hard: "Pasar Malam" },
+  { easy: "Bazaar", hard: "Ramadan Bazaar" },
+  { easy: "Raya", hard: "Hari Raya" },
+  { easy: "Wayang", hard: "Wayang Show" },
+  { easy: "Chingay", hard: "Chingay Parade" },
+  { easy: "Cab", hard: "Taxi Cab" },
+  { easy: "Botak", hard: "Botak Head" },
 ]);
