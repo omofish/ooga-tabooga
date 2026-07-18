@@ -84,10 +84,10 @@ still offline-safe).
   `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives the
   shared `MuteToggle` button on `SetupScreen` and in the `Gameplay` header.
 - `Gameplay` ticks once **every** second: a calm ambient tick that, through the
-  final 10, escalates in pitch/volume **and** switches to double time (an extra
-  off-beat tick at +0.5s, so the pulse runs twice as fast); spoken `announce()`
-  at the 90/60/30/10-second marks (only those below the turn length), then the
-  time-up buzzer.
+  final 10, jumps to a fixed higher pitch/volume **and** switches to double time
+  (an extra off-beat tick at +0.5s, so the pulse runs twice as fast); spoken
+  `announce()` at the 90/60/30/10-second marks (only those below the turn length),
+  then the time-up buzzer.
 - A single document-level `click` listener in `Game.tsx` plays a soft `click()`
   on **every** button press app-wide (mouse, touch, or keyboard activation);
   screens with their own richer sounds just layer over it. `MuteToggle` renders a
