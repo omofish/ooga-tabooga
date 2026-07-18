@@ -144,15 +144,18 @@ verb/adjective cases are a judgement call and need a human eye.
 ### 7. A base word never repeats within a game
 
 Even though a set may list many phrases under one anchor (Rule 1), the deck
-builder (`buildDeck` in `lib/game.ts`) deals **only the first card it reaches
-for each base word**, so **the same +1 word never comes up twice in a single
-game**. Unseen cards are preferred, so which phrase represents a base word can
-differ game to game. Two consequences for authoring:
+builder (`buildDeck` in `lib/game.ts`) keeps **only the first card it reaches
+for each base word**, so a game's deck holds one card per base word. A base word
+therefore **never repeats until every base word has been dealt once**; only then
+does `drawAt` reshuffle for a fresh cycle (never dealing the same base twice
+back-to-back). Unseen cards are preferred, so which phrase represents a base word
+can differ game to game. Two consequences for authoring:
 
 - Repeats under one anchor are good — they widen the pool the game draws from
   across sessions — but they do **not** grow a single game's deck.
 - A set's real per-game size is its count of **distinct base words**, which the
-  audit prints as `unique-base`. Keep that healthy, not just the raw card count.
+  audit prints as `unique-base`. Keep that healthy, not just the raw card count —
+  a bigger `unique-base` is how long a game goes before any +1 word can recur.
 
 ## Writing a set
 

@@ -14,7 +14,9 @@ import { randomCaveName } from "./names";
 import { WORD_SETS, wordSetById } from "./word-sets";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
-export const STATE_VERSION = 4;
+// v5: decks are now deduped by base word and reshuffle on exhaustion; discard
+// any older persisted deck that predates that guarantee.
+export const STATE_VERSION = 5;
 export const TURN_SECONDS = 60; // default round length
 export const TURN_OPTIONS = [60, 90, 120] as const;
 export const MAX_TEAMS = 3;
@@ -60,9 +62,10 @@ function baseKey(c: WordCard): string {
  * already-seen cards (shuffled) as a fallback, and then keeps only the first
  * card for each base (+1) word. This guarantees a fresh game exhausts every
  * unseen card before any repeat, and that **the same base word never comes up
- * twice in one game** (a card the source lists many phrases for contributes
- * exactly one card per game — a different phrase can surface next game). See
- * docs/word-set-guidelines.md, "Base words must not repeat in a game".
+ * twice until the whole deck has been dealt** (a card the source lists many
+ * phrases for contributes exactly one card per cycle — a different phrase can
+ * surface next game). Once every base has been dealt, `drawAt` reshuffles for
+ * a fresh cycle. See docs/word-set-guidelines.md, "Base words must not repeat".
  */
 function buildDeck(cards: WordCard[], seenKeys: string[]): WordCard[] {
   const seenSet = new Set(seenKeys);
@@ -151,22 +154,53 @@ export type Action =
   | { type: "RESET_WORDS" }
   | { type: "RETURN_TO_START" };
 
-function drawCard(deck: WordCard[], cursor: number): WordCard {
-  return deck[cursor % deck.length];
+/**
+ * Draw the card at `cursor`, returning the (possibly reshuffled) deck, the card,
+ * and the next cursor. While the deck still has undealt cards this just walks
+ * forward. Once it's exhausted — every base word has been dealt once — it
+ * reshuffles for a fresh cycle instead of modulo-repeating the *identical*
+ * order, and keeps the first card of the new cycle off the base just dealt so a
+ * base never repeats back-to-back across the seam. This is what stops the same
+ * +1 word reappearing across rounds in a long game.
+ */
+function drawAt(
+  deck: WordCard[],
+  cursor: number,
+): { deck: WordCard[]; card: WordCard; cursor: number } {
+  if (cursor < deck.length) {
+    return { deck, card: deck[cursor], cursor: cursor + 1 };
+  }
+  const lastBase = baseKey(deck[deck.length - 1]);
+  const reshuffled = shuffle(deck);
+  if (reshuffled.length > 1 && baseKey(reshuffled[0]) === lastBase) {
+    const swapWith = reshuffled.findIndex((c) => baseKey(c) !== lastBase);
+    if (swapWith > 0) {
+      [reshuffled[0], reshuffled[swapWith]] = [reshuffled[swapWith], reshuffled[0]];
+    }
+  }
+  return { deck: reshuffled, card: reshuffled[0], cursor: 1 };
 }
 
 /** Resolve the current card into a bucket and draw the next one. */
-function resolveAndDraw(active: ActiveTurn, deck: WordCard[], bucket: Bucket): ActiveTurn {
-  if (!active.current) return active;
+function resolveAndDraw(
+  active: ActiveTurn,
+  deck: WordCard[],
+  bucket: Bucket,
+): { active: ActiveTurn; deck: WordCard[] } {
+  if (!active.current) return { active, deck };
   const resolved: ResolvedCard[] = [
     ...active.resolved,
     { id: active.resolved.length, card: active.current.card, bucket },
   ];
+  const drawn = drawAt(deck, active.cursor);
   return {
-    ...active,
-    resolved,
-    current: { card: drawCard(deck, active.cursor), banked1: false },
-    cursor: active.cursor + 1,
+    deck: drawn.deck,
+    active: {
+      ...active,
+      resolved,
+      current: { card: drawn.card, banked1: false },
+      cursor: drawn.cursor,
+    },
   };
 }
 
@@ -271,14 +305,15 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "COUNTDOWN_DONE": {
       if (!state.active) return state;
-      const first = drawCard(state.deck, state.active.cursor);
+      const drawn = drawAt(state.deck, state.active.cursor);
       return {
         ...state,
         phase: "play",
+        deck: drawn.deck,
         active: {
           ...state.active,
-          current: { card: first, banked1: false },
-          cursor: state.active.cursor + 1,
+          current: { card: drawn.card, banked1: false },
+          cursor: drawn.cursor,
           endsAt: Date.now() + state.turnSeconds * 1000,
           paused: false,
         },
@@ -299,18 +334,21 @@ export function reducer(state: GameState, action: Action): GameState {
     case "NEXT_WORD": {
       // Only reachable once +1 is banked; keep the +1 and move on.
       if (!state.active?.current) return state;
-      return { ...state, active: resolveAndDraw(state.active, state.deck, "easy") };
+      const { active, deck } = resolveAndDraw(state.active, state.deck, "easy");
+      return { ...state, active, deck };
     }
 
     case "PLUS_THREE": {
       if (!state.active?.current) return state;
-      return { ...state, active: resolveAndDraw(state.active, state.deck, "hard") };
+      const { active, deck } = resolveAndDraw(state.active, state.deck, "hard");
+      return { ...state, active, deck };
     }
 
     case "PASS": {
       if (!state.active?.current) return state;
       const bucket: Bucket = state.active.current.banked1 ? "easy" : "pass";
-      return { ...state, active: resolveAndDraw(state.active, state.deck, bucket) };
+      const { active, deck } = resolveAndDraw(state.active, state.deck, bucket);
+      return { ...state, active, deck };
     }
 
     case "PAUSE": {
