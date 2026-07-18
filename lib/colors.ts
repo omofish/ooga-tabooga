@@ -5,7 +5,6 @@ export type TeamColor = {
   key: string;
   label: string; // "Red"
   mascot: string; // thematic emoji
-  teamName: string; // fun default team name
   base: string; // main accent
   dark: string; // borders / pressed states
   deep: string; // strong gradient / heading text on light bg
@@ -18,7 +17,6 @@ export const TEAM_COLORS: TeamColor[] = [
     key: "red",
     label: "Red",
     mascot: "🔥",
-    teamName: "Fire Rocks",
     base: "#E24A3B",
     dark: "#B4322A",
     deep: "#7E211B",
@@ -29,7 +27,6 @@ export const TEAM_COLORS: TeamColor[] = [
     key: "blue",
     label: "Blue",
     mascot: "🦣",
-    teamName: "Big Mammoths",
     base: "#2E7BD6",
     dark: "#215FA8",
     deep: "#153E6E",
@@ -40,7 +37,6 @@ export const TEAM_COLORS: TeamColor[] = [
     key: "yellow",
     label: "Yellow",
     mascot: "☀️",
-    teamName: "Sun Stones",
     base: "#F2B01E",
     dark: "#CE9412",
     deep: "#7A5606",
@@ -51,7 +47,6 @@ export const TEAM_COLORS: TeamColor[] = [
     key: "green",
     label: "Green",
     mascot: "🌿",
-    teamName: "Green Vines",
     base: "#3DA95B",
     dark: "#2C8145",
     deep: "#18512A",

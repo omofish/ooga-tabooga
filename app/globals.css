@@ -133,13 +133,16 @@ body {
   background: var(--color-cream);
   color: var(--color-ink);
 }
+/* A mid-brown fill (lighter than the ink border) so the border still reads —
+   the ink border was previously lost against a near-black fill. Keeps light
+   cream text and an ink drop-shadow. */
 .btn-ink {
-  background: var(--color-ink);
+  background: #5a4329;
   color: var(--color-cream);
-  box-shadow: 0 5px 0 0 #1c130a;
+  box-shadow: 0 5px 0 0 var(--color-ink);
 }
 .btn-ink:active:not(:disabled) {
-  box-shadow: 0 1px 0 0 #1c130a;
+  box-shadow: 0 1px 0 0 var(--color-ink);
 }
 
 /* ---- Animations ---- */

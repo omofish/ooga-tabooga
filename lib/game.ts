@@ -11,6 +11,7 @@ import {
 } from "./types";
 import { TEAM_COLORS } from "./colors";
 import { randomCaveName } from "./names";
+import { randomTribes } from "./tribes";
 import { WORD_SETS, wordSetById } from "./word-sets";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
@@ -94,9 +95,19 @@ export function seenCount(state: GameState, wordSetId: string): number {
 }
 
 function buildTeams(numTeams: number): Team[] {
+  // Seed each new game with fresh random tribe names (+ matching emoji) from the
+  // pool rather than always the fixed per-colour defaults. Players can still
+  // rename via RenameTeamModal.
+  const tribes = randomTribes(numTeams);
   return Array.from({ length: numTeams }, (_, i) => {
     const color = TEAM_COLORS[i];
-    return { id: `team-${i}`, colorKey: color.key, name: color.teamName };
+    const tribe = tribes[i];
+    return {
+      id: `team-${i}`,
+      colorKey: color.key,
+      name: tribe.name,
+      emoji: tribe.emoji,
+    };
   });
 }
 
@@ -479,8 +490,16 @@ export function reducer(state: GameState, action: Action): GameState {
       return { ...state, seen: {} };
 
     case "RETURN_TO_START":
-      // Keep the word memory so "new game" still avoids recently seen cards.
-      return { ...defaultState(), seen: state.seen };
+      // Keep the word memory so "new game" still avoids recently seen cards, and
+      // preserve the player's setup choices (tribe count / round length / word
+      // set) so the setup screen re-opens with what they last played.
+      return {
+        ...defaultState(),
+        seen: state.seen,
+        numTeams: state.numTeams,
+        turnSeconds: state.turnSeconds,
+        wordSetId: state.wordSetId,
+      };
 
     default:
       return state;
