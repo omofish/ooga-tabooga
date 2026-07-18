@@ -213,37 +213,47 @@ export function tick(secondsLeft: number): void {
 }
 
 /**
- * Spoken milestone announcement ("30 seconds…"). Uses the Web Speech API — no
- * audio asset, works offline with the system voice — preceded by a short chime
- * so it lands even where speech synthesis is unavailable. Gated by the mute flag.
+ * Speak a phrase via the Web Speech API — no audio asset, works offline with the
+ * system voice. No-op when muted or where speech synthesis is unavailable, so
+ * callers should pair it with a synthesised cue that carries the moment on its
+ * own. `resume()` guards against the engine re-suspending between turns.
  */
-export function announce(secondsLeft: number): void {
+function speak(text: string): void {
   if (muted || typeof window === "undefined") return;
-
-  // Rising three-note "attention" fanfare, so there's always an unmistakable
-  // marker even where speech synthesis is unavailable.
-  tone({ freq: 784, duration: 0.12, type: "triangle", gain: 0.15 });
-  tone({ freq: 988, duration: 0.12, type: "triangle", gain: 0.15, startAt: 0.11 });
-  tone({ freq: 1319, duration: 0.2, type: "triangle", gain: 0.16, startAt: 0.22 });
-
   try {
     const synth = window.speechSynthesis;
     if (!synth) return;
-    synth.resume(); // in case the engine re-suspended between turns
-    const u = new SpeechSynthesisUtterance(`${secondsLeft} seconds`);
+    synth.resume();
+    const u = new SpeechSynthesisUtterance(text);
     u.rate = 1;
     u.volume = 1;
     synth.speak(u);
   } catch {
-    // No speech synthesis — the fanfare above still played.
+    // No speech synthesis — the caller's cue still played.
   }
 }
 
-/** Time's up: a harsh two-blast buzzer. */
+/**
+ * Spoken milestone announcement ("30 seconds…"), preceded by a rising three-note
+ * fanfare so it lands even where speech synthesis is unavailable. Muted-gated.
+ */
+export function announce(secondsLeft: number): void {
+  if (muted) return;
+
+  // Rising three-note "attention" fanfare — the unmistakable marker.
+  tone({ freq: 784, duration: 0.12, type: "triangle", gain: 0.15 });
+  tone({ freq: 988, duration: 0.12, type: "triangle", gain: 0.15, startAt: 0.11 });
+  tone({ freq: 1319, duration: 0.2, type: "triangle", gain: 0.16, startAt: 0.22 });
+
+  speak(`${secondsLeft} seconds`);
+}
+
+/** Time's up: a harsh two-blast buzzer, plus a spoken "Time's up!". */
 export function timeUp(): void {
   if (muted) return;
   tone({ freq: 210, duration: 0.3, type: "sawtooth", gain: 0.2 });
   tone({ freq: 180, duration: 0.45, type: "sawtooth", gain: 0.2, startAt: 0.32 });
+  speak("Time's up!");
 }
 
 /** Countdown 3 / 2 / 1 pip. */
