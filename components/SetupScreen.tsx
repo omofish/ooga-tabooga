@@ -50,7 +50,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
               <button
                 key={n}
                 onClick={() => dispatch({ type: "SET_NUM_TEAMS", n })}
-                className={`btn ${selected ? "btn-ink" : "btn-cream"} flex flex-col items-center gap-1 py-4`}
+                className={`btn ${selected ? "btn-selected" : "btn-cream"} flex flex-col items-center gap-1 py-4`}
               >
                 <span className="font-display text-3xl">{n}</span>
                 <span className="flex gap-1">
@@ -81,7 +81,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
                 onClick={() =>
                   dispatch({ type: "SET_TURN_SECONDS", seconds: sec })
                 }
-                className={`btn ${selected ? "btn-ink" : "btn-cream"} flex flex-col items-center gap-0.5 py-4`}
+                className={`btn ${selected ? "btn-selected" : "btn-cream"} flex flex-col items-center gap-0.5 py-4`}
               >
                 <span className="font-display text-3xl">{sec}</span>
                 <span className="text-xs font-bold opacity-80">seconds</span>
@@ -101,7 +101,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
               <button
                 key={set.id}
                 onClick={() => dispatch({ type: "SET_WORDSET", id: set.id })}
-                className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
+                className={`btn ${selected ? "btn-selected" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
               >
                 <span className="text-3xl">{set.emoji}</span>
                 <span className="flex flex-col">

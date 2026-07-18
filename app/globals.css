@@ -141,6 +141,14 @@ body {
 .btn-ink:active:not(:disabled) {
   box-shadow: 0 1px 0 0 #1c130a;
 }
+/* Selected/active toggle state (setup screen chips). A warm amber fill that
+   stays clearly lighter than the ink border, so the outline still reads —
+   unlike `.btn-ink`, whose dark fill blends into the border line. Inherits the
+   default `.btn` ink drop-shadow. */
+.btn-selected {
+  background: #f4b740;
+  color: var(--color-ink);
+}
 
 /* ---- Animations ---- */
 @keyframes pop-in {

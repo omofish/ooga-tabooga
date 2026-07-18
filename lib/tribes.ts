@@ -41,3 +41,18 @@ export const TRIBE_NAMES: TribeSuggestion[] = [
 export function randomTribe(): TribeSuggestion {
   return TRIBE_NAMES[Math.floor(Math.random() * TRIBE_NAMES.length)];
 }
+
+/**
+ * Pick `n` distinct tribe suggestions from the pool (name + emoji). Used to seed
+ * a new game's default tribes with fresh random names instead of always the same
+ * fixed defaults. Falls back to allowing repeats only if `n` exceeds the pool.
+ */
+export function randomTribes(n: number): TribeSuggestion[] {
+  const pool = [...TRIBE_NAMES];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  if (n <= pool.length) return pool.slice(0, n);
+  return Array.from({ length: n }, (_, i) => pool[i % pool.length]);
+}
