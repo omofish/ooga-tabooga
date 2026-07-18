@@ -16,6 +16,7 @@ const MUTE_KEY = "pfn-muted";
 
 let ctx: AudioContext | null = null;
 let muted = false;
+let speechPrimed = false;
 
 // Restore the persisted mute preference on the client (guarded for SSR).
 if (typeof window !== "undefined") {
@@ -66,6 +67,9 @@ export function useMuted(): boolean {
  * Lazily create (or resume) the shared AudioContext. Must be called from within
  * a user gesture the first time, per browser autoplay policy. Safe to call
  * repeatedly — e.g. on every "Start Round" tap and on the mute toggle.
+ *
+ * Also primes speech synthesis (see `primeSpeech`) so the timer-driven
+ * `announce()` calls later in the turn aren't blocked by the same policy.
  */
 export function unlockAudio(): void {
   if (typeof window === "undefined") return;
@@ -82,6 +86,30 @@ export function unlockAudio(): void {
     if (ctx.state === "suspended") void ctx.resume();
   } catch {
     // WebAudio unavailable — degrade silently to no sound.
+  }
+  primeSpeech();
+}
+
+/**
+ * Warm up the Web Speech engine from within a user gesture. Browsers (notably
+ * iOS Safari) drop `speechSynthesis.speak()` unless speech was first invoked
+ * during a gesture, and our announcements fire from a timer — so we speak one
+ * silent utterance here to satisfy that requirement. `resume()` runs every time
+ * (the engine can re-suspend); the silent utterance only needs to run once.
+ */
+function primeSpeech(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    synth.resume();
+    if (speechPrimed) return;
+    const u = new SpeechSynthesisUtterance(" ");
+    u.volume = 0;
+    synth.speak(u);
+    speechPrimed = true;
+  } catch {
+    // No speech synthesis — announcements fall back to their chime.
   }
 }
 
@@ -194,20 +222,22 @@ export function tick(secondsLeft: number): void {
 export function announce(secondsLeft: number): void {
   if (muted || typeof window === "undefined") return;
 
-  // Two-note "attention" chime, so there's always an audible marker.
-  tone({ freq: 784, duration: 0.12, type: "triangle", gain: 0.14 });
-  tone({ freq: 1047, duration: 0.16, type: "triangle", gain: 0.14, startAt: 0.11 });
+  // Rising three-note "attention" fanfare, so there's always an unmistakable
+  // marker even where speech synthesis is unavailable.
+  tone({ freq: 784, duration: 0.12, type: "triangle", gain: 0.15 });
+  tone({ freq: 988, duration: 0.12, type: "triangle", gain: 0.15, startAt: 0.11 });
+  tone({ freq: 1319, duration: 0.2, type: "triangle", gain: 0.16, startAt: 0.22 });
 
   try {
     const synth = window.speechSynthesis;
     if (!synth) return;
+    synth.resume(); // in case the engine re-suspended between turns
     const u = new SpeechSynthesisUtterance(`${secondsLeft} seconds`);
     u.rate = 1;
     u.volume = 1;
-    synth.cancel(); // drop any still-queued announcement
     synth.speak(u);
   } catch {
-    // No speech synthesis — the chime above still played.
+    // No speech synthesis — the fanfare above still played.
   }
 }
 

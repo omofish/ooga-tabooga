@@ -68,13 +68,17 @@ saved to `localStorage` on every change.
 `lib/sound.ts` is a tiny WebAudio engine: every tone is **synthesised at runtime**
 with an `OscillatorNode`, so there are no audio files and the offline PWA needs no
 extra cached assets. Screens call the semantic helpers (`bank`, `big`, `pass`,
-`tick`, `timeUp`, `beep`, `go`, `reveal`, `win`) and `vibrate()` from their event
-handlers/effects — **the reducer stays pure** (no side effects in `lib/game.ts`).
-`announce()` is the one exception to "no audio files": it layers a short chime
-with a spoken milestone via the Web Speech API (system voice, still offline-safe).
+`tick`, `timeUp`, `beep`, `go`, `reveal`, `win`, `announce`) and `vibrate()` from
+their event handlers/effects — **the reducer stays pure** (no side effects in
+`lib/game.ts`). `announce()` is the one exception to "no audio files": it layers a
+short fanfare chime with a spoken milestone via the Web Speech API (system voice,
+still offline-safe).
 
 - Playback is a no-op until `unlockAudio()` runs inside a user gesture (browser
-  autoplay policy). It's called on "Start Game", "Start Round", and the mute toggle.
+  autoplay policy). It's called on "Start Game", "Start Round", and the mute
+  toggle, and **also primes speech synthesis** — browsers (esp. iOS Safari) drop
+  timer-driven `speechSynthesis.speak()` unless speech was first invoked during a
+  gesture, so `announce()` would otherwise stay silent.
 - A single **mute flag** gates both sound *and* haptics, persisted under its own
   `localStorage` key (`pfn-muted`) — separate from game state, so **no
   `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives the
