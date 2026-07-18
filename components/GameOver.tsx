@@ -26,8 +26,11 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
     <div className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-6 pt-8">
       <Confetti />
 
-      <header className="relative z-10 text-center">
-        <div className="animate-wiggle mb-2 text-5xl">🏆</div>
+      {/* Stacked display-font lines need explicit gaps: text-box-trim strips
+          each line's leading, so without spacing they collide (worse under the
+          winner's `animate-tada` scale). */}
+      <header className="relative z-10 flex flex-col items-center gap-3 text-center">
+        <div className="animate-wiggle text-5xl">🏆</div>
         {isTie ? (
           <h1 className="font-display text-shadow-pop text-3xl text-ink">
             It&apos;s a Tie!
@@ -36,7 +39,7 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
           <>
             <p className="font-display text-lg text-ink-soft">Winner!</p>
             <h1
-              className="animate-tada font-display text-shadow-pop text-4xl"
+              className="animate-tada font-display text-shadow-pop py-1 text-4xl"
               style={{ color: winColor.deep }}
             >
               {top.team.emoji || winColor.mascot} {top.team.name}
