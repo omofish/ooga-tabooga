@@ -2,6 +2,7 @@
 
 import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
+import { bestTurn } from "@/lib/solo";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import HowToPlay from "./HowToPlay";
@@ -9,13 +10,17 @@ import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";
 
 const TEAM_OPTIONS = Array.from(
-  { length: MAX_TEAMS - 1 },
-  (_, i) => i + 2,
-); // [2, 3]
+  { length: MAX_TEAMS },
+  (_, i) => i + 1,
+); // [1, 2, 3] — 1 is solo "beat your best" mode
 
 export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const seen = seenCount(state, state.wordSetId);
   const total = wordSetById(state.wordSetId).cards.length;
+  // Safe to read localStorage during render: <Game/> only mounts this screen
+  // after its hydration gate, so there's no SSR mismatch.
+  const solo = state.numTeams === 1;
+  const best = solo ? bestTurn(state.wordSetId, state.turnSeconds) : null;
 
   return (
     <div className="relative flex flex-1 flex-col gap-7 px-5 pb-10 pt-8">
@@ -43,7 +48,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
       {/* Team count */}
       <section>
         <h2 className="font-display mb-2 text-xl text-ink">How many tribes?</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {TEAM_OPTIONS.map((n) => {
             const selected = state.numTeams === n;
             return (
@@ -62,11 +67,19 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
                     />
                   ))}
                 </span>
-                <span className="text-xs font-bold opacity-80">tribes</span>
+                <span className="text-xs font-bold opacity-80">
+                  {n === 1 ? "solo" : "tribes"}
+                </span>
               </button>
             );
           })}
         </div>
+        {solo && (
+          <p className="mt-2 px-1 text-xs font-bold text-ink-soft">
+            🏆 Solo — take turns and chase your best single-turn score.
+            {best ? ` Best: ${best.score} (${best.name}).` : ""}
+          </p>
+        )}
       </section>
 
       {/* Round length */}

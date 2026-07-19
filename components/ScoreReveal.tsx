@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
+import { isSolo } from "@/lib/game";
+import { bestTurn, recordBestTurn } from "@/lib/solo";
 import * as sound from "@/lib/sound";
 import type { ScreenProps } from "./types";
 import Confetti from "./Confetti";
@@ -12,6 +14,24 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
   const c = colorForKey(team?.colorKey ?? "red");
   const result = active ? state.rounds[active.roundIndex]?.[active.teamId] : undefined;
   const target = result?.score ?? 0;
+  const solo = isSolo(state);
+
+  // Read the pre-turn record ONCE so we can both show "Best: X" and detect a new
+  // record before we overwrite it below.
+  const [prevBest] = useState(() =>
+    solo ? bestTurn(state.wordSetId, state.turnSeconds) : null,
+  );
+  const isNewBest = solo && target > 0 && (!prevBest || target > prevBest.score);
+
+  // Persist a new solo record (side effect kept out of the pure reducer). Runs
+  // once on reveal; `recordBestTurn` only writes when the score actually beats
+  // the stored best, so a re-invoke (React strict mode) is harmless.
+  useEffect(() => {
+    if (solo && result) {
+      recordBestTurn(state.wordSetId, state.turnSeconds, target, result.playerName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [display, setDisplay] = useState(0);
 
@@ -66,6 +86,18 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
         <p className="font-display text-2xl">
           {celebrate ? "points! Ug good! 🎉" : "Ug… rough round."}
         </p>
+
+        {solo && (
+          <p className="mt-2 font-display text-lg opacity-95">
+            {isNewBest
+              ? prevBest
+                ? `🏆 New best! Beat ${prevBest.score}`
+                : "🏆 First record set!"
+              : prevBest
+                ? `Best: ${prevBest.score} · ${prevBest.name}`
+                : ""}
+          </p>
+        )}
 
         <div className="mt-6 flex gap-2 text-sm font-extrabold">
           <Pill n={counts.hard} label="×3" />

@@ -54,6 +54,7 @@ Deeper detail (state machine, screen flow, styling gotchas) is in
 - `components/` — one component per screen; `Game.tsx` routes by `state.phase`; `Modal` is the shared dialog.
 - `lib/game.ts` — the reducer + all game logic + localStorage persistence (the brain).
 - `lib/{colors,names,tribes}.ts` — team themes and default player/tribe names.
+- `lib/solo.ts` — solo mode's "best single turn" records (own localStorage key).
 - `lib/word-sets/` — `index.ts` (the `WORD_SETS` registry), `<set>.ts` (the sets), and `gen.ts` (build helpers).
 - `docs/` — this documentation.
 
