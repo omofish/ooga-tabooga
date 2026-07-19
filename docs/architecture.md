@@ -14,6 +14,13 @@ saved to `localStorage` on every change.
   cards, timer (`endsAt`), and manual `scoreAdjust`.
 - `state.seen` remembers played cards per set so a fresh game deals unseen cards
   first (see `buildDeck`); the setup screen can reset it.
+- **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no
+  opponent. The whole turn loop is unchanged (one column on the scoreboard); the
+  goal is instead to beat your **best single turn**. Records live in `lib/solo.ts`
+  under their own `localStorage` key (`pfn-best-turn-v1`), scoped per word set ×
+  round length, so they survive new games. `ScoreReveal`/`ScoreView`/`GameOver`
+  branch on `isSolo` to show and celebrate the record; the write happens in a
+  `ScoreReveal` effect (the reducer stays pure).
 - Persistence: `saveState`/`loadState`. **Bump `STATE_VERSION` when the persisted
   shape changes** (a version mismatch discards old saves, avoiding crashes).
   Where possible, default a new field instead (`x ?? 0`) so in-progress games
@@ -23,14 +30,14 @@ saved to `localStorage` on every change.
 
 | Phase | Component | Role |
 |---|---|---|
-| setup | `SetupScreen` | choose tribes / round length / word set |
+| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set |
 | score | `ScoreView` | scoreboard; ▶ to play a turn, tap a team name to rename |
 | — | `StartRoundModal`, `RenameTeamModal` | shown over the scoreboard |
 | countdown | `Countdown` | 3·2·1·GO |
 | play | `Gameplay` | the timed turn (cards, timer, pause/restart) |
 | review | `RoundReview` | drag cards into +3/+1/−1 buckets, manual ±, bank |
 | reveal | `ScoreReveal` | animated turn score |
-| gameover | `GameOver` | winner / standings |
+| gameover | `GameOver` | winner / standings (solo: best-turn summary vs record) |
 
 `Modal` is the standard dialog — reuse it; never hand-roll an overlay or use
 `window.confirm`. `HowToPlay` (a flat "?" button that opens the rules in a

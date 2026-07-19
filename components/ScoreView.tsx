@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
-import { roundComplete, teamSummary } from "@/lib/game";
+import { isSolo, roundComplete, teamSummary } from "@/lib/game";
+import { bestTurn } from "@/lib/solo";
 import { wordSetById } from "@/lib/word-sets";
 import Modal from "./Modal";
 import RenameTeamModal from "./RenameTeamModal";
@@ -12,6 +13,8 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
   const { teams, rounds, currentRound } = state;
   const complete = roundComplete(state);
   const wordSet = wordSetById(state.wordSetId);
+  const solo = isSolo(state);
+  const best = solo ? bestTurn(state.wordSetId, state.turnSeconds) : null;
   const [quitOpen, setQuitOpen] = useState(false);
   const [renameTeamId, setRenameTeamId] = useState<string | null>(null);
   const renameTeam = teams.find((t) => t.id === renameTeamId);
@@ -70,6 +73,16 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           dispatch={dispatch}
           onClose={() => setRenameTeamId(null)}
         />
+      )}
+
+      {/* Solo: the record you're chasing, for this set + round length. */}
+      {solo && (
+        <div className="chunk mb-4 rounded-xl px-3 py-2 text-center text-xs font-bold text-ink">
+          🏆 Best turn · {wordSet.name} · {state.turnSeconds}s:{" "}
+          <span className="font-display text-sm">
+            {best ? `${best.score} (${best.name})` : "—"}
+          </span>
+        </div>
       )}
 
       {/* Matrix */}
@@ -205,7 +218,9 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           </div>
         ) : (
           <p className="animate-pulse-soft text-center text-sm font-bold text-ink-soft">
-            📲 Pass the phone — tap a tribe&apos;s ▶ to take a turn
+            {solo
+              ? "🏆 Tap ▶ to take a turn — beat your best!"
+              : "📲 Pass the phone — tap a tribe's ▶ to take a turn"}
           </p>
         )}
       </div>

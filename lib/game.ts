@@ -111,6 +111,11 @@ function buildTeams(numTeams: number): Team[] {
   });
 }
 
+/** A solo ("beat your best") game has a single tribe and no opponent. */
+export function isSolo(state: GameState): boolean {
+  return state.numTeams === 1;
+}
+
 /** True once every team has a recorded result for the current round. */
 export function roundComplete(state: GameState): boolean {
   const round = state.rounds[state.currentRound];
@@ -232,7 +237,7 @@ export function reducer(state: GameState, action: Action): GameState {
       return action.state;
 
     case "SET_NUM_TEAMS":
-      return { ...state, numTeams: Math.min(MAX_TEAMS, Math.max(2, action.n)) };
+      return { ...state, numTeams: Math.min(MAX_TEAMS, Math.max(1, action.n)) };
 
     case "SET_TEAM_NAME":
       return {
