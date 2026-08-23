@@ -5,6 +5,7 @@ import { MOVIE_CARDS } from "./movies";
 import { MUNCHIES_CARDS } from "./munchies";
 import { SINGAPORE_CARDS } from "./singapore";
 import { ANIMAL_CARDS } from "./animals";
+import { BIBLE_CARDS } from "./bible";
 
 // The "caveman" twist is the *mechanic* — you may only clue using
 // single-syllable words — not the cards. Each card has a simple
@@ -53,6 +54,13 @@ export const WORD_SETS: WordSet[] = [
     emoji: "🐾",
     blurb: "An animal + a phrase it lives in",
     cards: ANIMAL_CARDS,
+  },
+  {
+    id: "bible",
+    name: "Bible",
+    emoji: "📖",
+    blurb: "Famous terms, places & characters",
+    cards: BIBLE_CARDS,
   },
 ];
 
