@@ -12,7 +12,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.add("/").catch(() => {}))
+      .then((cache) => cache.add(self.registration.scope).catch(() => {}))
       .then(() => self.skipWaiting()),
   );
 });
@@ -60,7 +60,7 @@ self.addEventListener("fetch", (event) => {
 
       // Offline and never cached: fall back to the app shell for page loads.
       if (request.mode === "navigate") {
-        const shell = await cache.match("/");
+        const shell = await cache.match(self.registration.scope);
         if (shell) return shell;
       }
       return Response.error();
