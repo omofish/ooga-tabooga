@@ -115,3 +115,22 @@ contain the easy word) and dedupes. Authoring rules and the audit script:
 + `components/ServiceWorkerRegister.tsx` (registers **in production only**).
 Icons in `public/`, metadata/apple tags wired in `app/layout.tsx`. Only works in
 a production build (`npm run build && npm run start`), not dev.
+
+## Deployment (GitHub Pages + basePath)
+
+`next.config.ts` builds a static export (`output: "export"`) served from
+`https://<user>.github.io/ooga-tabooga/` — set via `basePath`, sourced from
+`lib/base-path.ts`. `.github/workflows/deploy.yml` builds and publishes on
+push to `main`. Because the site isn't at the domain root, anything that
+references a `public/` asset by absolute URL has to account for the
+basePath — Next only auto-prefixes bundler-managed assets (`_next/*`), not
+raw `public/` files or app metadata:
+
+- `app/layout.tsx` metadata (`icons`, `manifest`) uses **relative** paths
+  (no leading `/`) so they resolve against the page, not the domain root.
+- `public/manifest.webmanifest`'s `start_url`/`scope`/icon `src` are
+  relative for the same reason (resolved relative to the manifest URL).
+- `components/ServiceWorkerRegister.tsx` and `public/sw.js` can't use
+  relative paths (a service worker's own script/scope URLs must be
+  explicit), so the register call is prefixed with `BASE_PATH` and `sw.js`
+  reads `self.registration.scope` instead of hardcoding `"/"`.

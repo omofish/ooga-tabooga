@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description:
     "A mobile party game — grunt one-syllable clues, guess the words, bonk the club. Ug good!",
   applicationName: "Ooga Tabooga",
-  manifest: "/manifest.webmanifest",
+  manifest: "manifest.webmanifest",
   appleWebApp: {
     capable: true,
     title: "Ooga Tabooga",
@@ -28,10 +28,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
