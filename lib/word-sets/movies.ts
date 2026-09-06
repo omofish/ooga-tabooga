@@ -202,4 +202,18 @@ export const MOVIE_CARDS: WordCard[] = build([
   { easy: "Bridge", hard: "Bridge To Terabithia" },
   { easy: "Web", hard: "Charlottes Web" },
   { easy: "Kid", hard: "Diary Of A Wimpy Kid" },
+
+  // More famous films (non-animated)
+  { easy: "Redemption", hard: "The Shawshank Redemption" },
+  { easy: "Country", hard: "No Country For Old Men" },
+  { easy: "Blood", hard: "There Will Be Blood" },
+  { easy: "Mind", hard: "A Beautiful Mind" },
+  { easy: "Network", hard: "The Social Network" },
+  { easy: "Morning", hard: "Good Morning Vietnam" },
+  { easy: "Hard", hard: "Die Hard" },
+  { easy: "Batman", hard: "Batman Begins" },
+  { easy: "Men", hard: "X Men" },
+  { easy: "Spider", hard: "The Amazing Spider Man" },
+  { easy: "Gun", hard: "Top Gun Maverick" },
+  { easy: "Baby", hard: "The Boss Baby" },
 ]);
