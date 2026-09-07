@@ -2,6 +2,7 @@ import type { WordSet } from "../types";
 import { EVERYDAY_CARDS } from "./everyday";
 import { FANTASY_CARDS } from "./fantasy";
 import { MOVIE_CARDS } from "./movies";
+import { TV_SHOW_CARDS } from "./tv-shows";
 import { MUNCHIES_CARDS } from "./munchies";
 import { SINGAPORE_CARDS } from "./singapore";
 import { ANIMAL_CARDS } from "./animals";
@@ -33,6 +34,13 @@ export const WORD_SETS: WordSet[] = [
     emoji: "🎬",
     blurb: "Famous films across the decades",
     cards: MOVIE_CARDS,
+  },
+  {
+    id: "tv-shows",
+    name: "TV Shows",
+    emoji: "📺",
+    blurb: "Famous series, old sitcoms to modern hits",
+    cards: TV_SHOW_CARDS,
   },
   {
     id: "munchies",

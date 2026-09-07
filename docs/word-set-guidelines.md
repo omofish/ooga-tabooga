@@ -1,9 +1,9 @@
 # Word-set guidelines
 
 How to write and review the word sets in `lib/word-sets/` (`everyday.ts`,
-`fantasy.ts`, `movies.ts`, `munchies.ts`, `singapore.ts`, `animals.ts`). These
-rules exist so every card plays cleanly in a party game where clues can only use
-one-syllable words.
+`fantasy.ts`, `movies.ts`, `tv-shows.ts`, `munchies.ts`, `singapore.ts`,
+`animals.ts`, `bible.ts`). These rules exist so every card plays cleanly in a
+party game where clues can only use one-syllable words.
 
 ## The card model
 
@@ -196,6 +196,7 @@ those by reading the cards.
 | Standard | everyday compounds | The workhorse. Compounds like `Camp Fire`. |
 | Fantasy | magic, dragons, medieval | Real fantasy compounds only (`Dragon Fire`, `Magic Spell`). |
 | Movies | famous films, 90s→ | `easy` is a word inside the title. |
+| TV Shows | famous series, old sitcoms→ | Same shape as Movies — `easy` is a word inside the title. |
 | Munchies | food & drink | Real dishes; ethnic dishes welcome, no local slang venues. |
 | Sunny Singapore | Singapore | Local food/places/slang; `easy` must appear in them. |
 | Animals | animal idioms | `easy` is an animal; `hard` a real phrase it's in (`Night Owl`). |
