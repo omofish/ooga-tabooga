@@ -7,8 +7,10 @@
   --color-cream: #fff7e8;
   --color-ink: #3a2a1b;
   --color-ink-soft: #6d5233;
-  --color-body: #e3d2b3; /* body's own solid base tint — see body{} below, and
-    <ChromeEdges/> which reads this same var so the two can never drift apart. */
+  --color-body: #e3d2b3; /* body's own solid base tint — named on its own
+    because it matters beyond just decoration: it's what iOS 26 Safari falls
+    back to for its own chrome colour (status bar / bottom toolbar) when no
+    fixed/sticky element sits right at an edge — see body{} below. */
 }
 
 :root {

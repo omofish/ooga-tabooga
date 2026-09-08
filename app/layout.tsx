@@ -37,10 +37,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // No themeColor: iOS 26 Safari ignores the meta tag entirely and derives
-  // its chrome colour from actual rendered CSS instead — see
-  // components/ChromeEdges.tsx, which is how top/bottom chrome tinting is
-  // actually done now.
+  // No themeColor: iOS 26 Safari ignores the meta tag entirely, deriving its
+  // chrome colour (status bar / bottom toolbar) from actual rendered CSS
+  // instead — sampled once, at first paint, never again. A client-rendered
+  // SPA like this one can't usefully target that per screen (every phase
+  // change happens after that first paint, so it'd never be re-sampled
+  // anyway) — so this is deliberately left for Safari's own documented
+  // fallback: <body>'s plain background-color (--color-body, see
+  // globals.css), which is already what we want everywhere.
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

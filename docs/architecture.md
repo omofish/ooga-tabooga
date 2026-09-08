@@ -140,17 +140,18 @@ contain the easy word) and dedupes. Authoring rules and the audit script:
 
 There's no `<meta name="theme-color">` — iOS 26 Safari ignores it entirely.
 Instead it derives its own chrome colour by sampling the `background-color`
-of a `position: fixed`/`sticky` element that sits right at the top or bottom
-edge (full width, flush with the edge), falling back to `<body>`'s own solid
-`background-color` otherwise — at initial render only, not on later state
-changes. `components/ChromeEdges.tsx` is two thin invisible strips pinned to
-those edges purely to be that signal; `chromeEdgeColors()` (`lib/colors.ts`)
-picks their colour per `state.phase` (and the active team's colour, for the
-in-turn phases), mirroring each screen's own background value-for-value so
-they're invisible in normal use. `Game.tsx` renders it once, above the
-phase switch. A `Modal`'s backdrop is a translucent fixed edge-to-edge layer
-too, which can make the sampled colour unpredictable while one's open — a
-known, currently-unresolved WebKit bug, not something fixable from our CSS.
+of a `position: fixed`/`sticky` element flush with the top or bottom edge
+(full width), falling back to `<body>`'s own solid `background-color`
+otherwise — **at initial render only, never re-sampled on later state
+changes.** That rules out targeting it per screen here: this is a 100%
+client-rendered SPA, so every phase change happens *after* that first paint
+and would never be picked up anyway — the whole page only ever gets one
+shot at this, whatever's true at first paint (which, pre-hydration, is
+always the same loading placeholder, regardless of which phase a saved game
+resumes to). So there's deliberately no fixed/sticky edge element anywhere
+meant to influence this — Safari's own fallback (`<body>`'s
+`background-color`, `--color-body`, see `globals.css`) already gives the
+one consistent colour that's actually achievable, at both edges.
 
 ## PWA / offline
 

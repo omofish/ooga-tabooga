@@ -1,8 +1,6 @@
 // Team colours. The active team's colour themes the whole gameplay UI.
 // Order matters: the spec asks for red, then blue, then yellow, then green.
 
-import type { GameState } from "./types";
-
 export type TeamColor = {
   key: string;
   label: string; // "Red"
@@ -70,34 +68,4 @@ export function colorVars(c: TeamColor): React.CSSProperties {
     ["--team-soft" as string]: c.soft,
     ["--team-on" as string]: c.onBase,
   };
-}
-
-/** Colour for the very top/bottom edge of the viewport, for whichever phase
- *  is showing — read by <ChromeEdges/> (see that file for why: iOS 26 Safari
- *  tints its own chrome from a fixed/sticky edge element's background-color).
- *  Deliberately mirrors each screen's own background exactly, value for
- *  value, rather than picking independently — see each `case` below for the
- *  matching screen. */
-export function chromeEdgeColors(state: GameState): { top: string; bottom: string } {
-  const team = state.teams.find((t) => t.id === state.active?.teamId);
-  const c = colorForKey(team?.colorKey ?? TEAM_COLORS[0].key);
-
-  switch (state.phase) {
-    // Countdown/Gameplay/ScoreReveal fill the whole screen with the active
-    // team's `base` colour (see each component's outer `style`).
-    case "countdown":
-    case "play":
-    case "reveal":
-      return { top: c.base, bottom: c.base };
-    // RoundReview fills the whole screen with the active team's `soft` tint.
-    case "review":
-      return { top: c.soft, bottom: c.soft };
-    // SetupScreen: a solid dark top bar over the plain cream body beneath.
-    case "setup":
-      return { top: "var(--color-ink)", bottom: "var(--color-body)" };
-    // ScoreView and GameOver have no special background — plain cream body.
-    case "score":
-    case "gameover":
-      return { top: "var(--color-body)", bottom: "var(--color-body)" };
-  }
 }
