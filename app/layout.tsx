@@ -37,11 +37,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Deliberately no themeColor: Safari applies it to its whole chrome as one
-  // value — both the top status-bar strip AND its own bottom toolbar — so a
-  // color picked to match one edge always mismatches the other. Leaving it
-  // unset gives Safari's own neutral light/dark-mode chrome at both edges
-  // instead of a swatch that's only ever right on one side.
+  // Experiment: theme-color set to the same dark ink as the new top bar
+  // (--color-ink, #3a2a1b) — testing on-device whether that reads better
+  // than leaving it unset, despite tinting Safari's bottom chrome too.
+  themeColor: "#3a2a1b",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
