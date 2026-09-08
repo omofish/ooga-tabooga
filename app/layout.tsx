@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Luckiest_Guy, Nunito } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
@@ -66,6 +67,10 @@ export default function RootLayout({
           </p>
         </div>
         <ServiceWorkerRegister />
+        <Toaster
+          position="top-center"
+          toastOptions={{ className: "font-bold", duration: 2400 }}
+        />
       </body>
     </html>
   );

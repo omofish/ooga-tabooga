@@ -28,7 +28,11 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
   };
 
   return (
-    <Modal onClose={() => dispatch({ type: "CLOSE_MODAL" })} style={colorVars(c)}>
+    <Modal
+      onClose={() => dispatch({ type: "CLOSE_MODAL" })}
+      style={colorVars(c)}
+      title="Start round"
+    >
       <div className="text-center">
         <div className="animate-wiggle text-5xl">{team.emoji || c.mascot}</div>
         <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-ink-soft">

@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { colorForKey, colorVars } from "@/lib/colors";
-import { isSolo, nextUpTeamId, roundsBalanced, teamSummary } from "@/lib/game";
+import {
+  anyTurnsPlayed,
+  isSolo,
+  nextUpTeamId,
+  roundsBalanced,
+  teamSummary,
+} from "@/lib/game";
 import { bestTurn } from "@/lib/solo";
 import { wordSetById } from "@/lib/word-sets";
 import Modal from "./Modal";
@@ -20,7 +27,20 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
   const renameTeam = teams.find((t) => t.id === renameTeamId);
   const nextTeam = teams.find((t) => t.id === nextUpTeamId(state));
   const nextColor = nextTeam ? colorForKey(nextTeam.colorKey) : null;
-  const canEndGame = roundsBalanced(state);
+  const played = anyTurnsPlayed(state);
+  const canEndGame = played && roundsBalanced(state);
+
+  const tryEndGame = () => {
+    if (!played) {
+      toast("No can end game yet — no round played!");
+      return;
+    }
+    if (!canEndGame) {
+      toast("No can end game yet — round not done!");
+      return;
+    }
+    setEndGameOpen(true);
+  };
 
   const cols = `minmax(2.2rem,auto) repeat(${teams.length}, minmax(0,1fr))`;
 
@@ -45,7 +65,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
       </header>
 
       {quitOpen && (
-        <Modal onClose={() => setQuitOpen(false)}>
+        <Modal onClose={() => setQuitOpen(false)} title="Quit game">
           <div className="text-center">
             <div className="text-5xl">🚪</div>
             <h2 className="mt-1 font-display text-2xl text-ink">Quit game?</h2>
@@ -209,16 +229,16 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
         )}
 
         <button
-          onClick={() => setEndGameOpen(true)}
-          disabled={!canEndGame}
-          className="btn btn-ink w-full py-4 text-lg"
+          onClick={tryEndGame}
+          aria-disabled={!canEndGame}
+          className={`btn btn-ink w-full py-4 text-lg ${canEndGame ? "" : "opacity-45"}`}
         >
           <span className="font-display">End Game 🏆</span>
         </button>
       </div>
 
       {endGameOpen && (
-        <Modal onClose={() => setEndGameOpen(false)}>
+        <Modal onClose={() => setEndGameOpen(false)} title="End game">
           <div className="text-center">
             <div className="text-5xl">🏆</div>
             <h2 className="mt-1 font-display text-2xl text-ink">

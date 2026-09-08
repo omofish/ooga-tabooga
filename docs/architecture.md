@@ -46,8 +46,29 @@ saved to `localStorage` on every change.
 | gameover | `GameOver` | winner / standings (solo: best-turn summary vs record) |
 
 `Modal` is the standard dialog — reuse it; never hand-roll an overlay or use
-`window.confirm`. `HowToPlay` (a flat "?" button that opens the rules in a
-`Modal`) sits in the top-left of `SetupScreen`, mirroring the `MuteToggle`.
+`window.confirm`. It wraps `@radix-ui/react-dialog` (Radix), which supplies a
+real focus trap, Escape/outside-tap dismiss, and — the reason it replaced a
+hand-rolled `<div>` overlay — background scroll lock, so the page behind a
+dialog can't be scrolled while it's open. Every call site passes a `title`
+string; it's rendered `sr-only` as the dialog's accessible name (each caller
+already shows its own heading visually, so this doesn't duplicate it).
+`HowToPlay` (a flat "?" button that opens the rules in a `Modal`) sits in the
+top-left of `SetupScreen`, mirroring the `MuteToggle`.
+
+`sonner` (`<Toaster/>` mounted once in `app/layout.tsx`, themed to the cream/
+ink palette in `globals.css`) is the toast system — call `toast("message")`
+from anywhere. Used for transient feedback that doesn't need a dialog, e.g.
+ScoreView's End Game button while it's not yet valid to end (round not done,
+or no round played at all): the button stays a real, clickable `<button
+aria-disabled>` (not the native `disabled` attribute, which would swallow the
+click) so tapping it can explain why via a toast instead of silently doing
+nothing.
+
+The scrollbar is themed globally in `globals.css` (not opt-in per element) so
+any scrollable area — inside a `Modal` or a full-screen phase alike — gets
+the same always-visible, in-theme treatment; give a scrollable container its
+own right-hand padding (see `HowToPlay`'s rules panel) so the bar doesn't sit
+on top of the last few characters of text.
 
 ## Styling (Tailwind v4 in `app/globals.css`) — gotchas
 

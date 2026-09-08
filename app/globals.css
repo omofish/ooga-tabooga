@@ -117,25 +117,45 @@ body {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
 }
 
-/* ---- Themed, always-on scrollbar for a scrollable panel ---- */
-/* Signals "more content below" without relying on the browser's own
+/* ---- Themed, always-on scrollbar ---- */
+/* Applied globally (not opt-in per element) so every scrollable area —
+   modal or full-screen phase alike — gets the same treatment for free.
+   Signals "more content below" without relying on the browser's own
    overlay indicator (which auto-hides, and on iOS ignores styling
    entirely). Firefox via scrollbar-width/-color; WebKit/Blink via the
    pseudo-elements, which — unlike the OS overlay indicator — stay
    permanently visible rather than only flashing during a scroll. */
-.themed-scroll {
+html {
   scrollbar-width: thin;
   scrollbar-color: var(--color-ink-soft) transparent;
 }
-.themed-scroll::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
-.themed-scroll::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.themed-scroll::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: var(--color-ink-soft);
   border-radius: 999px;
+}
+
+/* ---- Toast (sonner) ---- */
+/* Retheme sonner's default palette to the app's cream/ink chunky look
+   instead of its plain white/gray default. `!important`: sonner injects its
+   own `[data-sonner-toaster][data-sonner-theme=light]` rule into <head> at
+   runtime (after this stylesheet, and with equal-or-higher specificity), so
+   a plain override here loses the cascade without it. */
+[data-sonner-toaster] {
+  --normal-bg: var(--color-cream) !important;
+  --normal-border: var(--color-ink) !important;
+  --normal-text: var(--color-ink) !important;
+  --border-radius: 1rem !important;
+}
+[data-sonner-toast][data-styled="true"] {
+  border-width: 3px !important;
+  box-shadow: 0 5px 0 0 var(--color-ink) !important;
 }
 
 /* ---- Cartoon "sticker" surface ---- */

@@ -144,6 +144,11 @@ export function nextUpTeamId(state: GameState): string | null {
   return (waiting ?? state.teams[0]).id;
 }
 
+/** True once at least one team has played at least one turn. */
+export function anyTurnsPlayed(state: GameState): boolean {
+  return state.teams.some((t) => teamSummary(state, t.id).turns.length > 0);
+}
+
 /** True once every team has played the same number of turns — the point at
  *  which it's fair to end the game. */
 export function roundsBalanced(state: GameState): boolean {

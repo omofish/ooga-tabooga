@@ -67,7 +67,7 @@ export default function RenameTeamModal({
   };
 
   return (
-    <Modal onClose={onClose} style={colorVars(c)}>
+    <Modal onClose={onClose} style={colorVars(c)} title="Rename tribe">
       <div className="text-center">
         <div className="animate-wiggle text-5xl">{emoji || c.mascot}</div>
         <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-ink-soft">
