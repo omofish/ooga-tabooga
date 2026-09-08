@@ -117,6 +117,27 @@ body {
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
 }
 
+/* ---- Themed, always-on scrollbar for a scrollable panel ---- */
+/* Signals "more content below" without relying on the browser's own
+   overlay indicator (which auto-hides, and on iOS ignores styling
+   entirely). Firefox via scrollbar-width/-color; WebKit/Blink via the
+   pseudo-elements, which — unlike the OS overlay indicator — stay
+   permanently visible rather than only flashing during a scroll. */
+.themed-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-soft) transparent;
+}
+.themed-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.themed-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.themed-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-ink-soft);
+  border-radius: 999px;
+}
+
 /* ---- Cartoon "sticker" surface ---- */
 .chunk {
   border: 3px solid var(--color-ink);

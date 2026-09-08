@@ -28,8 +28,11 @@ export default function HowToPlay({ className }: { className?: string }) {
           </div>
 
           {/* Rules scroll within a capped height so the card never overflows a
-              small phone; the sticky Got-It button below stays reachable. */}
-          <div className="mt-4 max-h-[58vh] space-y-5 overflow-y-auto pr-1">
+              small phone; the sticky Got-It button below stays reachable. The
+              themed scrollbar sits in its own right-hand gutter (pr-4) so it
+              never overlaps the text, and stays visible the whole time as a
+              hint that there's more to scroll. */}
+          <div className="themed-scroll mt-4 max-h-[58vh] space-y-5 overflow-y-auto pr-4">
             <p className="text-sm font-bold leading-relaxed text-ink-soft">
               One player hold phone, is chief. Chief grunt clues. Tribe guess
               word on the card. Bad talk get bonk. Tribe change when time end.
