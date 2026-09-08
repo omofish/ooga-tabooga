@@ -37,13 +37,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // The body's base tint (see globals.css) — the dominant colour across
-  // nearly the whole page. A flat colour can't match the radial highlight
-  // (top-left, lighter) and shadow (bottom-right, darker) it sits under, but
-  // the plain base tint is a much closer match at both the top (status bar)
-  // and bottom (home-indicator / nav-bar chrome in standalone PWA mode) than
-  // a colour lightened for just the one corner would be.
-  themeColor: "#e3d2b3",
+  // Matches the average colour along the very top of the page, where the body's
+  // base tint (#e3d2b3) is lightened by the radial highlight — so the OS status
+  // bar blends into the background instead of reading a shade darker.
+  themeColor: "#e6d7bb",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
