@@ -34,13 +34,13 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
         <p className="mt-1 text-xs font-extrabold uppercase tracking-widest text-ink-soft">
           Round {active.roundIndex + 1}
         </p>
-        <h2 className="font-display text-2xl" style={{ color: c.deep }}>
+        <h2 className="mt-3 font-display text-2xl" style={{ color: c.deep }}>
           {team.name}
         </h2>
       </div>
 
       <label className="mt-5 block text-sm font-extrabold text-ink-soft">
-        Who be the chief?
+        What be your name? (Leave blank for cave name)
       </label>
       <div className="mt-1.5 flex gap-2">
         <input
