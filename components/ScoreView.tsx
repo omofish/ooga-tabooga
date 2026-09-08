@@ -32,7 +32,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           <h1 className="font-display text-2xl text-ink">
             Scoreboard
           </h1>
-          <p className="text-xs font-bold text-ink-soft">
+          <p className="mt-1.5 text-xs font-bold text-ink-soft">
             {wordSet.emoji} {wordSet.name}
           </p>
         </div>
@@ -170,7 +170,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
             return (
               <div
                 key={t.id}
-                className="flex items-center justify-center border-l-[3px] border-cream/20 py-2"
+                className="flex items-center justify-center py-2"
               >
                 <span className="font-display text-xl" style={{ color: c.base }}>
                   {total}
