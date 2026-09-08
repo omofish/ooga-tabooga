@@ -44,7 +44,7 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
       </div>
 
       <label className="mt-5 block text-sm font-extrabold text-ink-soft">
-        What be your name? (Leave blank for cave name)
+        What be your name?
       </label>
       <div className="mt-1.5 flex gap-2">
         <input
