@@ -7,6 +7,7 @@ import {
   reducer,
   saveState,
 } from "@/lib/game";
+import { topBarTheme } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import TopBar from "./TopBar";
 import SetupScreen from "./SetupScreen";
@@ -52,10 +53,12 @@ export default function Game() {
     return () => document.removeEventListener("click", onClick);
   }, []);
 
+  const theme = topBarTheme(state);
+
   if (!hydrated) {
     return (
       <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-        <TopBar />
+        <TopBar key={theme.key} background={theme.background} text={theme.text} />
         <div className="flex flex-1 items-center justify-center">
           <div className="animate-wiggle text-5xl">🦴</div>
         </div>
@@ -65,7 +68,7 @@ export default function Game() {
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-      <TopBar />
+      <TopBar key={theme.key} background={theme.background} text={theme.text} />
 
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />

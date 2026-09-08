@@ -159,28 +159,44 @@ There's no `<meta name="theme-color">` — iOS 26 Safari ignores it entirely.
 Instead it derives its own chrome colour by sampling the `background-color`
 of a `position: fixed`/`sticky` element flush with the top or bottom edge
 (full width), falling back to `<body>`'s own solid `background-color`
-otherwise — **at initial render only, never re-sampled on later state
-changes.** That rules out targeting it *per screen/phase*: this is a 100%
-client-rendered SPA, every phase change happens *after* first paint (which
-is always the same pre-hydration loading placeholder, before React even
-knows which phase to show), so a colour that only varies by `state.phase`
-would never actually be picked up — it'd be stuck on whatever the very
-first frame happened to be, forever, regardless of later phase changes
-(this was tried and reverted once already).
+otherwise. `<body>` stays the plain light/cream base tint (`#e3d2b3`) —
+that's the app's actual page background, a separate concern from chrome
+colour, and not part of this at all; don't make `<body>` itself dark to
+chase a chrome-colour goal (tried once, reverted — broke every screen's text
+contrast for no real benefit once the mechanism below was understood).
 
-What's live: `body`'s own `background-color` stays the plain light/cream
-base tint (`#e3d2b3`) it's always been — the app's actual page background is
-**not** part of this. Instead, `TopBar` (`position: sticky`, full width,
-flush with the top, solid `bg-ink`, on every screen) *is* a qualifying
-top-level fixed/sticky edge element, which is enough on its own to get the
-top edge tinted dark without needing `body` to change at all. `SetupScreen`
-has the matching dark bar at the bottom (`position: fixed`, same solid
-`bg-ink`) for that one screen. Screens with no such element at the bottom
-(everywhere except setup) fall back to `body`'s light background for that
-edge — accepted, not something to "fix" by touching `body` again: the page
-background is a separate concern from chrome colour, and past attempts to
-conflate the two (making `body` itself dark to force both edges dark
-everywhere) were reverted — don't repeat that.
+**The sampling is real-time re-render-aware, but not real-time re-style-aware
+— know the difference before touching this.** Restyling a `background-color`
+on an element that stays mounted does *not* get re-sampled — confirmed: an
+earlier version of `TopBar` was permanently mounted and only had its colour
+prop change per `state.phase`, and Safari never picked the change up, stuck
+forever on whatever colour was true at the very first paint (which, in a
+100%-client-rendered SPA, is always the generic pre-hydration loading
+placeholder — not any real phase). But a genuine DOM *mount/unmount* of a
+qualifying element — removing one edge element and inserting a differently-
+coloured one — **does** get re-sampled on the next paint. Confirmed two ways:
+`SetupScreen`'s bottom bar (only ever mounted while `state.phase === "setup"`)
+has always correctly gone dark there and fallen back to light everywhere
+else; and `TopBar` now uses this same trick deliberately (see below) and was
+verified structurally to remount — a genuinely new DOM node, not a restyled
+one — at exactly the transitions where its colour should change, and stay
+the *same* node through re-renders where it shouldn't (e.g. every tick of
+`Gameplay`'s clock).
+
+`TopBar` (`position: sticky`, full width, flush with the top, on every
+screen) is the top edge's element. Its colour comes from `topBarTheme()`
+(`lib/colors.ts`), which mirrors whatever the screen underneath is already
+doing — team `base` behind countdown/play/reveal, team `soft` behind review,
+dark ink everywhere else (matching `SetupScreen`'s bottom bar) — so it reads
+as part of the screen, not a separate strip. Since `TopBar` is rendered
+unconditionally in `Game.tsx` (never wrapped in a phase check) it's normally
+the *same persistent node* across every re-render — restyle-only, the case
+that does **not** get picked up. `topBarTheme()`'s returned `key` is what
+forces the real remount: `Game.tsx` passes it as `<TopBar key={theme.key}
+.../>`, so React tears down and recreates the element specifically when
+(and only when) the theme actually changes, never on an unrelated re-render.
+`SetupScreen`'s bottom bar needs no such trick — it's already a real
+mount/unmount by virtue of only rendering on that one phase.
 
 ## PWA / offline
 
