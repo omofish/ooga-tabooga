@@ -58,6 +58,13 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         {children}
+        <div className="rotate-lock">
+          <div className="text-6xl">🔄</div>
+          <h2 className="font-display text-2xl text-ink">Turn it back!</h2>
+          <p className="text-sm font-bold text-ink-soft">
+            Ooga Tabooga only ugs in portrait mode.
+          </p>
+        </div>
         <ServiceWorkerRegister />
       </body>
     </html>
