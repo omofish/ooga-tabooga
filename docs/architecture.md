@@ -12,6 +12,12 @@ saved to `localStorage` on every change.
   → (back to score) → gameover`. `Game.tsx` renders exactly one screen per phase.
 - `state.active` is the in-progress turn: team, player, deck cursor, resolved
   cards, timer (`endsAt`), and manual `scoreAdjust`.
+- Teams alternate strictly, one at a time. `ScoreView` shows a single Play
+  button for whichever team is next (`nextUpTeamId`); tapping it dispatches
+  `OPEN_MODAL`, which appends a fresh round automatically once every team has
+  a result for the current one (`roundComplete`) — there's no separate
+  "next round" action. `END_GAME` is only enabled once every team has played
+  the same number of turns (`roundsBalanced`).
 - `state.seen` remembers played cards per set so a fresh game deals unseen cards
   first (see `buildDeck`); the setup screen can reset it.
 - **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no
@@ -31,7 +37,7 @@ saved to `localStorage` on every change.
 | Phase | Component | Role |
 |---|---|---|
 | setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set |
-| score | `ScoreView` | scoreboard; ▶ to play a turn, tap a team name to rename |
+| score | `ScoreView` | scoreboard; one Play button for the team up next, tap a team name to rename |
 | — | `StartRoundModal`, `RenameTeamModal` | shown over the scoreboard |
 | countdown | `Countdown` | 3·2·1·GO |
 | play | `Gameplay` | the timed turn (cards, timer, pause/restart) |

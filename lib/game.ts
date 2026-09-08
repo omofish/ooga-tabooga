@@ -134,6 +134,23 @@ export function teamSummary(state: GameState, teamId: string) {
   return { total, turns };
 }
 
+/** Team next up to play, alternating through the roster; once every team has
+ *  a result for the current round, loops back to the first team (a fresh
+ *  round is created lazily by OPEN_MODAL). */
+export function nextUpTeamId(state: GameState): string | null {
+  if (state.teams.length === 0) return null;
+  const round = state.rounds[state.currentRound];
+  const waiting = state.teams.find((t) => !round?.[t.id]);
+  return (waiting ?? state.teams[0]).id;
+}
+
+/** True once every team has played the same number of turns — the point at
+ *  which it's fair to end the game. */
+export function roundsBalanced(state: GameState): boolean {
+  const counts = state.teams.map((t) => teamSummary(state, t.id).turns.length);
+  return counts.every((c) => c === counts[0]);
+}
+
 export function scoreTurn(cards: ResolvedCard[]): number {
   return cards.reduce((sum, c) => sum + BUCKET_POINTS[c.bucket], 0);
 }
@@ -164,7 +181,6 @@ export type Action =
   | { type: "ADJUST_SCORE"; delta: number } // manual +/- tweak in review
   | { type: "CONFIRM_REVIEW" }
   | { type: "REVEAL_DONE" }
-  | { type: "ADD_ROUND" }
   | { type: "END_GAME" }
   | { type: "PLAY_AGAIN" }
   | { type: "RESET_WORDS" }
@@ -279,9 +295,16 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
     case "OPEN_MODAL": {
+      // Teams alternate one at a time; once the current round has a result
+      // for every team, this same tap starts the next round.
+      const needsNewRound = roundComplete(state);
+      const rounds = needsNewRound
+        ? [...state.rounds, {} as Round]
+        : state.rounds;
+      const roundIndex = needsNewRound ? rounds.length - 1 : state.currentRound;
       const active: ActiveTurn = {
         teamId: action.teamId,
-        roundIndex: state.currentRound,
+        roundIndex,
         playerName: "",
         modalOpen: true,
         cursor: state.deckCursor,
@@ -292,7 +315,7 @@ export function reducer(state: GameState, action: Action): GameState {
         remainingWhilePaused: 0,
         scoreAdjust: 0,
       };
-      return { ...state, active };
+      return { ...state, rounds, currentRound: roundIndex, active };
     }
 
     case "SET_NAME":
@@ -466,11 +489,6 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "REVEAL_DONE":
       return { ...state, phase: "score", active: null };
-
-    case "ADD_ROUND": {
-      const rounds = [...state.rounds, {} as Round];
-      return { ...state, rounds, currentRound: rounds.length - 1 };
-    }
 
     case "END_GAME":
       return { ...state, phase: "gameover", active: null };

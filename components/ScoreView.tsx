@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
-import { isSolo, roundComplete, teamSummary } from "@/lib/game";
+import { isSolo, nextUpTeamId, roundsBalanced, teamSummary } from "@/lib/game";
 import { bestTurn } from "@/lib/solo";
 import { wordSetById } from "@/lib/word-sets";
 import Modal from "./Modal";
@@ -10,14 +10,17 @@ import RenameTeamModal from "./RenameTeamModal";
 import type { ScreenProps } from "./types";
 
 export default function ScoreView({ state, dispatch }: ScreenProps) {
-  const { teams, rounds, currentRound } = state;
-  const complete = roundComplete(state);
+  const { teams, rounds } = state;
   const wordSet = wordSetById(state.wordSetId);
   const solo = isSolo(state);
   const best = solo ? bestTurn(state.wordSetId, state.turnSeconds) : null;
   const [quitOpen, setQuitOpen] = useState(false);
+  const [endGameOpen, setEndGameOpen] = useState(false);
   const [renameTeamId, setRenameTeamId] = useState<string | null>(null);
   const renameTeam = teams.find((t) => t.id === renameTeamId);
+  const nextTeam = teams.find((t) => t.id === nextUpTeamId(state));
+  const nextColor = nextTeam ? colorForKey(nextTeam.colorKey) : null;
+  const canEndGame = roundsBalanced(state);
 
   const cols = `minmax(2.2rem,auto) repeat(${teams.length}, minmax(0,1fr))`;
 
@@ -122,7 +125,6 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
             {teams.map((t) => {
               const c = colorForKey(t.colorKey);
               const result = round[t.id];
-              const isCurrent = ri === currentRound;
               return (
                 <div
                   key={t.id}
@@ -145,21 +147,6 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
                         {result.playerName}
                       </span>
                     </div>
-                  ) : isCurrent ? (
-                    // Shake to invite the tap; the wrapper animates so the
-                    // button keeps its own press (:active) feedback.
-                    <span className="animate-nudge inline-block">
-                      <button
-                        onClick={() =>
-                          dispatch({ type: "OPEN_MODAL", teamId: t.id })
-                        }
-                        aria-label={`Play round ${ri + 1} for ${t.name}`}
-                        className="btn flex h-12 w-12 items-center justify-center rounded-full text-xl"
-                        style={{ ...colorVars(c), background: c.base, color: c.onBase }}
-                      >
-                        ▶
-                      </button>
-                    </span>
                   ) : (
                     <span className="text-ink-soft/40">—</span>
                   )}
@@ -195,35 +182,68 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
       </div>
 
       {/* Footer actions / hint */}
-      <div className="mt-auto pt-6">
-        {complete ? (
-          <div className="flex flex-col gap-3">
-            <p className="text-center text-sm font-bold text-ink-soft">
-              Round {currentRound + 1} done! 🎉
+      <div className="mt-auto flex flex-col gap-3 pt-6">
+        {nextTeam && nextColor && (
+          <>
+            <p className="animate-pulse-soft text-center text-sm font-bold text-ink-soft">
+              {solo
+                ? "🏆 Tap play to take a turn — beat your best!"
+                : `📲 Pass the phone — ${nextTeam.name} is up`}
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => dispatch({ type: "ADD_ROUND" })}
-                className="btn btn-cream py-4 text-lg"
-              >
-                <span className="font-display">Next Round ▶</span>
-              </button>
-              <button
-                onClick={() => dispatch({ type: "END_GAME" })}
-                className="btn btn-ink py-4 text-lg"
-              >
-                <span className="font-display">End Game 🏆</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className="animate-pulse-soft text-center text-sm font-bold text-ink-soft">
-            {solo
-              ? "🏆 Tap ▶ to take a turn — beat your best!"
-              : "📲 Pass the phone — tap a tribe's ▶ to take a turn"}
-          </p>
+            <button
+              onClick={() =>
+                dispatch({ type: "OPEN_MODAL", teamId: nextTeam.id })
+              }
+              className="btn w-full py-4 text-xl"
+              style={{
+                ...colorVars(nextColor),
+                background: nextColor.base,
+                color: nextColor.onBase,
+              }}
+            >
+              <span className="font-display">
+                {nextTeam.emoji || nextColor.mascot} Play ▶
+              </span>
+            </button>
+          </>
         )}
+
+        <button
+          onClick={() => setEndGameOpen(true)}
+          disabled={!canEndGame}
+          className="btn btn-ink w-full py-4 text-lg"
+        >
+          <span className="font-display">End Game 🏆</span>
+        </button>
       </div>
+
+      {endGameOpen && (
+        <Modal onClose={() => setEndGameOpen(false)}>
+          <div className="text-center">
+            <div className="text-5xl">🏆</div>
+            <h2 className="mt-1 font-display text-2xl text-ink">
+              End the game?
+            </h2>
+            <p className="mt-2 text-sm font-bold text-ink-soft">
+              Scores lock in and everyone heads to the final standings.
+            </p>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setEndGameOpen(false)}
+              className="btn btn-cream py-3 text-lg"
+            >
+              <span className="font-display">Keep Playing</span>
+            </button>
+            <button
+              onClick={() => dispatch({ type: "END_GAME" })}
+              className="btn btn-ink py-3 text-lg"
+            >
+              <span className="font-display">End Game</span>
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
