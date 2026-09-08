@@ -7,7 +7,7 @@ import {
   reducer,
   saveState,
 } from "@/lib/game";
-import { bottomBarTheme, topBarTheme } from "@/lib/colors";
+import { colorForKey } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import TopBar from "./TopBar";
 import BottomBar from "./BottomBar";
@@ -54,24 +54,59 @@ export default function Game() {
     return () => document.removeEventListener("click", onClick);
   }, []);
 
-  const theme = topBarTheme(state);
-  const bottomTheme = bottomBarTheme(state);
+  // Client-side phase transitions don't trigger a real navigation, so the
+  // browser never resets scroll on its own — without this, e.g. starting a
+  // game while scrolled down on Setup lands the Score screen scrolled to
+  // that same offset.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [state.phase]);
+
+  // Match <body>'s own background to the current phase's theme colour. Every
+  // phase's own div is already opaque and exactly viewport-sized, but an iOS
+  // rubber-band overscroll bounce briefly reveals whatever's *behind* that
+  // div — i.e. <body> itself — so leaving body on its default cream would
+  // flash cream behind e.g. RoundReview's pink. Setting it here also gives
+  // Safari's chrome-colour fallback sampling (see docs/architecture.md) the
+  // right colour on the phases that render neither TopBar nor BottomBar.
+  useEffect(() => {
+    const team = state.teams.find((t) => t.id === state.active?.teamId);
+    const c = colorForKey(team?.colorKey ?? "red");
+    const bg =
+      state.phase === "countdown" ||
+      state.phase === "play" ||
+      state.phase === "reveal"
+        ? c.base
+        : state.phase === "review"
+          ? c.soft
+          : null;
+
+    document.body.style.backgroundColor = bg ?? "";
+    document.body.style.backgroundImage = bg ? "none" : "";
+
+    return () => {
+      document.body.style.backgroundColor = "";
+      document.body.style.backgroundImage = "";
+    };
+  }, [state.phase, state.active?.teamId, state.teams]);
+
+  const showBars = state.phase === "setup" || state.phase === "score";
 
   if (!hydrated) {
     return (
       <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-        <TopBar key={`top-${theme.key}`} background={theme.background} text={theme.text} />
+        <TopBar />
         <div className="flex flex-1 items-center justify-center">
           <div className="animate-wiggle text-5xl">🦴</div>
         </div>
-        <BottomBar key={`bottom-${bottomTheme.key}`} background={bottomTheme.background} />
+        <BottomBar />
       </main>
     );
   }
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-      <TopBar key={`top-${theme.key}`} background={theme.background} text={theme.text} />
+      {showBars && <TopBar />}
 
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />
@@ -101,7 +136,7 @@ export default function Game() {
         <GameOver state={state} dispatch={dispatch} />
       )}
 
-      <BottomBar key={`bottom-${bottomTheme.key}`} background={bottomTheme.background} />
+      {showBars && <BottomBar />}
     </main>
   );
 }

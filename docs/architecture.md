@@ -55,41 +55,29 @@ already shows its own heading visually, so this doesn't duplicate it).
 `HowToPlay` (a flat "?" button that opens the rules in a `Modal`) lives in
 `TopBar`, mirroring `MuteToggle`.
 
-`TopBar` is the app's persistent chrome: a slim bar (`?`/title/mute),
-`position: sticky top-0`, rendered once in `Game.tsx` *outside* the phase
-switch, so it's on every screen including the pre-hydration loading
-placeholder. `BottomBar` is its counterpart — `position: sticky bottom-0`,
-also rendered once outside the phase switch — but with no content of its
-own; see "Browser chrome colour" below for why both exist and how they're
-coloured. Because they're `sticky` rather than `fixed`, they reserve their
-own space in the shared flex column instead of every screen needing
-matching `padding-top`/`padding-bottom` — which is also why every phase
-component uses `flex-1` (not its own `min-h-[100svh]`/`h-[100svh]`) for its
-outer height: `<main>` alone carries `min-h-[100svh]`, and a child
-re-asserting a *second*, independent `100svh` on top of that stacks with
-TopBar's and BottomBar's own height and overflows the real viewport by
-exactly that amount — the app becomes scroll-able by a few dozen px on
-screens that must never scroll (`Gameplay` in particular: `touch-none` +
-`overflow-hidden`, deliberately, so a stray drag mid-tap can't be stolen as
-a scroll). `flex-1` fills whatever's actually left after both bars, no
-arithmetic required. `Gameplay` also embeds its own header (timer, pause)
-but does *not* duplicate `MuteToggle` there any more — `TopBar`'s is the
-only one, app-wide.
+`TopBar` and `BottomBar` are chrome shown only on Setup and Score (`Game.tsx`
+renders them behind `state.phase === "setup" || state.phase === "score"`) —
+the two screens without their own full-bleed themed background. `TopBar` is
+a slim bar (`?`/title/mute), `position: sticky top-0`; `BottomBar` is its
+counterpart, `position: sticky bottom-0`, with no visible content of its
+own — see "Browser chrome colour" below for why it exists. Both are fixed
+dark-ink (`TopBar`) / flat page-background (`BottomBar`) colour, no props,
+no per-phase theming: every other phase (`countdown`/`play`/`review`/
+`reveal`/`gameover`) owns the full viewport itself and renders neither bar.
 
-**`TopBar` and `BottomBar` are simultaneous siblings inside `<main>` —
-their `key`s must never collide.** Both derive a `key` from the same
-`{base,soft}-<team-key>` / fixed-string scheme (`topBarTheme`/
-`bottomBarTheme`, see below), and during the in-turn phases those two
-independently-computed keys are often identical (e.g. both `"base-red"`).
-Passing that raw value as each component's React `key` breaks — React
-requires uniqueness across *all* siblings in one children list, not just
-across one component's own successive renders — and a collision doesn't
-error, it silently corrupts reconciliation (this shipped once: a stray
-"Encountered two children with the same key" console warning, and a
-genuinely duplicated `<header>` rendered on screen). `Game.tsx` prefixes
-each with its own namespace (`` `top-${theme.key}` `` /
-`` `bottom-${bottomTheme.key}` ``) specifically to rule this out — keep
-that prefix if either theme function's key scheme ever changes.
+Every phase component other than Setup/Score sizes its own outer element to
+the full viewport (`min-h-[100svh]`, or `Gameplay`'s `h-[100svh]` since it
+must never scroll: `touch-none` + `overflow-hidden`, deliberately, so a
+stray drag mid-tap can't be stolen as a scroll) — there's no shared bar
+eating into that space on those screens, so each owns its own background
+edge-to-edge. `Gameplay` embeds its own header (mute, timer, pause) since
+`TopBar` isn't mounted there.
+
+`Game.tsx` also resets scroll (`window.scrollTo(0, 0)`) in a `useEffect`
+keyed on `state.phase` — client-side phase transitions aren't real
+navigations, so without this the browser leaves the next screen scrolled to
+whatever offset the previous one was at (e.g. starting a game while
+scrolled down on Setup would land Score scrolled to that same offset).
 
 `sonner` (`<Toaster/>` mounted once in `app/layout.tsx`, themed to the cream/
 ink palette in `globals.css`) is the toast system — call `toast("message")`
@@ -151,8 +139,9 @@ still offline-safe).
   gesture, so `announce()` would otherwise stay silent.
 - A single **mute flag** gates both sound *and* haptics, persisted under its own
   `localStorage` key (`pfn-muted`) — separate from game state, so **no
-  `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives the
-  one shared `MuteToggle` button, in `TopBar`.
+  `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives
+  `MuteToggle`, embedded separately in `TopBar` (Setup/Score) and in
+  `Gameplay`'s own header (Play) since the two never share a screen.
 - `Gameplay` ticks once **every** second: a calm ambient tick that, through the
   final 10, jumps to a fixed higher pitch/volume **and** switches to double time
   (an extra off-beat tick at +0.5s, so the pulse runs twice as fast); spoken
@@ -187,46 +176,39 @@ contrast for no real benefit once the mechanism below was understood).
 **The sampling is real-time re-render-aware, but not real-time re-style-aware
 — know the difference before touching this.** Restyling a `background-color`
 on an element that stays mounted does *not* get re-sampled — confirmed: an
-earlier version of `TopBar` was permanently mounted and only had its colour
-prop change per `state.phase`, and Safari never picked the change up, stuck
-forever on whatever colour was true at the very first paint (which, in a
-100%-client-rendered SPA, is always the generic pre-hydration loading
-placeholder — not any real phase). But a genuine DOM *mount/unmount* of a
-qualifying element — removing one edge element and inserting a differently-
-coloured one — **does** get re-sampled on the next paint. Confirmed two ways:
-an earlier version of `SetupScreen`'s footer (only ever mounted while
-`state.phase === "setup"`, before it moved back to plain in-flow content —
-see below) correctly went dark there and fell back to light everywhere else
-purely from mounting/unmounting, no special trick; and `TopBar`/`BottomBar`
-now use the `key` trick below deliberately, verified structurally to
-remount — a genuinely new DOM node, not a restyled one — at exactly the
-transitions where their colour should change, and stay the *same* node
-through re-renders where it shouldn't (e.g. every tick of `Gameplay`'s
-clock).
+earlier version of `TopBar` was permanently mounted app-wide and only had its
+colour prop change per `state.phase`, and Safari never picked the change up,
+stuck forever on whatever colour was true at the very first paint. But a
+genuine DOM *mount/unmount* of a qualifying element — removing one edge
+element and inserting a differently-coloured one — **does** get re-sampled on
+the next paint. This is why `TopBar`/`BottomBar` are scoped to
+`state.phase === "setup" || state.phase === "score"` rather than
+permanently mounted with a colour prop: each conditional render is a real
+mount/unmount, so Safari picks up dark chrome on Setup/Score and falls back
+to sampling `<body>`'s flat cream `background-color` on every other phase —
+no forced-remount `key` trick needed, since neither bar's own colour ever
+changes while it stays mounted (Setup and Score both use the same dark-ink
+top / flat-body bottom).
 
-`TopBar` and `BottomBar` (`position: sticky`, full width, flush with their
-edge, on every screen) are the two edge elements. Their colours come from
-`topBarTheme()`/`bottomBarTheme()` (`lib/colors.ts`), which mirror whatever
-the screen underneath is already doing — team `base` behind
-countdown/play/reveal, team `soft` behind review — so each bar reads as part
-of the screen, not a separate strip. The two differ only for
-setup/score/gameover: `TopBar` stays dark ink there (the app's own chrome,
-holding the `?`/title/mute), while `BottomBar` matches the plain page
-background instead — those three screens don't have an in-turn colour to
-give the bottom, and forcing a second dark bar there was tried and reverted
-(the ask was for it to blend, not stand out). Since both are rendered
-unconditionally in `Game.tsx` (never wrapped in a phase check) they're
-normally the *same persistent node* across every re-render — restyle-only,
-the case that does **not** get picked up. Each theme function's returned
-`key` is what forces the real remount: `Game.tsx` passes a namespaced
-version of it as the component's React `key` (see the `TopBar`/`BottomBar`
-paragraph above for why namespaced), so React tears down and recreates the
-element specifically when — and only when — that one theme actually
-changes, never on an unrelated re-render and never affecting the other bar.
+Every other phase (`countdown`/`play`/`review`/`reveal`/`gameover`) renders
+neither bar, so on those screens the chrome colour is whatever `<body>`
+falls back to. `Game.tsx` keeps that fallback correct with a `useEffect`
+keyed on `state.phase`/`state.active?.teamId` that sets
+`document.body.style.backgroundColor` directly to match the active phase's
+own theme (team `base` behind countdown/play/reveal, team `soft` behind
+review; cleared back to the CSS default on setup/score/gameover, which
+don't need an override). This isn't only for the chrome fallback: every
+phase's own div is opaque and exactly viewport-sized, but an iOS rubber-band
+overscroll bounce briefly reveals whatever's *behind* it — i.e. `<body>`
+itself — so leaving `<body>` on its default cream would flash cream behind,
+say, RoundReview's pink. The same effect also blanks `<body>`'s
+`background-image` (the decorative gradient) while a colour override is
+active, so the overscroll peek is a clean flat match rather than the
+gradient's texture showing through a mismatched hue.
 
-`SetupScreen`'s build-hash/contact footer is back to plain in-flow content
-(not fixed, not dark) — it's unrelated to chrome colour now; `BottomBar` is
-what handles that, and needs no visible content of its own to do it.
+`SetupScreen`'s build-hash/contact footer is plain in-flow content (not
+fixed, not dark) — it's unrelated to chrome colour; `BottomBar` is what
+handles that, and needs no visible content of its own to do it.
 
 ## PWA / offline
 

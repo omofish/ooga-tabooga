@@ -69,7 +69,7 @@ export default function ScoreReveal({ state, dispatch }: ScreenProps) {
 
   return (
     <div
-      className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6"
+      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6"
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       {celebrate && <Confetti />}
