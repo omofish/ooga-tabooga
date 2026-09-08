@@ -8,6 +8,7 @@ import {
   saveState,
 } from "@/lib/game";
 import * as sound from "@/lib/sound";
+import TopBar from "./TopBar";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
 import StartRoundModal from "./StartRoundModal";
@@ -53,14 +54,19 @@ export default function Game() {
 
   if (!hydrated) {
     return (
-      <main className="flex min-h-[100svh] items-center justify-center">
-        <div className="animate-wiggle text-5xl">🦴</div>
+      <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
+        <TopBar />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="animate-wiggle text-5xl">🦴</div>
+        </div>
       </main>
     );
   }
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
+      <TopBar />
+
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />
       )}

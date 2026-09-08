@@ -36,7 +36,7 @@ saved to `localStorage` on every change.
 
 | Phase | Component | Role |
 |---|---|---|
-| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set |
+| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set; `ShareButton` sits under Start Game |
 | score | `ScoreView` | scoreboard; one Play button for the team up next, tap a team name to rename |
 | — | `StartRoundModal`, `RenameTeamModal` | shown over the scoreboard |
 | countdown | `Countdown` | 3·2·1·GO |
@@ -52,8 +52,25 @@ hand-rolled `<div>` overlay — background scroll lock, so the page behind a
 dialog can't be scrolled while it's open. Every call site passes a `title`
 string; it's rendered `sr-only` as the dialog's accessible name (each caller
 already shows its own heading visually, so this doesn't duplicate it).
-`HowToPlay` (a flat "?" button that opens the rules in a `Modal`) sits in the
-top-left of `SetupScreen`, mirroring the `MuteToggle`.
+`HowToPlay` (a flat "?" button that opens the rules in a `Modal`) lives in
+`TopBar`, mirroring `MuteToggle`.
+
+`TopBar` is the app's persistent chrome: a slim, flat `bg-ink` bar
+(`?`/title/mute), `position: sticky top-0`, rendered once in `Game.tsx`
+*outside* the phase switch, so it's on every screen including the
+pre-hydration loading placeholder. Because it's `sticky` rather than `fixed`,
+it reserves its own space in the shared flex column instead of every screen
+needing matching `padding-top` — which is also why every phase component
+uses `flex-1` (not its own `min-h-[100svh]`/`h-[100svh]`) for its outer
+height: `<main>` alone carries `min-h-[100svh]`, and a child re-asserting a
+*second*, independent `100svh` on top of that stacks with TopBar's own
+height and overflows the real viewport by exactly that amount — the app
+becomes scroll-able by a few dozen px on screens that must never scroll
+(`Gameplay` in particular: `touch-none` + `overflow-hidden`, deliberately, so
+a stray drag mid-tap can't be stolen as a scroll). `flex-1` fills whatever's
+actually left after TopBar, no arithmetic required. `Gameplay` also embeds
+its own header (timer, pause) but does *not* duplicate `MuteToggle` there
+any more — TopBar's is the only one, app-wide.
 
 `sonner` (`<Toaster/>` mounted once in `app/layout.tsx`, themed to the cream/
 ink palette in `globals.css`) is the toast system — call `toast("message")`
@@ -116,7 +133,7 @@ still offline-safe).
 - A single **mute flag** gates both sound *and* haptics, persisted under its own
   `localStorage` key (`pfn-muted`) — separate from game state, so **no
   `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives the
-  shared `MuteToggle` button on `SetupScreen` and in the `Gameplay` header.
+  one shared `MuteToggle` button, in `TopBar`.
 - `Gameplay` ticks once **every** second: a calm ambient tick that, through the
   final 10, jumps to a fixed higher pitch/volume **and** switches to double time
   (an extra off-beat tick at +0.5s, so the pulse runs twice as fast); spoken
@@ -143,15 +160,27 @@ Instead it derives its own chrome colour by sampling the `background-color`
 of a `position: fixed`/`sticky` element flush with the top or bottom edge
 (full width), falling back to `<body>`'s own solid `background-color`
 otherwise — **at initial render only, never re-sampled on later state
-changes.** That rules out targeting it per screen here: this is a 100%
-client-rendered SPA, so every phase change happens *after* that first paint
-and would never be picked up anyway — the whole page only ever gets one
-shot at this, whatever's true at first paint (which, pre-hydration, is
-always the same loading placeholder, regardless of which phase a saved game
-resumes to). So there's deliberately no fixed/sticky edge element anywhere
-meant to influence this — Safari's own fallback (`<body>`'s
-`background-color`, `--color-body`, see `globals.css`) already gives the
-one consistent colour that's actually achievable, at both edges.
+changes.** That rules out targeting it *per screen/phase*: this is a 100%
+client-rendered SPA, every phase change happens *after* first paint (which
+is always the same pre-hydration loading placeholder, before React even
+knows which phase to show), so a colour that only varies by `state.phase`
+would never actually be picked up — it'd be stuck on whatever the very
+first frame happened to be, forever, regardless of later phase changes
+(this was tried and reverted once already).
+
+What *is* achievable, and is what's live: one consistent colour, everywhere.
+`body`'s `background-color` (not the gradient `background-image` layered
+over it — Safari disregards that for this) is solid dark ink
+(`var(--color-ink)`), and `TopBar` (`position: sticky`, full width, flush
+with the top) is the same solid ink — so both the documented top-level rule
+and its fallback agree, top and bottom, on every screen, "legitimately"
+(i.e. via the actual supported mechanism, not a decoy sentinel element).
+Because `body`'s background-color is dark, loose text that isn't already
+sitting on its own light card/surface (`.chunk`, a Modal, a team's `soft`
+tint) needs `text-cream`/`text-cream/70` now, not `text-ink`/`text-ink-soft`
+— see `SetupScreen`, `ScoreView`'s header, and `GameOver`'s headline for the
+pattern; anything inside a light card keeps `text-ink`/`text-ink-soft`
+exactly as before, unaffected.
 
 ## PWA / offline
 

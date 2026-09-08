@@ -26,7 +26,7 @@ export default function Countdown({ state, dispatch }: ScreenProps) {
 
   return (
     <div
-      className="flex min-h-[100svh] flex-col items-center justify-center"
+      className="flex flex-1 flex-col items-center justify-center"
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       <p className="font-display text-xl opacity-90">

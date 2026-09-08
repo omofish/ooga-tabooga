@@ -5,8 +5,6 @@ import { TEAM_COLORS } from "@/lib/colors";
 import { bestTurn } from "@/lib/solo";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
-import HowToPlay from "./HowToPlay";
-import MuteToggle from "./MuteToggle";
 import ShareButton from "./ShareButton";
 import type { ScreenProps } from "./types";
 
@@ -25,27 +23,12 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Top bar: flat dark fill (no gradient) so it reads as one solid
-          colour end to end — houses the help/share/mute icons and the page
-          title together instead of floating the icons over the hero. Grid
-          (not flex) so the title stays visually centred even though the
-          left icon group (help+share) is wider than the right (mute alone) —
-          both side columns get the same 1fr width regardless of content. */}
-      <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 bg-ink px-3 py-3">
-        <div className="flex items-center gap-2 justify-self-start">
-          <HowToPlay />
-          <ShareButton />
-        </div>
-        <h1 className="font-display text-center text-xl text-cream">
-          🦴 Ooga Tabooga
-        </h1>
-        <MuteToggle className="btn btn-cream flex h-11 w-11 shrink-0 items-center justify-center justify-self-end rounded-full text-ink" />
-      </header>
-
-      <div className="flex flex-1 flex-col gap-7 px-5 pb-10 pt-6">
+      {/* pb-16: clearance so the fixed footer below never covers the last
+          button (share) once scrolled to the bottom. */}
+      <div className="flex flex-1 flex-col gap-7 px-5 pb-16 pt-6">
         {/* Team count */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-ink">How many tribes?</h2>
+          <h2 className="font-display mb-2 text-xl text-cream">How many tribes?</h2>
           <div className="grid grid-cols-3 gap-3">
             {TEAM_OPTIONS.map((n) => {
               const selected = state.numTeams === n;
@@ -73,7 +56,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
             })}
           </div>
           {solo && (
-            <p className="mt-2 px-1 text-xs font-bold text-ink-soft">
+            <p className="mt-2 px-1 text-xs font-bold text-cream/70">
               🏆 Solo — take turns and chase your best single-turn score.
               {best ? ` Best: ${best.score} (${best.name}).` : ""}
             </p>
@@ -82,7 +65,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
         {/* Round length */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-ink">Round length</h2>
+          <h2 className="font-display mb-2 text-xl text-cream">Round length</h2>
           <div className="grid grid-cols-3 gap-3">
             {TURN_OPTIONS.map((sec) => {
               const selected = state.turnSeconds === sec;
@@ -104,7 +87,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
         {/* Word set */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-ink">Pick your words</h2>
+          <h2 className="font-display mb-2 text-xl text-cream">Pick your words</h2>
           <div className="flex flex-col gap-3">
             {WORD_SETS.map((set) => {
               const selected = state.wordSetId === set.id;
@@ -131,7 +114,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
           {/* Word memory: how many of this set have been shown, with a reset. */}
           <div className="mt-3 flex items-center justify-between gap-3 px-1">
-            <p className="text-xs font-bold text-ink-soft">
+            <p className="text-xs font-bold text-cream/70">
               🧠 Seen {seen} of {total} words
             </p>
             <button
@@ -152,41 +135,47 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           </div>
         </section>
 
-        <button
-          onClick={() => {
-            unlockAudio();
-            dispatch({ type: "START_GAME" });
-          }}
-          className="btn btn-team mt-auto py-5 text-2xl"
-          style={{
-            // Setup uses the first team's colour as a friendly accent.
-            ["--team-base" as string]: TEAM_COLORS[0].base,
-            ["--team-on" as string]: TEAM_COLORS[0].onBase,
-          }}
-        >
-          <span className="font-display">Start Game 🔥</span>
-        </button>
+        <div className="mt-auto flex flex-col gap-3">
+          <button
+            onClick={() => {
+              unlockAudio();
+              dispatch({ type: "START_GAME" });
+            }}
+            className="btn btn-team py-5 text-2xl"
+            style={{
+              // Setup uses the first team's colour as a friendly accent.
+              ["--team-base" as string]: TEAM_COLORS[0].base,
+              ["--team-on" as string]: TEAM_COLORS[0].onBase,
+            }}
+          >
+            <span className="font-display">Start Game 🔥</span>
+          </button>
 
-        {/* Build hash: lets a deployed GitHub Pages build be checked against
-            the commit that produced it. Baked in at build time via next.config.ts. */}
-        <footer className="text-center">
-          <p className="text-xs font-bold text-ink-soft/60">
-            build {process.env.NEXT_PUBLIC_COMMIT_HASH}
-          </p>
-          <p className="text-xs font-bold text-ink-soft/60">
-            Drop mail to{" "}
-            <a
-              href="https://t.me/omofish"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-dotted underline-offset-2"
-            >
-              @omofish
-            </a>{" "}
-            if have back to feed
-          </p>
-        </footer>
+          <ShareButton />
+        </div>
       </div>
+
+      {/* Build hash + contact: fixed dark footer, own bar matching the top
+          one — lets a deployed GitHub Pages build be checked against the
+          commit that produced it. Hash baked in at build time via
+          next.config.ts. */}
+      <footer className="fixed inset-x-0 bottom-0 z-40 bg-ink px-4 py-2 text-center">
+        <p className="text-xs font-bold text-cream/60">
+          build {process.env.NEXT_PUBLIC_COMMIT_HASH}
+        </p>
+        <p className="text-xs font-bold text-cream/60">
+          Drop mail to{" "}
+          <a
+            href="https://t.me/omofish"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-dotted underline-offset-2"
+          >
+            @omofish
+          </a>{" "}
+          if have back to feed
+        </p>
+      </footer>
     </div>
   );
 }

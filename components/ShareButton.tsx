@@ -2,10 +2,10 @@
 
 import { toast } from "sonner";
 
-/** Round share button: opens the native share sheet where supported, else
- *  copies the link and confirms via toast. Self-contained, same shape as
- *  <HowToPlay/> and <MuteToggle/> so it drops into the same icon row. */
-export default function ShareButton({ className }: { className?: string }) {
+/** "Like game? Share with friend" — sits under Start Game on the setup
+ *  screen. Opens the native share sheet where supported, else copies the
+ *  link and confirms via toast. */
+export default function ShareButton() {
   const share = async () => {
     const data = {
       title: "Ooga Tabooga",
@@ -29,32 +29,8 @@ export default function ShareButton({ className }: { className?: string }) {
   };
 
   return (
-    <button
-      onClick={share}
-      aria-label="Share Ooga Tabooga"
-      className={
-        className ??
-        "btn btn-cream flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink"
-      }
-    >
-      <ShareIcon className="h-5 w-5" />
+    <button onClick={share} className="btn btn-cream w-full py-3 text-base">
+      <span className="font-display">Like game? Share with friend 📣</span>
     </button>
-  );
-}
-
-/** Flat "share" glyph (currentColor): three nodes, connected. */
-function ShareIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden focusable="false">
-      <circle cx="18" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="6" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="18" cy="19" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M8.2 10.6L15.8 6.4M8.2 13.4L15.8 17.6"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }

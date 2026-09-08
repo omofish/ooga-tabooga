@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import * as sound from "@/lib/sound";
-import MuteToggle from "./MuteToggle";
 import type { ScreenProps } from "./types";
 
 // Seconds-remaining marks that get a spoken announcement (when below the turn length).
@@ -75,7 +74,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       // Fixed to the viewport with no overflow and touch-action:none so the
       // screen can't scroll or pan — a small finger-drag while tapping a card
       // stays a tap instead of being stolen as a scroll gesture (misclick).
-      className="relative flex h-[100svh] touch-none flex-col overflow-hidden no-select"
+      className="relative flex flex-1 touch-none flex-col overflow-hidden no-select"
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       {/* Top bar: timer + pause */}
@@ -99,7 +98,6 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             />
           </div>
         </div>
-        <MuteToggle />
         <button
           onClick={() => dispatch({ type: "PAUSE" })}
           aria-label="Pause"
