@@ -136,6 +136,22 @@ built from a compact table through `fromTable()`/`build()` in
 contain the easy word) and dedupes. Authoring rules and the audit script:
 [`word-set-guidelines.md`](word-set-guidelines.md).
 
+## Browser chrome colour (status bar / bottom toolbar)
+
+There's no `<meta name="theme-color">` — iOS 26 Safari ignores it entirely.
+Instead it derives its own chrome colour by sampling the `background-color`
+of a `position: fixed`/`sticky` element that sits right at the top or bottom
+edge (full width, flush with the edge), falling back to `<body>`'s own solid
+`background-color` otherwise — at initial render only, not on later state
+changes. `components/ChromeEdges.tsx` is two thin invisible strips pinned to
+those edges purely to be that signal; `chromeEdgeColors()` (`lib/colors.ts`)
+picks their colour per `state.phase` (and the active team's colour, for the
+in-turn phases), mirroring each screen's own background value-for-value so
+they're invisible in normal use. `Game.tsx` renders it once, above the
+phase switch. A `Modal`'s backdrop is a translucent fixed edge-to-edge layer
+too, which can make the sampled colour unpredictable while one's open — a
+known, currently-unresolved WebKit bug, not something fixable from our CSS.
+
 ## PWA / offline
 
 `public/manifest.webmanifest` + `public/sw.js` (cache-first, app-shell fallback)

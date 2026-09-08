@@ -7,7 +7,9 @@ import {
   reducer,
   saveState,
 } from "@/lib/game";
+import { chromeEdgeColors } from "@/lib/colors";
 import * as sound from "@/lib/sound";
+import ChromeEdges from "./ChromeEdges";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
 import StartRoundModal from "./StartRoundModal";
@@ -51,9 +53,15 @@ export default function Game() {
     return () => document.removeEventListener("click", onClick);
   }, []);
 
+  // Same on both branches below: state.phase is "setup" (defaultState) until
+  // a saved game hydrates in, which is also the right chrome colour to show
+  // during this brief pre-hydration flash.
+  const edges = chromeEdgeColors(state);
+
   if (!hydrated) {
     return (
       <main className="flex min-h-[100svh] items-center justify-center">
+        <ChromeEdges top={edges.top} bottom={edges.bottom} />
         <div className="animate-wiggle text-5xl">🦴</div>
       </main>
     );
@@ -61,6 +69,8 @@ export default function Game() {
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
+      <ChromeEdges top={edges.top} bottom={edges.bottom} />
+
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />
       )}

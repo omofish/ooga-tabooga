@@ -37,10 +37,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Experiment: theme-color set to the same dark ink as the new top bar
-  // (--color-ink, #3a2a1b) — testing on-device whether that reads better
-  // than leaving it unset, despite tinting Safari's bottom chrome too.
-  themeColor: "#3a2a1b",
+  // No themeColor: iOS 26 Safari ignores the meta tag entirely and derives
+  // its chrome colour from actual rendered CSS instead — see
+  // components/ChromeEdges.tsx, which is how top/bottom chrome tinting is
+  // actually done now.
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
