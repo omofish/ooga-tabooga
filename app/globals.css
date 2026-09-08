@@ -33,6 +33,9 @@ body {
     radial-gradient(rgba(120, 84, 45, 0.09) 1.5px, transparent 1.6px);
   background-size: 100% 100%, 100% 100%, 22px 22px;
   min-height: 100svh;
+  /* Breathing room above Safari's own bottom toolbar chrome (no themeColor,
+     see layout.tsx — nothing color-matches it now, so give it space instead). */
+  padding-bottom: 1.5rem;
   overscroll-behavior: none;
 }
 

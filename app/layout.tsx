@@ -37,10 +37,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Matches the average colour along the very top of the page, where the body's
-  // base tint (#e3d2b3) is lightened by the radial highlight — so the OS status
-  // bar blends into the background instead of reading a shade darker.
-  themeColor: "#e6d7bb",
+  // Deliberately no themeColor: Safari applies it to its whole chrome as one
+  // value — both the top status-bar strip AND its own bottom toolbar — so a
+  // color picked to match one edge always mismatches the other. Leaving it
+  // unset gives Safari's own neutral light/dark-mode chrome at both edges
+  // instead of a swatch that's only ever right on one side.
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

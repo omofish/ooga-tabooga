@@ -7,6 +7,7 @@ import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import HowToPlay from "./HowToPlay";
 import MuteToggle from "./MuteToggle";
+import ShareButton from "./ShareButton";
 import type { ScreenProps } from "./types";
 
 const TEAM_OPTIONS = Array.from(
@@ -25,21 +26,23 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   return (
     <div className="flex flex-1 flex-col">
       {/* Top bar: flat dark fill (no gradient) so it reads as one solid
-          colour end to end — houses the help/mute icons and the page title
-          together instead of floating the icons over the hero. */}
-      <header className="flex items-center gap-2 bg-ink px-3 py-3">
-        <HowToPlay />
-        <h1 className="font-display flex-1 text-center text-xl text-cream">
-          Ooga Tabooga
+          colour end to end — houses the help/share/mute icons and the page
+          title together instead of floating the icons over the hero. Grid
+          (not flex) so the title stays visually centred even though the
+          left icon group (help+share) is wider than the right (mute alone) —
+          both side columns get the same 1fr width regardless of content. */}
+      <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 bg-ink px-3 py-3">
+        <div className="flex items-center gap-2 justify-self-start">
+          <HowToPlay />
+          <ShareButton />
+        </div>
+        <h1 className="font-display text-center text-xl text-cream">
+          🦴 Ooga Tabooga
         </h1>
-        <MuteToggle />
+        <MuteToggle className="btn btn-cream flex h-11 w-11 shrink-0 items-center justify-center justify-self-end rounded-full text-ink" />
       </header>
 
       <div className="flex flex-1 flex-col gap-7 px-5 pb-10 pt-6">
-        <p className="text-center text-sm font-bold text-ink-soft">
-          Grunt one-syllable clues. Guess the words. Ug good.
-        </p>
-
         {/* Team count */}
         <section>
           <h2 className="font-display mb-2 text-xl text-ink">How many tribes?</h2>
