@@ -176,7 +176,16 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           build {process.env.NEXT_PUBLIC_COMMIT_HASH}
         </p>
         <p className="text-[10px] font-bold text-ink-soft/60">
-          Drop mail to @omofish if have back to feed
+          Drop mail to{" "}
+          <a
+            href="https://t.me/omofish"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-dotted underline-offset-2"
+          >
+            @omofish
+          </a>{" "}
+          if have back to feed
         </p>
       </footer>
     </div>
