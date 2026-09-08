@@ -7,9 +7,10 @@ import {
   reducer,
   saveState,
 } from "@/lib/game";
-import { topBarTheme } from "@/lib/colors";
+import { bottomBarTheme, topBarTheme } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import TopBar from "./TopBar";
+import BottomBar from "./BottomBar";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
 import StartRoundModal from "./StartRoundModal";
@@ -54,21 +55,23 @@ export default function Game() {
   }, []);
 
   const theme = topBarTheme(state);
+  const bottomTheme = bottomBarTheme(state);
 
   if (!hydrated) {
     return (
       <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-        <TopBar key={theme.key} background={theme.background} text={theme.text} />
+        <TopBar key={`top-${theme.key}`} background={theme.background} text={theme.text} />
         <div className="flex flex-1 items-center justify-center">
           <div className="animate-wiggle text-5xl">🦴</div>
         </div>
+        <BottomBar key={`bottom-${bottomTheme.key}`} background={bottomTheme.background} />
       </main>
     );
   }
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-      <TopBar key={theme.key} background={theme.background} text={theme.text} />
+      <TopBar key={`top-${theme.key}`} background={theme.background} text={theme.text} />
 
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />
@@ -97,6 +100,8 @@ export default function Game() {
       {state.phase === "gameover" && (
         <GameOver state={state} dispatch={dispatch} />
       )}
+
+      <BottomBar key={`bottom-${bottomTheme.key}`} background={bottomTheme.background} />
     </main>
   );
 }

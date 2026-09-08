@@ -55,22 +55,41 @@ already shows its own heading visually, so this doesn't duplicate it).
 `HowToPlay` (a flat "?" button that opens the rules in a `Modal`) lives in
 `TopBar`, mirroring `MuteToggle`.
 
-`TopBar` is the app's persistent chrome: a slim, flat `bg-ink` bar
-(`?`/title/mute), `position: sticky top-0`, rendered once in `Game.tsx`
-*outside* the phase switch, so it's on every screen including the
-pre-hydration loading placeholder. Because it's `sticky` rather than `fixed`,
-it reserves its own space in the shared flex column instead of every screen
-needing matching `padding-top` — which is also why every phase component
-uses `flex-1` (not its own `min-h-[100svh]`/`h-[100svh]`) for its outer
-height: `<main>` alone carries `min-h-[100svh]`, and a child re-asserting a
-*second*, independent `100svh` on top of that stacks with TopBar's own
-height and overflows the real viewport by exactly that amount — the app
-becomes scroll-able by a few dozen px on screens that must never scroll
-(`Gameplay` in particular: `touch-none` + `overflow-hidden`, deliberately, so
-a stray drag mid-tap can't be stolen as a scroll). `flex-1` fills whatever's
-actually left after TopBar, no arithmetic required. `Gameplay` also embeds
-its own header (timer, pause) but does *not* duplicate `MuteToggle` there
-any more — TopBar's is the only one, app-wide.
+`TopBar` is the app's persistent chrome: a slim bar (`?`/title/mute),
+`position: sticky top-0`, rendered once in `Game.tsx` *outside* the phase
+switch, so it's on every screen including the pre-hydration loading
+placeholder. `BottomBar` is its counterpart — `position: sticky bottom-0`,
+also rendered once outside the phase switch — but with no content of its
+own; see "Browser chrome colour" below for why both exist and how they're
+coloured. Because they're `sticky` rather than `fixed`, they reserve their
+own space in the shared flex column instead of every screen needing
+matching `padding-top`/`padding-bottom` — which is also why every phase
+component uses `flex-1` (not its own `min-h-[100svh]`/`h-[100svh]`) for its
+outer height: `<main>` alone carries `min-h-[100svh]`, and a child
+re-asserting a *second*, independent `100svh` on top of that stacks with
+TopBar's and BottomBar's own height and overflows the real viewport by
+exactly that amount — the app becomes scroll-able by a few dozen px on
+screens that must never scroll (`Gameplay` in particular: `touch-none` +
+`overflow-hidden`, deliberately, so a stray drag mid-tap can't be stolen as
+a scroll). `flex-1` fills whatever's actually left after both bars, no
+arithmetic required. `Gameplay` also embeds its own header (timer, pause)
+but does *not* duplicate `MuteToggle` there any more — `TopBar`'s is the
+only one, app-wide.
+
+**`TopBar` and `BottomBar` are simultaneous siblings inside `<main>` —
+their `key`s must never collide.** Both derive a `key` from the same
+`{base,soft}-<team-key>` / fixed-string scheme (`topBarTheme`/
+`bottomBarTheme`, see below), and during the in-turn phases those two
+independently-computed keys are often identical (e.g. both `"base-red"`).
+Passing that raw value as each component's React `key` breaks — React
+requires uniqueness across *all* siblings in one children list, not just
+across one component's own successive renders — and a collision doesn't
+error, it silently corrupts reconciliation (this shipped once: a stray
+"Encountered two children with the same key" console warning, and a
+genuinely duplicated `<header>` rendered on screen). `Game.tsx` prefixes
+each with its own namespace (`` `top-${theme.key}` `` /
+`` `bottom-${bottomTheme.key}` ``) specifically to rule this out — keep
+that prefix if either theme function's key scheme ever changes.
 
 `sonner` (`<Toaster/>` mounted once in `app/layout.tsx`, themed to the cream/
 ink palette in `globals.css`) is the toast system — call `toast("message")`
@@ -175,28 +194,39 @@ forever on whatever colour was true at the very first paint (which, in a
 placeholder — not any real phase). But a genuine DOM *mount/unmount* of a
 qualifying element — removing one edge element and inserting a differently-
 coloured one — **does** get re-sampled on the next paint. Confirmed two ways:
-`SetupScreen`'s bottom bar (only ever mounted while `state.phase === "setup"`)
-has always correctly gone dark there and fallen back to light everywhere
-else; and `TopBar` now uses this same trick deliberately (see below) and was
-verified structurally to remount — a genuinely new DOM node, not a restyled
-one — at exactly the transitions where its colour should change, and stay
-the *same* node through re-renders where it shouldn't (e.g. every tick of
-`Gameplay`'s clock).
+an earlier version of `SetupScreen`'s footer (only ever mounted while
+`state.phase === "setup"`, before it moved back to plain in-flow content —
+see below) correctly went dark there and fell back to light everywhere else
+purely from mounting/unmounting, no special trick; and `TopBar`/`BottomBar`
+now use the `key` trick below deliberately, verified structurally to
+remount — a genuinely new DOM node, not a restyled one — at exactly the
+transitions where their colour should change, and stay the *same* node
+through re-renders where it shouldn't (e.g. every tick of `Gameplay`'s
+clock).
 
-`TopBar` (`position: sticky`, full width, flush with the top, on every
-screen) is the top edge's element. Its colour comes from `topBarTheme()`
-(`lib/colors.ts`), which mirrors whatever the screen underneath is already
-doing — team `base` behind countdown/play/reveal, team `soft` behind review,
-dark ink everywhere else (matching `SetupScreen`'s bottom bar) — so it reads
-as part of the screen, not a separate strip. Since `TopBar` is rendered
-unconditionally in `Game.tsx` (never wrapped in a phase check) it's normally
-the *same persistent node* across every re-render — restyle-only, the case
-that does **not** get picked up. `topBarTheme()`'s returned `key` is what
-forces the real remount: `Game.tsx` passes it as `<TopBar key={theme.key}
-.../>`, so React tears down and recreates the element specifically when
-(and only when) the theme actually changes, never on an unrelated re-render.
-`SetupScreen`'s bottom bar needs no such trick — it's already a real
-mount/unmount by virtue of only rendering on that one phase.
+`TopBar` and `BottomBar` (`position: sticky`, full width, flush with their
+edge, on every screen) are the two edge elements. Their colours come from
+`topBarTheme()`/`bottomBarTheme()` (`lib/colors.ts`), which mirror whatever
+the screen underneath is already doing — team `base` behind
+countdown/play/reveal, team `soft` behind review — so each bar reads as part
+of the screen, not a separate strip. The two differ only for
+setup/score/gameover: `TopBar` stays dark ink there (the app's own chrome,
+holding the `?`/title/mute), while `BottomBar` matches the plain page
+background instead — those three screens don't have an in-turn colour to
+give the bottom, and forcing a second dark bar there was tried and reverted
+(the ask was for it to blend, not stand out). Since both are rendered
+unconditionally in `Game.tsx` (never wrapped in a phase check) they're
+normally the *same persistent node* across every re-render — restyle-only,
+the case that does **not** get picked up. Each theme function's returned
+`key` is what forces the real remount: `Game.tsx` passes a namespaced
+version of it as the component's React `key` (see the `TopBar`/`BottomBar`
+paragraph above for why namespaced), so React tears down and recreates the
+element specifically when — and only when — that one theme actually
+changes, never on an unrelated re-render and never affecting the other bar.
+
+`SetupScreen`'s build-hash/contact footer is back to plain in-flow content
+(not fixed, not dark) — it's unrelated to chrome colour now; `BottomBar` is
+what handles that, and needs no visible content of its own to do it.
 
 ## PWA / offline
 

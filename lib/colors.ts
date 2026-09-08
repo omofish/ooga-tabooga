@@ -72,27 +72,43 @@ export function colorVars(c: TeamColor): React.CSSProperties {
   };
 }
 
+/** The active turn's team colour, defaulting to the first team colour when
+ *  there's no active turn (setup/score/gameover) — shared by `topBarTheme`
+ *  and `bottomBarTheme` so their in-turn cases can't drift apart. */
+function activeTeamColor(state: GameState): TeamColor {
+  const team = state.teams.find((t) => t.id === state.active?.teamId);
+  return colorForKey(team?.colorKey ?? TEAM_COLORS[0].key);
+}
+
+/** Why `key` is part of both `topBarTheme`'s and `bottomBarTheme`'s return
+ *  value, not just an incidental colour: `TopBar`/`BottomBar` are mounted
+ *  unconditionally (never wrapped in a phase check), so changing only their
+ *  style props would restyle the *same* persistent DOM node — which iOS 26
+ *  Safari's chrome-colour sampling does NOT re-run for (confirmed: an
+ *  earlier version of this exact feature did only that, and Safari never
+ *  picked up the change). Passing this `key` as the component's React `key`
+ *  forces React to unmount the old node and mount a genuinely new one
+ *  whenever the theme changes — a real DOM edge-element change, which Safari
+ *  DOES re-sample (confirmed: SetupScreen's bottom content has always worked
+ *  this way, mounted only on that one phase, a real unmount). Same colour
+ *  twice in a row (e.g. two renders mid-Gameplay) keeps the same key, so
+ *  neither bar remounts on every re-render — only when the theme actually
+ *  changes.
+ *
+ *  Top and bottom deliberately differ for setup/score/gameover: `TopBar`
+ *  stays dark ink there (the app's own chrome), while `BottomBar` matches
+ *  the plain page background instead of forcing a second dark bar — those
+ *  three screens don't have a natural "themed" bottom the way the in-turn
+ *  phases do. */
+
 /** TopBar's colour for the current phase, mirroring the screen underneath it
  *  value-for-value (team `base` behind countdown/play/reveal, `soft` behind
  *  review, dark ink everywhere else) so the bar reads as part of the screen,
- *  not a separate strip. `key` is deliberately part of the return value, not
- *  just the colours: TopBar is mounted unconditionally (never wrapped in a
- *  phase check), so changing only its style props would restyle the *same*
- *  persistent DOM node — which iOS 26 Safari's chrome-colour sampling does
- *  NOT re-run for (confirmed: an earlier version of this exact feature did
- *  only that, and Safari never picked up the change). Passing this `key` to
- *  <TopBar/> forces React to unmount the old node and mount a genuinely new
- *  one whenever the theme changes — a real DOM edge-element change, which
- *  Safari does re-sample (confirmed by SetupScreen's fixed bottom bar, which
- *  has always worked this way: mounted only on that one phase, so leaving it
- *  is a real unmount, and its colour reliably falls away). Same colour twice
- *  in a row (e.g. two renders mid-Gameplay) keeps the same key, so it does
- *  *not* remount on every re-render — only when the theme actually changes. */
+ *  not a separate strip. */
 export function topBarTheme(
   state: GameState,
 ): { background: string; text: string; key: string } {
-  const team = state.teams.find((t) => t.id === state.active?.teamId);
-  const c = colorForKey(team?.colorKey ?? TEAM_COLORS[0].key);
+  const c = activeTeamColor(state);
 
   switch (state.phase) {
     case "countdown":
@@ -105,5 +121,25 @@ export function topBarTheme(
     case "score":
     case "gameover":
       return { background: "var(--color-ink)", text: "var(--color-cream)", key: "ink" };
+  }
+}
+
+/** BottomBar's colour for the current phase — same team `base`/`soft` as
+ *  `topBarTheme` behind the in-turn phases, but the plain page background
+ *  (not dark ink) behind setup/score/gameover. */
+export function bottomBarTheme(state: GameState): { background: string; key: string } {
+  const c = activeTeamColor(state);
+
+  switch (state.phase) {
+    case "countdown":
+    case "play":
+    case "reveal":
+      return { background: c.base, key: `base-${c.key}` };
+    case "review":
+      return { background: c.soft, key: `soft-${c.key}` };
+    case "setup":
+    case "score":
+    case "gameover":
+      return { background: "var(--color-body)", key: "body" };
   }
 }

@@ -22,10 +22,12 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const best = solo ? bestTurn(state.wordSetId, state.turnSeconds) : null;
 
   return (
-    <div className="flex flex-1 flex-col">
-      {/* pb-16: clearance so the fixed footer below never covers the last
-          button (share) once scrolled to the bottom. */}
-      <div className="flex flex-1 flex-col gap-7 px-5 pb-16 pt-6">
+    // Flat --color-body fill (no gradient/highlight blobs) so this screen's
+    // background blends seamlessly into BottomBar's matching flat colour —
+    // body's own gradient is only visible during the phases that don't set
+    // their own background at all (mainly the pre-hydration flash).
+    <div className="flex flex-1 flex-col" style={{ background: "var(--color-body)" }}>
+      <div className="flex flex-1 flex-col gap-7 px-5 pb-10 pt-6">
         {/* Team count */}
         <section>
           <h2 className="font-display mb-2 text-xl text-ink">How many tribes?</h2>
@@ -153,29 +155,28 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
           <ShareButton />
         </div>
-      </div>
 
-      {/* Build hash + contact: fixed dark footer, own bar matching the top
-          one — lets a deployed GitHub Pages build be checked against the
-          commit that produced it. Hash baked in at build time via
-          next.config.ts. */}
-      <footer className="fixed inset-x-0 bottom-0 z-40 bg-ink px-4 py-2 text-center">
-        <p className="text-xs font-bold text-cream/60">
-          build {process.env.NEXT_PUBLIC_COMMIT_HASH}
-        </p>
-        <p className="text-xs font-bold text-cream/60">
-          Drop mail to{" "}
-          <a
-            href="https://t.me/omofish"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-dotted underline-offset-2"
-          >
-            @omofish
-          </a>{" "}
-          if have back to feed
-        </p>
-      </footer>
+        {/* Build hash + contact: normal in-flow content, not pinned — lets a
+            deployed GitHub Pages build be checked against the commit that
+            produced it. Hash baked in at build time via next.config.ts. */}
+        <footer className="text-center">
+          <p className="text-xs font-bold text-ink-soft/60">
+            build {process.env.NEXT_PUBLIC_COMMIT_HASH}
+          </p>
+          <p className="text-xs font-bold text-ink-soft/60">
+            Drop mail to{" "}
+            <a
+              href="https://t.me/omofish"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-dotted underline-offset-2"
+            >
+              @omofish
+            </a>{" "}
+            if have back to feed
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }

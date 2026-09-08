@@ -45,7 +45,13 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
   const cols = `minmax(2.2rem,auto) repeat(${teams.length}, minmax(0,1fr))`;
 
   return (
-    <div className="flex flex-1 flex-col px-4 pb-6 pt-6">
+    // Flat --color-body fill (no gradient/highlight blobs), matching
+    // SetupScreen, so this screen blends seamlessly into BottomBar's flat
+    // colour instead of showing a gradient right above a flat strip.
+    <div
+      className="flex flex-1 flex-col px-4 pb-6 pt-6"
+      style={{ background: "var(--color-body)" }}
+    >
       {/* Header */}
       <header className="mb-4 flex items-center justify-between">
         <div>
