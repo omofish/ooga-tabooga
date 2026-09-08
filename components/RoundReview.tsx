@@ -99,7 +99,7 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
 
   return (
     <div
-      className="flex min-h-[100svh] flex-col px-4 pb-4 pt-5 no-select"
+      className="flex h-[100svh] flex-col px-4 pb-4 pt-5 no-select"
       style={{ ...colorVars(c), background: c.soft }}
     >
       <header className="text-center">
@@ -111,7 +111,7 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
         </p>
       </header>
 
-      <div className="mt-3 flex flex-1 flex-col gap-2.5 overflow-y-auto">
+      <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto">
         {BUCKETS.map((b) => {
           const inBucket = cards.filter((card) => card.bucket === b.key);
           const isOver = drag?.over === b.key;
