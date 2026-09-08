@@ -49,10 +49,10 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
       {/* Header */}
       <header className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl text-cream">
+          <h1 className="font-display text-2xl text-ink">
             Scoreboard
           </h1>
-          <p className="mt-1.5 text-xs font-bold text-cream/70">
+          <p className="mt-1.5 text-xs font-bold text-ink-soft">
             {wordSet.emoji} {wordSet.name}
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
       <div className="mt-auto flex flex-col gap-3 pt-6">
         {nextTeam && nextColor && (
           <>
-            <p className="animate-pulse-soft text-center text-sm font-bold text-cream/70">
+            <p className="animate-pulse-soft text-center text-sm font-bold text-ink-soft">
               {solo
                 ? "🏆 Tap play to take a turn — beat your best!"
                 : `📲 Pass the phone — ${nextTeam.name} is up`}

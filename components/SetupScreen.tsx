@@ -28,7 +28,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
       <div className="flex flex-1 flex-col gap-7 px-5 pb-16 pt-6">
         {/* Team count */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-cream">How many tribes?</h2>
+          <h2 className="font-display mb-2 text-xl text-ink">How many tribes?</h2>
           <div className="grid grid-cols-3 gap-3">
             {TEAM_OPTIONS.map((n) => {
               const selected = state.numTeams === n;
@@ -56,7 +56,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
             })}
           </div>
           {solo && (
-            <p className="mt-2 px-1 text-xs font-bold text-cream/70">
+            <p className="mt-2 px-1 text-xs font-bold text-ink-soft">
               🏆 Solo — take turns and chase your best single-turn score.
               {best ? ` Best: ${best.score} (${best.name}).` : ""}
             </p>
@@ -65,7 +65,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
         {/* Round length */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-cream">Round length</h2>
+          <h2 className="font-display mb-2 text-xl text-ink">Round length</h2>
           <div className="grid grid-cols-3 gap-3">
             {TURN_OPTIONS.map((sec) => {
               const selected = state.turnSeconds === sec;
@@ -87,7 +87,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
         {/* Word set */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-cream">Pick your words</h2>
+          <h2 className="font-display mb-2 text-xl text-ink">Pick your words</h2>
           <div className="flex flex-col gap-3">
             {WORD_SETS.map((set) => {
               const selected = state.wordSetId === set.id;
@@ -114,7 +114,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
           {/* Word memory: how many of this set have been shown, with a reset. */}
           <div className="mt-3 flex items-center justify-between gap-3 px-1">
-            <p className="text-xs font-bold text-cream/70">
+            <p className="text-xs font-bold text-ink-soft">
               🧠 Seen {seen} of {total} words
             </p>
             <button

@@ -40,19 +40,19 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
       <header className="relative z-10 flex flex-col items-center gap-3 text-center">
         <div className="animate-wiggle text-5xl">🏆</div>
         {isTie ? (
-          <h1 className="font-display text-shadow-pop text-3xl text-cream">
+          <h1 className="font-display text-shadow-pop text-3xl text-ink">
             It&apos;s a Tie!
           </h1>
         ) : (
           <>
-            <p className="font-display text-lg text-cream/70">Winner!</p>
+            <p className="font-display text-lg text-ink-soft">Winner!</p>
             <h1
               className="animate-tada font-display text-shadow-pop py-1 text-4xl"
               style={{ color: winColor.deep }}
             >
               {top.team.emoji || winColor.mascot} {top.team.name}
             </h1>
-            <p className="font-display text-2xl text-cream">{top.total} points</p>
+            <p className="font-display text-2xl text-ink">{top.total} points</p>
           </>
         )}
       </header>
@@ -135,7 +135,7 @@ function SoloGameOver({ state, dispatch }: ScreenProps) {
 
       <header className="relative z-10 flex flex-col items-center gap-2 text-center">
         <div className="animate-wiggle text-5xl">{team?.emoji || c.mascot}</div>
-        <p className="font-display text-lg text-cream/70">
+        <p className="font-display text-lg text-ink-soft">
           {heldRecord ? "New Best! 🏆" : "Best Turn"}
         </p>
         <h1
@@ -144,7 +144,7 @@ function SoloGameOver({ state, dispatch }: ScreenProps) {
         >
           {sessionBest}
         </h1>
-        <p className="font-display text-lg text-cream">points in one turn</p>
+        <p className="font-display text-lg text-ink">points in one turn</p>
       </header>
 
       <div className="relative z-10 mt-5 flex flex-col gap-3">

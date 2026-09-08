@@ -25,14 +25,8 @@ html {
 
 body {
   font-family: var(--font-body), system-ui, sans-serif;
-  color: var(--color-cream);
-  /* Solid dark ink — this exact CSS property (not the gradient below, which
-     Safari disregards for this) is what iOS 26 Safari falls back to for its
-     own chrome colour (status bar / bottom toolbar) whenever no fixed/sticky
-     element sits right at an edge — see docs/architecture.md. Loose text
-     that isn't already on its own light card needs `text-cream`/
-     `text-cream/70` now, not `text-ink`/`text-ink-soft`. */
-  background-color: var(--color-ink);
+  color: var(--color-ink);
+  background-color: #e3d2b3;
   background-image:
     radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.35) 0, transparent 40%),
     radial-gradient(circle at 85% 80%, rgba(120, 80, 40, 0.18) 0, transparent 45%),

@@ -168,19 +168,19 @@ would never actually be picked up — it'd be stuck on whatever the very
 first frame happened to be, forever, regardless of later phase changes
 (this was tried and reverted once already).
 
-What *is* achievable, and is what's live: one consistent colour, everywhere.
-`body`'s `background-color` (not the gradient `background-image` layered
-over it — Safari disregards that for this) is solid dark ink
-(`var(--color-ink)`), and `TopBar` (`position: sticky`, full width, flush
-with the top) is the same solid ink — so both the documented top-level rule
-and its fallback agree, top and bottom, on every screen, "legitimately"
-(i.e. via the actual supported mechanism, not a decoy sentinel element).
-Because `body`'s background-color is dark, loose text that isn't already
-sitting on its own light card/surface (`.chunk`, a Modal, a team's `soft`
-tint) needs `text-cream`/`text-cream/70` now, not `text-ink`/`text-ink-soft`
-— see `SetupScreen`, `ScoreView`'s header, and `GameOver`'s headline for the
-pattern; anything inside a light card keeps `text-ink`/`text-ink-soft`
-exactly as before, unaffected.
+What's live: `body`'s own `background-color` stays the plain light/cream
+base tint (`#e3d2b3`) it's always been — the app's actual page background is
+**not** part of this. Instead, `TopBar` (`position: sticky`, full width,
+flush with the top, solid `bg-ink`, on every screen) *is* a qualifying
+top-level fixed/sticky edge element, which is enough on its own to get the
+top edge tinted dark without needing `body` to change at all. `SetupScreen`
+has the matching dark bar at the bottom (`position: fixed`, same solid
+`bg-ink`) for that one screen. Screens with no such element at the bottom
+(everywhere except setup) fall back to `body`'s light background for that
+edge — accepted, not something to "fix" by touching `body` again: the page
+background is a separate concern from chrome colour, and past attempts to
+conflate the two (making `body` itself dark to force both edges dark
+everywhere) were reverted — don't repeat that.
 
 ## PWA / offline
 
