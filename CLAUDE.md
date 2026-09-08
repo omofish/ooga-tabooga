@@ -45,6 +45,10 @@ By default, agents should merge their changes to `main` automatically once the
 work is complete and checks pass — no need to wait for explicit approval to
 merge.
 
+After every push to `main`, report the commit hash (`git log -1 --format=%h`)
+back to the user, so they can check it against the `build <hash>` footer shown
+on the live site.
+
 ## Code map
 
 Deeper detail (state machine, screen flow, styling gotchas) is in
