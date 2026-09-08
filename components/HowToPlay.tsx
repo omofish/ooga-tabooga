@@ -27,11 +27,15 @@ export default function HowToPlay({ className }: { className?: string }) {
             <h2 className="mt-2 font-display text-3xl text-ink">How Play Game</h2>
           </div>
 
-          {/* Rules scroll within a capped height so the card never overflows a
-              small phone; the sticky Got-It button below stays reachable. The
-              scrollbar (themed globally, see globals.css) gets its own
-              right-hand gutter (pr-4) here so it never overlaps the text. */}
-          <div className="mt-4 max-h-[58vh] space-y-5 overflow-y-auto pr-4">
+          {/* flex-1 + min-h-0 (Modal's Dialog.Content is a capped-height flex
+              column): this panel shrinks to whatever space is left after the
+              heading and Got-It button take theirs, and scrolls internally
+              from there — so the button always stays visible/reachable, on
+              any screen height, instead of a fixed vh guess that can push it
+              off a shorter phone. The scrollbar (themed globally, see
+              globals.css) gets its own right-hand gutter (pr-4) so it never
+              overlaps the text. */}
+          <div className="mt-4 min-h-0 flex-1 space-y-5 overflow-y-auto pr-4">
             <p className="text-sm font-bold leading-relaxed text-ink-soft">
               One player hold phone, is chief. Chief grunt clues. Tribe guess
               word on the card. Bad talk get bonk. Tribe change when time end.

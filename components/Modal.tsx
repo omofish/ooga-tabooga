@@ -39,7 +39,7 @@ export default function Modal({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/60" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="chunk-lg animate-pop origin-top fixed left-1/2 top-1/2 z-50 max-h-[calc(100svh-5rem)] w-[calc(100%-2.5rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl p-6 outline-none"
+          className="chunk-lg animate-pop origin-top fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100svh-5rem)] w-[calc(100%-2.5rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-3xl p-6 outline-none"
           style={style}
         >
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
