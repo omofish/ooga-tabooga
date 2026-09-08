@@ -172,10 +172,10 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
       {/* Build hash: lets a deployed GitHub Pages build be checked against
           the commit that produced it. Baked in at build time via next.config.ts. */}
       <footer className="text-center">
-        <p className="text-[10px] font-bold text-ink-soft/60">
+        <p className="text-xs font-bold text-ink-soft/60">
           build {process.env.NEXT_PUBLIC_COMMIT_HASH}
         </p>
-        <p className="text-[10px] font-bold text-ink-soft/60">
+        <p className="text-xs font-bold text-ink-soft/60">
           Drop mail to{" "}
           <a
             href="https://t.me/omofish"
