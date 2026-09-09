@@ -28,6 +28,14 @@ html {
    leave body's own background showing through, and it's what iOS Safari's
    bottom-chrome fallback sampling/blur sees on those two screens now that
    there's no dedicated bottom-edge bar (see TopBar.tsx). */
+/* Same base colour as body: with viewport-fit=cover the page can rubber-band
+   past body's own bounds, and without this html's default (unstyled, white)
+   background would show through the gap for a moment. */
+html {
+  background-color: var(--color-body);
+  overscroll-behavior: none;
+}
+
 body {
   font-family: var(--font-body), system-ui, sans-serif;
   color: var(--color-ink);

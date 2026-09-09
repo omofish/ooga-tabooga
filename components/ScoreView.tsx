@@ -48,7 +48,7 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
     // No background of its own — deliberately left transparent so <body>'s
     // own colour + polka-dot texture (globals.css) shows through, matching
     // SetupScreen.
-    <div className="flex flex-1 flex-col px-4 pb-6 pt-6">
+    <div className="flex flex-1 flex-col px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-6">
       {/* Header */}
       <header className="mb-4 flex items-center justify-between">
         <div>

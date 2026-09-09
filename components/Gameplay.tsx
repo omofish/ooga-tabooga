@@ -79,7 +79,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       style={{ ...colorVars(c), background: c.base, color: c.onBase }}
     >
       {/* Top bar: timer + pause */}
-      <header className="flex items-center gap-3 px-4 pt-5">
+      <header className="flex items-center gap-3 px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)]">
         <div className="flex-1">
           <div className="flex items-baseline gap-2">
             <span
@@ -159,7 +159,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       </main>
 
       {/* Pass */}
-      <footer className="p-4 pt-0">
+      <footer className="px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
         <button
           onClick={() => {
             // A skip (already banked +1) carries no penalty — no buzzer.

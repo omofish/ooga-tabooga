@@ -25,7 +25,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
     // No background of its own — deliberately left transparent so <body>'s
     // own colour + polka-dot texture (globals.css) shows through.
     <div className="flex flex-1 flex-col">
-      <div className="flex flex-1 flex-col gap-7 px-5 pb-10 pt-6">
+      <div className="flex flex-1 flex-col gap-7 px-5 pb-[calc(env(safe-area-inset-bottom)+2.5rem)] pt-6">
         {/* Team count */}
         <section>
           <h2 className="font-display mb-2 text-xl text-ink">How many tribes?</h2>

@@ -162,6 +162,25 @@ built from a compact table through `fromTable()`/`build()` in
 contain the easy word) and dedupes. Authoring rules and the audit script:
 [`word-set-guidelines.md`](word-set-guidelines.md).
 
+## Safe areas (notch / Dynamic Island / home indicator)
+
+`viewport.viewportFit: "cover"` (`app/layout.tsx`) and `appleWebApp.statusBarStyle:
+"black-translucent"` extend the page under the status bar and home indicator
+instead of leaving them as separate native chrome — otherwise, in an installed
+iOS PWA, the status bar renders as a flat opaque strip that doesn't match the
+app's own colours (a visible seam between it and whatever's rendered below).
+
+Because content now draws under both edges, every edge-anchored element pads
+itself with `env(safe-area-inset-top)`/`env(safe-area-inset-bottom)` **on top
+of** its normal spacing (`pt-[calc(env(safe-area-inset-top)+1.25rem)]`, etc.)
+so controls stay clear of the notch/home indicator: `TopBar` (top), and the
+top and/or bottom edges of `Gameplay` (header + footer), `RoundReview`,
+`GameOver`, `SetupScreen`, `ScoreView`. Centered full-viewport screens
+(`Countdown`, `ScoreReveal`) don't touch an edge, so they're left alone. `html`
+also gets the same `background-color` as `body` — with content now able to
+rubber-band past `body`'s own bounds, this stops the unstyled (white) `html`
+background from flashing through the gap.
+
 ## Browser chrome colour (status bar / bottom toolbar)
 
 There's no `<meta name="theme-color">` — iOS 26 Safari (its "Liquid Glass"

@@ -25,7 +25,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Ooga Tabooga",
-    statusBarStyle: "default",
+    // "black-translucent" makes the status bar transparent so page content
+    // (viewportFit: "cover", below) draws underneath it instead of leaving a
+    // separate opaque native strip that doesn't match the app's own colours.
+    statusBarStyle: "black-translucent",
   },
   icons: {
     icon: [
@@ -49,6 +52,11 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  // Extend the page under the notch/status bar and home indicator instead of
+  // leaving those areas as separate native chrome — see the paired
+  // `env(safe-area-inset-*)` padding at every edge-anchored element (TopBar,
+  // Gameplay's header/footer, the bottom action stacks, etc).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

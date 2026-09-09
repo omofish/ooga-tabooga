@@ -31,7 +31,7 @@ export default function GameOver({ state, dispatch }: ScreenProps) {
   const winColor = colorForKey(top.team.colorKey);
 
   return (
-    <div className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-6 pt-8">
+    <div className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-[calc(env(safe-area-inset-top)+2rem)]">
       <Confetti />
 
       {/* Stacked display-font lines need explicit gaps: text-box-trim strips
@@ -130,7 +130,7 @@ function SoloGameOver({ state, dispatch }: ScreenProps) {
   const heldRecord = sessionBest > 0 && (!allTime || sessionBest >= allTime.score);
 
   return (
-    <div className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-6 pt-8">
+    <div className="relative flex min-h-[100svh] flex-col overflow-hidden px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-[calc(env(safe-area-inset-top)+2rem)]">
       {heldRecord && <Confetti />}
 
       <header className="relative z-10 flex flex-col items-center gap-2 text-center">

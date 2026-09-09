@@ -99,7 +99,7 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
 
   return (
     <div
-      className="flex h-[100svh] flex-col px-4 pb-4 pt-5 no-select"
+      className="flex h-[100svh] flex-col px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1.25rem)] no-select"
       style={{ ...colorVars(c), background: c.soft }}
     >
       <header className="text-center">
