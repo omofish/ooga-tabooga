@@ -7,8 +7,7 @@
   --color-cream: #fff7e8;
   --color-ink: #3a2a1b;
   --color-ink-soft: #6d5233;
-  --color-body: #e3d2b3; /* body's own base tint, reused as a flat (no-
-    gradient) background on Setup/Score so they blend into BottomBar. */
+  --color-body: #e3d2b3; /* body's own base tint. */
 }
 
 :root {
@@ -25,15 +24,16 @@ html {
   touch-action: manipulation;
 }
 
+/* Polka-dot texture only (no gradient blobs) — visible on Setup/Score, which
+   leave body's own background showing through, and it's what iOS Safari's
+   bottom-chrome fallback sampling/blur sees on those two screens now that
+   there's no dedicated bottom-edge bar (see TopBar.tsx). */
 body {
   font-family: var(--font-body), system-ui, sans-serif;
   color: var(--color-ink);
   background-color: var(--color-body);
-  background-image:
-    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.35) 0, transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(120, 80, 40, 0.18) 0, transparent 45%),
-    radial-gradient(rgba(120, 84, 45, 0.09) 1.5px, transparent 1.6px);
-  background-size: 100% 100%, 100% 100%, 22px 22px;
+  background-image: radial-gradient(rgba(120, 84, 45, 0.09) 1.5px, transparent 1.6px);
+  background-size: 22px 22px;
   min-height: 100svh;
   overscroll-behavior: none;
 }

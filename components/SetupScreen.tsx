@@ -22,11 +22,9 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const best = solo ? bestTurn(state.wordSetId, state.turnSeconds) : null;
 
   return (
-    // Flat --color-body fill (no gradient/highlight blobs) so this screen's
-    // background blends seamlessly into BottomBar's matching flat colour —
-    // body's own gradient is only visible during the phases that don't set
-    // their own background at all (mainly the pre-hydration flash).
-    <div className="flex flex-1 flex-col" style={{ background: "var(--color-body)" }}>
+    // No background of its own — deliberately left transparent so <body>'s
+    // own colour + polka-dot texture (globals.css) shows through.
+    <div className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col gap-7 px-5 pb-10 pt-6">
         {/* Team count */}
         <section>

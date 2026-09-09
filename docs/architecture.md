@@ -55,15 +55,14 @@ already shows its own heading visually, so this doesn't duplicate it).
 `HowToPlay` (a flat "?" button that opens the rules in a `Modal`) lives in
 `TopBar`, mirroring `MuteToggle`.
 
-`TopBar` and `BottomBar` are chrome shown only on Setup and Score (`Game.tsx`
-renders them behind `state.phase === "setup" || state.phase === "score"`) —
-the two screens without their own full-bleed themed background. `TopBar` is
-a slim bar (`?`/title/mute), `position: sticky top-0`; `BottomBar` is its
-counterpart, `position: sticky bottom-0`, with no visible content of its
-own — see "Browser chrome colour" below for why it exists. Both are fixed
-dark-ink (`TopBar`) / flat page-background (`BottomBar`) colour, no props,
-no per-phase theming: every other phase (`countdown`/`play`/`review`/
-`reveal`/`gameover`) owns the full viewport itself and renders neither bar.
+`TopBar` is chrome shown only on Setup and Score (`Game.tsx` renders it
+behind `state.phase === "setup" || state.phase === "score"`) — the two
+screens without their own full-bleed themed background. It's a slim bar
+(`?`/title/mute), `position: sticky top-0`, fixed dark-ink colour, no props,
+no per-phase theming. There's deliberately **no** bottom counterpart — see
+"Browser chrome colour" below for why a bottom-edge bar was tried and
+removed. Every other phase (`countdown`/`play`/`review`/`reveal`/`gameover`)
+owns the full viewport itself and renders no bar at all.
 
 Every phase component other than Setup/Score sizes its own outer element to
 the full viewport (`min-h-[100svh]`, or `Gameplay`'s `h-[100svh]` since it
@@ -71,7 +70,9 @@ must never scroll: `touch-none` + `overflow-hidden`, deliberately, so a
 stray drag mid-tap can't be stolen as a scroll) — there's no shared bar
 eating into that space on those screens, so each owns its own background
 edge-to-edge. `Gameplay` embeds its own header (mute, timer, pause) since
-`TopBar` isn't mounted there.
+`TopBar` isn't mounted there. `SetupScreen` and `ScoreView` set no
+background of their own either — they leave `<body>`'s colour + polka-dot
+texture (`globals.css`) showing through.
 
 `Game.tsx` also resets scroll (`window.scrollTo(0, 0)`) in a `useEffect`
 keyed on `state.phase` — client-side phase transitions aren't real
@@ -163,15 +164,33 @@ contain the easy word) and dedupes. Authoring rules and the audit script:
 
 ## Browser chrome colour (status bar / bottom toolbar)
 
-There's no `<meta name="theme-color">` — iOS 26 Safari ignores it entirely.
-Instead it derives its own chrome colour by sampling the `background-color`
-of a `position: fixed`/`sticky` element flush with the top or bottom edge
-(full width), falling back to `<body>`'s own solid `background-color`
-otherwise. `<body>` stays the plain light/cream base tint (`#e3d2b3`) —
-that's the app's actual page background, a separate concern from chrome
-colour, and not part of this at all; don't make `<body>` itself dark to
+There's no `<meta name="theme-color">` — iOS 26 Safari (its "Liquid Glass"
+chrome) ignores it entirely. Instead, for each edge (top/bottom) it finds the
+nearest qualifying element — `position: fixed`/`sticky`, at least ~80% of
+the viewport width, within a few px of that edge — and **mirrors both its
+`background-color` and its `backdrop-filter`** onto its own native chrome.
+With no qualifying element at that edge, it falls back to sampling
+`<body>`'s own `background-color` for tint *only*, while keeping its own
+native translucent/blurred glass rendering intact. `<body>` stays the plain
+light/cream base tint (`#e3d2b3`) — that's the app's actual page background,
+a separate concern from chrome colour; don't make `<body>` itself dark to
 chase a chrome-colour goal (tried once, reverted — broke every screen's text
 contrast for no real benefit once the mechanism below was understood).
+
+**This is why `TopBar` has no bottom counterpart.** An earlier version added
+a `BottomBar` — a solid, opaque, full-width sticky strip — specifically to
+give the bottom edge a colour to sample, mirroring `TopBar`. It worked for
+colour, but it also cost translucency: because it was a *qualifying edge
+element*, Safari mirrored it exactly — flat and opaque, since the element
+itself had no `backdrop-filter` and a fully-opaque `background-color` — which
+replaced Safari's native frosted-glass bottom toolbar with a dead flat strip.
+Removing it restores the fallback path: no qualifying element at the bottom
+edge on any screen, so Safari's bottom toolbar is always its own native
+translucent glass, tinted by (and blurring) whatever `<body>` is currently
+showing. (A `BottomBar` with a semi-transparent `background-color` **and**
+`backdrop-filter: blur(...)` would, per the mechanism above, let Safari
+mirror an intentionally-glassy bar instead of an opaque one — untried here;
+removing it entirely was simpler and sufficient.)
 
 **The sampling is real-time re-render-aware, but not real-time re-style-aware
 — know the difference before touching this.** Restyling a `background-color`
@@ -181,18 +200,19 @@ colour prop change per `state.phase`, and Safari never picked the change up,
 stuck forever on whatever colour was true at the very first paint. But a
 genuine DOM *mount/unmount* of a qualifying element — removing one edge
 element and inserting a differently-coloured one — **does** get re-sampled on
-the next paint. This is why `TopBar`/`BottomBar` are scoped to
+the next paint. This is why `TopBar` is scoped to
 `state.phase === "setup" || state.phase === "score"` rather than
 permanently mounted with a colour prop: each conditional render is a real
-mount/unmount, so Safari picks up dark chrome on Setup/Score and falls back
-to sampling `<body>`'s flat cream `background-color` on every other phase —
-no forced-remount `key` trick needed, since neither bar's own colour ever
-changes while it stays mounted (Setup and Score both use the same dark-ink
-top / flat-body bottom).
+mount/unmount, so Safari picks up dark top chrome on Setup/Score and falls
+back to sampling `<body>`'s tint on every other phase (and at the bottom
+edge on *every* phase, top-chrome scoping included) — no forced-remount
+`key` trick needed, since `TopBar`'s own colour never changes while it stays
+mounted.
 
 Every other phase (`countdown`/`play`/`review`/`reveal`/`gameover`) renders
-neither bar, so on those screens the chrome colour is whatever `<body>`
-falls back to. `Game.tsx` keeps that fallback correct with a `useEffect`
+no bar at all — top or bottom — so on those screens the chrome colour (both
+edges) is whatever `<body>` falls back to. `Game.tsx` keeps that fallback
+correct with a `useEffect`
 keyed on `state.phase`/`state.active?.teamId` that sets
 `document.body.style.backgroundColor` directly to match the active phase's
 own theme (team `base` behind countdown/play/reveal, team `soft` behind
@@ -202,13 +222,17 @@ phase's own div is opaque and exactly viewport-sized, but an iOS rubber-band
 overscroll bounce briefly reveals whatever's *behind* it — i.e. `<body>`
 itself — so leaving `<body>` on its default cream would flash cream behind,
 say, RoundReview's pink. The same effect also blanks `<body>`'s
-`background-image` (the decorative gradient) while a colour override is
-active, so the overscroll peek is a clean flat match rather than the
-gradient's texture showing through a mismatched hue.
+`background-image` (the polka-dot texture, see below) while a colour
+override is active, so the overscroll peek is a clean flat match rather
+than the dot texture showing through a mismatched hue.
 
-`SetupScreen`'s build-hash/contact footer is plain in-flow content (not
-fixed, not dark) — it's unrelated to chrome colour; `BottomBar` is what
-handles that, and needs no visible content of its own to do it.
+`<body>`'s own `background-image` (`globals.css`) is a polka-dot texture
+only — the earlier version also layered two soft radial-gradient "highlight"
+blobs, dropped since they're not wanted anymore. `SetupScreen` and
+`ScoreView` set no background of their own, so this is what shows through on
+those two screens (plus `TopBar`'s dark strip on top) — including through
+Safari's translucent bottom chrome there, which blurs whatever `<body>` is
+actually showing.
 
 ## PWA / offline
 

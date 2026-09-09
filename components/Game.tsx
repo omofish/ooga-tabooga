@@ -10,7 +10,6 @@ import {
 import { colorForKey } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import TopBar from "./TopBar";
-import BottomBar from "./BottomBar";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
 import StartRoundModal from "./StartRoundModal";
@@ -68,7 +67,8 @@ export default function Game() {
   // div — i.e. <body> itself — so leaving body on its default cream would
   // flash cream behind e.g. RoundReview's pink. Setting it here also gives
   // Safari's chrome-colour fallback sampling (see docs/architecture.md) the
-  // right colour on the phases that render neither TopBar nor BottomBar.
+  // right colour on the phases that render neither TopBar nor a bottom edge
+  // element (setup/score deliberately have no bottom bar — see TopBar.tsx).
   useEffect(() => {
     const team = state.teams.find((t) => t.id === state.active?.teamId);
     const c = colorForKey(team?.colorKey ?? "red");
@@ -90,7 +90,7 @@ export default function Game() {
     };
   }, [state.phase, state.active?.teamId, state.teams]);
 
-  const showBars = state.phase === "setup" || state.phase === "score";
+  const showTopBar = state.phase === "setup" || state.phase === "score";
 
   if (!hydrated) {
     return (
@@ -99,14 +99,13 @@ export default function Game() {
         <div className="flex flex-1 items-center justify-center">
           <div className="animate-wiggle text-5xl">🦴</div>
         </div>
-        <BottomBar />
       </main>
     );
   }
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-      {showBars && <TopBar />}
+      {showTopBar && <TopBar />}
 
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />
@@ -135,8 +134,6 @@ export default function Game() {
       {state.phase === "gameover" && (
         <GameOver state={state} dispatch={dispatch} />
       )}
-
-      {showBars && <BottomBar />}
     </main>
   );
 }
