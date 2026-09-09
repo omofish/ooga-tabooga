@@ -111,7 +111,10 @@ export default function RoundReview({ state, dispatch }: ScreenProps) {
         </p>
       </header>
 
-      <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto">
+      {/* pb-2: the last .chunk bucket has no gap-2.5 sibling below it to
+          catch its 5px drop-shadow, so without this the scroll container's
+          own overflow clips that shadow off flush at the bottom. */}
+      <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto pb-2">
         {BUCKETS.map((b) => {
           const inBucket = cards.filter((card) => card.bucket === b.key);
           const isOver = drag?.over === b.key;
