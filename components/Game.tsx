@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   defaultState,
+  isSolo,
   loadState,
   reducer,
   saveState,
 } from "@/lib/game";
 import { colorForKey } from "@/lib/colors";
 import * as sound from "@/lib/sound";
+import { track } from "@/lib/analytics";
 import TopBar from "./TopBar";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
@@ -52,6 +54,43 @@ export default function Game() {
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
   }, []);
+
+  // Analytics: fire on the real phase transitions that mark a game
+  // starting/ending and a turn finishing, kept out of the pure reducer.
+  // `prevPhase` (not a dep) lets one effect distinguish "just arrived at
+  // this phase" from "re-rendered while still in it".
+  const prevPhaseRef = useRef(state.phase);
+  const gameStartedAtRef = useRef<number | null>(null);
+  useEffect(() => {
+    const prevPhase = prevPhaseRef.current;
+    prevPhaseRef.current = state.phase;
+    if (prevPhase === state.phase) return;
+
+    const base = {
+      wordSet: state.wordSetId,
+      turnSeconds: state.turnSeconds,
+      mode: isSolo(state) ? "solo" : "multi",
+    } as const;
+
+    if (prevPhase === "setup") {
+      gameStartedAtRef.current = Date.now();
+      track("game_started", { ...base, numTeams: state.numTeams });
+    }
+
+    if (state.phase === "reveal") {
+      const result = state.active
+        ? state.rounds[state.active.roundIndex]?.[state.active.teamId]
+        : undefined;
+      if (result) track("turn_completed", { ...base, score: result.score });
+    }
+
+    if (state.phase === "gameover") {
+      const durationMs = gameStartedAtRef.current
+        ? Date.now() - gameStartedAtRef.current
+        : null;
+      track("game_over", { ...base, numTeams: state.numTeams, durationMs });
+    }
+  }, [state]);
 
   // Client-side phase transitions don't trigger a real navigation, so the
   // browser never resets scroll on its own — without this, e.g. starting a

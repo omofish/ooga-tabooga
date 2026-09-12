@@ -3,6 +3,7 @@ import { Luckiest_Guy, Nunito } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import Analytics from "@/components/Analytics";
 
 const displayFont = Luckiest_Guy({
   weight: "400",
@@ -79,6 +80,7 @@ export default function RootLayout({
           </p>
         </div>
         <ServiceWorkerRegister />
+        <Analytics />
         <Toaster
           position="top-center"
           toastOptions={{ className: "font-bold", duration: 2400 }}

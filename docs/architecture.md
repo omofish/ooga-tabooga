@@ -267,6 +267,30 @@ benefits. It hides itself once already installed, detected via
 `matchMedia("(display-mode: standalone)")` (Android) or the non-standard
 `navigator.standalone` (iOS Safari has no `display-mode` support).
 
+## Analytics
+
+`lib/analytics.ts` wraps `posthog-js` behind `track(event, props)` and
+`initAnalytics()` (called once from `components/Analytics.tsx`, mounted in
+`app/layout.tsx` next to `ServiceWorkerRegister`). Both silently no-op if
+`NEXT_PUBLIC_POSTHOG_KEY` isn't set at build time — analytics is opt-in
+deploy config, not a hard dependency for running the game. The key is a
+PostHog **project** key, meant to be public/embedded client-side (not a
+secret); the deploy workflow (`.github/workflows/deploy.yml`) passes it in
+from an Actions repo *variable* of the same name, not a secret.
+
+PostHog is configured with `persistence: "localStorage"` (no cookies),
+`autocapture: false`, and `disable_session_recording: true` — only the
+events below are sent, plus an automatic pageview (→ daily visitor counts).
+
+Events, all fired from `Game.tsx`'s phase-transition effect (kept out of the
+pure reducer, same pattern as the sound/body-colour side effects):
+
+| Event | Fires on | Props |
+|---|---|---|
+| `game_started` | leaving `setup` | `mode`, `wordSet`, `turnSeconds`, `numTeams` |
+| `turn_completed` | entering `reveal` | `mode`, `wordSet`, `turnSeconds`, `score` |
+| `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
+
 ## Deployment (GitHub Pages + basePath)
 
 `next.config.ts` builds a static export (`output: "export"`) served from
