@@ -291,6 +291,11 @@ pure reducer, same pattern as the sound/body-colour side effects):
 | `turn_completed` | entering `reveal` | `mode`, `wordSet`, `turnSeconds`, `score` |
 | `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
 
+`ShareButton` tags its link with `utm_source=share_button&utm_medium=organic`
+(stripping any params already on the page URL first) — PostHog reads standard
+`utm_*` query params on pageview automatically, no extra wiring, so visits
+from an organic share show up distinctly from a bare-URL visit.
+
 ## Deployment (GitHub Pages + basePath)
 
 `next.config.ts` builds a static export (`output: "export"`) served from
