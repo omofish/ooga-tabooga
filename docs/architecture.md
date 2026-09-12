@@ -36,7 +36,7 @@ saved to `localStorage` on every change.
 
 | Phase | Component | Role |
 |---|---|---|
-| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set; `ShareButton` sits under Start Game |
+| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set; `ShareButton` then `AddToHomeScreen` sit under Start Game |
 | score | `ScoreView` | scoreboard; one Play button for the team up next, tap a team name to rename |
 | — | `StartRoundModal`, `RenameTeamModal` | shown over the scoreboard |
 | countdown | `Countdown` | 3·2·1·GO |
@@ -259,6 +259,13 @@ actually showing.
 + `components/ServiceWorkerRegister.tsx` (registers **in production only**).
 Icons in `public/`, metadata/apple tags wired in `app/layout.tsx`. Only works in
 a production build (`npm run build && npm run start`), not dev.
+
+`components/AddToHomeScreen.tsx` is a low-key install nudge on `SetupScreen`,
+below `ShareButton`: plain underlined text (not a button) that opens a `Modal`
+with install steps for iOS Safari and Android Chrome plus the offline/speed
+benefits. It hides itself once already installed, detected via
+`matchMedia("(display-mode: standalone)")` (Android) or the non-standard
+`navigator.standalone` (iOS Safari has no `display-mode` support).
 
 ## Deployment (GitHub Pages + basePath)
 

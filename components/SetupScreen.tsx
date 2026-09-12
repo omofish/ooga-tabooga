@@ -5,6 +5,7 @@ import { TEAM_COLORS } from "@/lib/colors";
 import { bestTurn } from "@/lib/solo";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
+import AddToHomeScreen from "./AddToHomeScreen";
 import ShareButton from "./ShareButton";
 import type { ScreenProps } from "./types";
 
@@ -151,6 +152,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           </button>
 
           <ShareButton />
+          <AddToHomeScreen />
         </div>
 
         {/* Build hash + contact: normal in-flow content, not pinned — lets a
