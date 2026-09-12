@@ -60,6 +60,7 @@ Deeper detail (state machine, screen flow, styling gotchas) is in
 - `lib/{colors,names,tribes}.ts` — team themes and default player/tribe names.
 - `lib/solo.ts` — solo mode's "best single turn" records (own localStorage key).
 - `lib/analytics.ts` — PostHog wrapper (`track()`/`initAnalytics()`); no-ops without a configured key. See [`docs/architecture.md`](docs/architecture.md#analytics).
+- `lib/pwa.ts` — `isStandalone()`, shared by `AddToHomeScreen` and `lib/analytics.ts`.
 - `lib/word-sets/` — `index.ts` (the `WORD_SETS` registry), `<set>.ts` (the sets), and `gen.ts` (build helpers).
 - `docs/` — this documentation.
 

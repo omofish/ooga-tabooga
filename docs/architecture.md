@@ -264,8 +264,10 @@ a production build (`npm run build && npm run start`), not dev.
 below `ShareButton`: plain underlined text (not a button) that opens a `Modal`
 with install steps for iOS Safari and Android Chrome plus the offline/speed
 benefits. It hides itself once already installed, detected via
-`matchMedia("(display-mode: standalone)")` (Android) or the non-standard
-`navigator.standalone` (iOS Safari has no `display-mode` support).
+`lib/pwa.ts`'s `isStandalone()` — `matchMedia("(display-mode: standalone)")`
+on Android, or the non-standard `navigator.standalone` on iOS Safari (no
+`display-mode` support there). Shared with `lib/analytics.ts` (below), which
+uses the same check to tag events with whether the game is running installed.
 
 ## Analytics
 
@@ -279,19 +281,27 @@ secret); the deploy workflow (`.github/workflows/deploy.yml`) passes it in
 from an Actions repo *variable* of the same name, not a secret.
 
 PostHog is configured with `persistence: "localStorage"` (no cookies),
-`autocapture: false`, and `disable_session_recording: true` — only the
-events below are sent, plus an automatic pageview (→ daily visitor counts).
+`autocapture: false`, `disable_session_recording: true`, and
+`capture_exceptions: true` (the app's only crash/error monitoring — there's
+no other error tracking anywhere) — only the events below are sent, plus a
+manually-fired pageview (`capture_pageview: false` in config, so init can
+`register()` the `is_pwa` super property — see `lib/pwa.ts`'s
+`isStandalone()` — before that first pageview goes out; every event
+afterwards inherits it too).
 
 Events, all fired from `Game.tsx`'s phase-transition effect (kept out of the
-pure reducer, same pattern as the sound/body-colour side effects):
+pure reducer, same pattern as the sound/body-colour side effects) unless
+noted otherwise:
 
 | Event | Fires on | Props |
 |---|---|---|
 | `game_started` | leaving `setup` | `mode`, `wordSet`, `turnSeconds`, `numTeams` |
 | `turn_completed` | entering `reveal` | `mode`, `wordSet`, `turnSeconds`, `score` |
 | `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
+| `share_clicked` | `ShareButton` tap resolves, any outcome | `method` (`native`/`clipboard`), `result` (`sent`/`cancelled`/`copied`/`failed`) — a cancelled share sheet is tracked, not swallowed |
+| `pwa_installed` | `appinstalled` window event | — Chrome/Android only; iOS Safari has no equivalent, so install rate there comes from `is_pwa` on later pageviews instead |
 
-`ShareButton` tags its link with `utm_source=share_button&utm_medium=organic`
+`ShareButton` also tags its link with `utm_source=share_button&utm_medium=organic`
 (stripping any params already on the page URL first) — PostHog reads standard
 `utm_*` query params on pageview automatically, no extra wiring, so visits
 from an organic share show up distinctly from a bare-URL visit.

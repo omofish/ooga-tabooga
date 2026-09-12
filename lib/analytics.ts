@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { isStandalone } from "./pwa";
 
 // Unset until NEXT_PUBLIC_POSTHOG_KEY is configured (see docs/architecture.md)
 // — track() stays a silent no-op the whole time, so analytics is opt-in by
@@ -14,10 +15,21 @@ function ensureInit() {
     api_host: HOST,
     persistence: "localStorage", // no cookies, matches the rest of the app
     autocapture: false, // only the explicit events below are sent
-    capture_pageview: true, // gives daily visitor counts for free
+    capture_pageview: false, // fired manually below, once is_pwa is registered
+    capture_exceptions: true, // the app's only crash/error monitoring
     disable_session_recording: true,
   });
   ready = true;
+
+  // Tag every event (this pageview included) with whether the game is
+  // running installed-to-home-screen vs. a regular browser tab.
+  posthog.register({ is_pwa: isStandalone() });
+  posthog.capture("$pageview");
+
+  // Chrome/Android only — iOS Safari has no equivalent event for a PWA
+  // install completing, so install rate there has to come from is_pwa on
+  // later pageviews instead.
+  window.addEventListener("appinstalled", () => track("pwa_installed"));
 }
 
 /** Call once on mount (see components/Analytics.tsx) so the automatic

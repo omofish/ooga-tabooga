@@ -1,10 +1,8 @@
 "use client";
 
 import { toast } from "sonner";
+import { track } from "@/lib/analytics";
 
-/** "Like game? Share with friend" — sits under Start Game on the setup
- *  screen. Opens the native share sheet where supported, else copies the
- *  link and confirms via toast. */
 /** Tags the shared link with utm_source/utm_medium so visits from it show up
  *  as organic share-button traffic in analytics (PostHog auto-reads standard
  *  utm_* params on pageview, see lib/analytics.ts) — distinct from someone
@@ -20,6 +18,10 @@ function taggedShareUrl(): string {
   return url.toString();
 }
 
+/** "Like game? Share with friend" — sits under Start Game on the setup
+ *  screen. Opens the native share sheet where supported, else copies the
+ *  link and confirms via toast. Every attempt is tracked with its outcome —
+ *  a cancelled share sheet is a real signal, not just noise to swallow. */
 export default function ShareButton() {
   const share = async () => {
     const data = {
@@ -30,15 +32,19 @@ export default function ShareButton() {
     if (navigator.share) {
       try {
         await navigator.share(data);
+        track("share_clicked", { method: "native", result: "sent" });
       } catch {
         // Cancelled share sheet — not an error, nothing to do.
+        track("share_clicked", { method: "native", result: "cancelled" });
       }
       return;
     }
     try {
       await navigator.clipboard.writeText(data.url);
+      track("share_clicked", { method: "clipboard", result: "copied" });
       toast("Link copied — go grunt at your tribe!");
     } catch {
+      track("share_clicked", { method: "clipboard", result: "failed" });
       toast("Couldn't copy the link — sorry, chief.");
     }
   };
