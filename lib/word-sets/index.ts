@@ -45,7 +45,7 @@ export const WORD_SETS: WordSet[] = [
   {
     id: "munchies",
     name: "Munchies",
-    emoji: "🍜",
+    emoji: "🍔",
     blurb: "Food, drink and tasty treats",
     cards: MUNCHIES_CARDS,
   },
@@ -59,7 +59,7 @@ export const WORD_SETS: WordSet[] = [
   {
     id: "animals",
     name: "Animals",
-    emoji: "🐾",
+    emoji: "🐕",
     blurb: "An animal + a phrase it lives in",
     cards: ANIMAL_CARDS,
   },

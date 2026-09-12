@@ -55,10 +55,9 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
               );
             })}
           </div>
-          {solo && (
+          {solo && best && (
             <p className="mt-2 px-1 text-xs font-bold text-ink-soft">
-              🏆 Solo — take turns and chase your best single-turn score.
-              {best ? ` Best: ${best.score} (${best.name}).` : ""}
+              Best: {best.score} ({best.name}).
             </p>
           )}
         </section>
