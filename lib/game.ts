@@ -24,24 +24,26 @@ export const MAX_TEAMS = 3;
 
 /** Optional house-rule modes, picked on the setup screen (mutually
  *  exclusive — see `SET_CHALLENGE_MODE`). Read by `Gameplay` to alter a turn. */
+// Name + blurb both speak caveman, matching the rest of the game's voice
+// ("Who be the chief?", "Ug good!") — no proper grammar, short and playful.
 export const CHALLENGE_MODES = [
   {
     id: "speed",
-    name: "Speed Round",
+    name: "Talk More Fast",
     emoji: "⏱️",
-    blurb: "Auto-skip a card after 10 seconds (−1)",
+    blurb: "Ten count only! No finish, card go bye-bye. Minus one point.",
   },
   {
     id: "mute",
-    name: "Mute Mode",
+    name: "Use No Words",
     emoji: "🤐",
-    blurb: "Gestures only — no words allowed",
+    blurb: "Hands talk, mouth quiet! No say word, only point and wiggle.",
   },
   {
     id: "birdbomb",
-    name: "Bird Bomb",
+    name: "Bird Make Poop",
     emoji: "💩",
-    blurb: "Splats block the screen — tap fast to clear!",
+    blurb: "Poop fall on card! Wipe fast with finger, make it go away.",
   },
 ] as const;
 
