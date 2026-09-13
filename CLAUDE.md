@@ -49,6 +49,14 @@ After every push to `main`, report the commit hash (`git log -1 --format=%h`)
 back to the user, so they can check it against the `build <hash>` footer shown
 on the live site.
 
+## Working with the user
+
+- Start every chat message to the user with a 🐟 emoji.
+- When adding a new feature, ask the user whether telemetry should be added
+  for it before assuming either way (see `lib/analytics.ts` /
+  [`docs/architecture.md`](docs/architecture.md#analytics) for the existing
+  event pattern).
+
 ## Code map
 
 Deeper detail (state machine, screen flow, styling gotchas) is in
