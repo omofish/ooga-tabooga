@@ -179,9 +179,12 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           </div>
         ))}
 
-        {/* Totals */}
+        {/* Totals. rounded-b-xl (12px = the outer rounded-2xl's 16px minus
+            chunk-lg's 4px border) so this row's own bg-ink fill draws the
+            bottom corners directly — relying on the parent's overflow-hidden
+            clip alone left a hairline cream gap at the curve. */}
         <div
-          className="grid items-stretch border-t-[3px] border-ink bg-ink"
+          className="grid items-stretch overflow-hidden rounded-b-xl border-t-[3px] border-ink bg-ink"
           style={{ gridTemplateColumns: cols }}
         >
           <div className="flex items-center justify-center py-2 text-[10px] font-extrabold uppercase tracking-wide text-cream">
