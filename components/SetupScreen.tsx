@@ -20,8 +20,9 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const wordSet = wordSetById(state.wordSetId);
   const total = wordSet.cards.length;
   const [resetOpen, setResetOpen] = useState(false);
-  const [modesOpen, setModesOpen] = useState(false);
+  const [modePickerOpen, setModePickerOpen] = useState(false);
   const [packPickerOpen, setPackPickerOpen] = useState(false);
+  const mode = CHALLENGE_MODES.find((m) => m.id === state.challengeMode) ?? CHALLENGE_MODES[0];
 
   return (
     // No background of its own — deliberately left transparent so <body>'s
@@ -110,7 +111,10 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
                   Pick Your Words
                 </h2>
               </div>
-              <div className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-4">
+              {/* pb-2: the last .btn option has no sibling below to catch its
+                  5px drop-shadow, so without this the scroll container's own
+                  overflow clips that shadow off flush at the bottom. */}
+              <div className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-2 pr-4">
                 {WORD_SETS.map((set) => {
                   const selected = state.wordSetId === set.id;
                   return (
@@ -186,56 +190,62 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           )}
         </section>
 
-        {/* More game modes: optional house rules, collapsed by default so the
-            default flow stays simple. Mutually exclusive — picking one
-            deselects any other. Closing the section clears whatever was
-            picked (it doesn't come back just from reopening). */}
+        {/* More game modes: same shows-only-the-current-pick pattern as the
+            word set above, for the same reason (the list keeps growing). */}
         <section>
+          <h2 className="font-display mb-2 text-xl text-ink">More Game Modes</h2>
           <button
-            onClick={() => {
-              const next = !modesOpen;
-              if (!next) dispatch({ type: "SET_CHALLENGE_MODE", mode: null });
-              setModesOpen(next);
-            }}
-            className="mb-2 flex w-full items-center gap-2 text-left"
+            onClick={() => setModePickerOpen(true)}
+            className="btn btn-cream flex w-full items-center gap-3 px-4 py-3 text-left"
           >
-            <span
-              className={`inline-block text-4xl text-ink-soft transition-transform ${modesOpen ? "rotate-90" : ""}`}
-            >
-              ▸
+            <span className="text-3xl">{mode.emoji}</span>
+            <span className="flex flex-col justify-center gap-0.5 self-center">
+              <span className="font-display text-lg leading-tight">
+                {mode.name}
+              </span>
+              <span className="text-xs font-semibold opacity-80">
+                {mode.blurb}
+              </span>
             </span>
-            <h2 className="font-display text-xl text-ink">More Game Modes</h2>
+            <span className="ml-auto text-2xl text-ink-soft">›</span>
           </button>
 
-          {modesOpen && (
-            <div className="flex flex-col gap-3">
-              {CHALLENGE_MODES.map((mode) => {
-                const selected = state.challengeMode === mode.id;
-                return (
-                  <button
-                    key={mode.id}
-                    onClick={() =>
-                      dispatch({
-                        type: "SET_CHALLENGE_MODE",
-                        mode: selected ? null : mode.id,
-                      })
-                    }
-                    className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
-                  >
-                    <span className="text-3xl">{mode.emoji}</span>
-                    <span className="flex flex-col justify-center gap-0.5 self-center">
-                      <span className="font-display text-lg leading-tight">
-                        {mode.name}
+          {modePickerOpen && (
+            <Modal onClose={() => setModePickerOpen(false)} title="More game modes">
+              <div className="text-center">
+                <div className="text-5xl">🦴</div>
+                <h2 className="mt-1 font-display text-2xl text-ink">
+                  More Game Modes
+                </h2>
+              </div>
+              {/* pb-2: see the matching comment on the word-set picker above. */}
+              <div className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-2 pr-4">
+                {CHALLENGE_MODES.map((m) => {
+                  const selected = state.challengeMode === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => {
+                        dispatch({ type: "SET_CHALLENGE_MODE", mode: m.id });
+                        setModePickerOpen(false);
+                      }}
+                      className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
+                    >
+                      <span className="text-3xl">{m.emoji}</span>
+                      <span className="flex flex-col justify-center gap-0.5 self-center">
+                        <span className="font-display text-lg leading-tight">
+                          {m.name}
+                        </span>
+                        <span className="text-xs font-semibold opacity-80">
+                          {m.blurb}
+                        </span>
                       </span>
-                      <span className="text-xs font-semibold opacity-80">
-                        {mode.blurb}
-                      </span>
-                    </span>
-                    {selected && <span className="ml-auto text-xl">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
+                      {selected && <span className="ml-auto text-xl">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </Modal>
           )}
         </section>
 
