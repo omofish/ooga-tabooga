@@ -160,14 +160,18 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
         <section>
           <button
             onClick={() => setModesOpen((v) => !v)}
-            className="btn btn-cream flex w-full items-center justify-between px-4 py-3"
+            className="mb-2 flex w-full items-center gap-2 text-left"
           >
-            <span className="font-display text-lg">🎲 More Game Modes</span>
-            <span className="text-xl">{modesOpen ? "▴" : "▾"}</span>
+            <span
+              className={`inline-block text-lg text-ink-soft transition-transform ${modesOpen ? "rotate-90" : ""}`}
+            >
+              ▸
+            </span>
+            <h2 className="font-display text-xl text-ink">🎲 More Game Modes</h2>
           </button>
 
           {modesOpen && (
-            <div className="mt-3 flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               {CHALLENGE_MODES.map((mode) => {
                 const selected = state.challengeMode === mode.id;
                 return (
