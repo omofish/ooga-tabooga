@@ -21,6 +21,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const total = wordSet.cards.length;
   const [resetOpen, setResetOpen] = useState(false);
   const [modesOpen, setModesOpen] = useState(false);
+  const [packPickerOpen, setPackPickerOpen] = useState(false);
 
   return (
     // No background of its own — deliberately left transparent so <body>'s
@@ -80,32 +81,63 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           </div>
         </section>
 
-        {/* Word set */}
+        {/* Word set: shows only the current pick — with this many packs now,
+            listing them all inline pushed everything else down the page.
+            Tapping it opens a picker Modal with the full list instead. */}
         <section>
           <h2 className="font-display mb-2 text-xl text-ink">Pick your words</h2>
-          <div className="flex flex-col gap-3">
-            {WORD_SETS.map((set) => {
-              const selected = state.wordSetId === set.id;
-              return (
-                <button
-                  key={set.id}
-                  onClick={() => dispatch({ type: "SET_WORDSET", id: set.id })}
-                  className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
-                >
-                  <span className="text-3xl">{set.emoji}</span>
-                  <span className="flex flex-col justify-center gap-0.5 self-center">
-                    <span className="font-display text-lg leading-tight">
-                      {set.name}
-                    </span>
-                    <span className="text-xs font-semibold opacity-80">
-                      {set.blurb}
-                    </span>
-                  </span>
-                  {selected && <span className="ml-auto text-xl">✓</span>}
-                </button>
-              );
-            })}
-          </div>
+          <button
+            onClick={() => setPackPickerOpen(true)}
+            className="btn btn-cream flex w-full items-center gap-3 px-4 py-3 text-left"
+          >
+            <span className="text-3xl">{wordSet.emoji}</span>
+            <span className="flex flex-col justify-center gap-0.5 self-center">
+              <span className="font-display text-lg leading-tight">
+                {wordSet.name}
+              </span>
+              <span className="text-xs font-semibold opacity-80">
+                {wordSet.blurb}
+              </span>
+            </span>
+            <span className="ml-auto text-2xl text-ink-soft">›</span>
+          </button>
+
+          {packPickerOpen && (
+            <Modal onClose={() => setPackPickerOpen(false)} title="Pick your words">
+              <div className="text-center">
+                <div className="text-5xl">🎯</div>
+                <h2 className="mt-1 font-display text-2xl text-ink">
+                  Pick Your Words
+                </h2>
+              </div>
+              <div className="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-4">
+                {WORD_SETS.map((set) => {
+                  const selected = state.wordSetId === set.id;
+                  return (
+                    <button
+                      key={set.id}
+                      onClick={() => {
+                        dispatch({ type: "SET_WORDSET", id: set.id });
+                        setPackPickerOpen(false);
+                      }}
+                      className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
+                    >
+                      <span className="text-3xl">{set.emoji}</span>
+                      <span className="flex flex-col justify-center gap-0.5 self-center">
+                        <span className="font-display text-lg leading-tight">
+                          {set.name}
+                        </span>
+                        <span className="text-xs font-semibold opacity-80">
+                          {set.blurb}
+                        </span>
+                      </span>
+                      {selected && <span className="ml-auto text-xl">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </Modal>
+          )}
 
           {/* Word memory: how many of this set have been shown, with a reset. */}
           <div className="mt-3 flex items-center justify-between gap-3 px-1">
