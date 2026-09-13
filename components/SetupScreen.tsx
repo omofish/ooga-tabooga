@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import AddToHomeScreen from "./AddToHomeScreen";
+import Modal from "./Modal";
 import ShareButton from "./ShareButton";
 import type { ScreenProps } from "./types";
 
@@ -15,7 +17,9 @@ const TEAM_OPTIONS = Array.from(
 
 export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const seen = seenCount(state, state.wordSetId);
-  const total = wordSetById(state.wordSetId).cards.length;
+  const wordSet = wordSetById(state.wordSetId);
+  const total = wordSet.cards.length;
+  const [resetOpen, setResetOpen] = useState(false);
 
   return (
     // No background of its own — deliberately left transparent so <body>'s
@@ -108,21 +112,45 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
               🧠 Seen {seen} of {total} words
             </p>
             <button
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Forget which words have been shown? They may start repeating.",
-                  )
-                ) {
-                  dispatch({ type: "RESET_WORDS" });
-                }
-              }}
+              onClick={() => setResetOpen(true)}
               disabled={seen === 0}
               className="btn btn-cream px-3 py-2 text-xs"
             >
               ♻︎ Reset Words
             </button>
           </div>
+
+          {resetOpen && (
+            <Modal onClose={() => setResetOpen(false)} title="Reset words">
+              <div className="text-center">
+                <div className="text-5xl">♻︎</div>
+                <h2 className="mt-1 font-display text-2xl text-ink">
+                  Reset {wordSet.name} words?
+                </h2>
+                <p className="mt-2 text-sm font-bold text-ink-soft">
+                  Forget which {wordSet.name} words have been shown. They may
+                  start repeating. Other packs aren&apos;t affected.
+                </p>
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setResetOpen(false)}
+                  className="btn btn-cream py-3 text-lg"
+                >
+                  <span className="font-display">Cancel</span>
+                </button>
+                <button
+                  onClick={() => {
+                    dispatch({ type: "RESET_WORDS" });
+                    setResetOpen(false);
+                  }}
+                  className="btn btn-ink py-3 text-lg"
+                >
+                  <span className="font-display">Reset</span>
+                </button>
+              </div>
+            </Modal>
+          )}
         </section>
 
         <div className="mt-auto flex flex-col gap-3">
