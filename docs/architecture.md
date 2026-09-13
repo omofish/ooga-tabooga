@@ -19,7 +19,15 @@ saved to `localStorage` on every change.
   "next round" action. `END_GAME` is only enabled once every team has played
   the same number of turns (`roundsBalanced`).
 - `state.seen` remembers played cards per set so a fresh game deals unseen cards
-  first (see `buildDeck`); the setup screen can reset it.
+  first (see `buildDeck`); the setup screen can reset it (only for the
+  currently selected set — other packs keep their own word memory).
+- `state.challengeMode` is an optional house rule (`CHALLENGE_MODES` in
+  `lib/game.ts`), picked on Setup and mutually exclusive with any other.
+  `Gameplay` reads it directly (no reducer/state-machine changes): `"speed"`
+  gives each card its own 10s clock (local `cardEndsAt` state, ref-guarded so
+  the auto-`PASS` only fires once per card), `"mute"` just shows a reminder
+  banner, and `"birdbomb"` schedules a randomly-positioned tap-to-clear splat
+  (local `splat` state) that blocks part of the screen until cleared.
 - **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no
   opponent. The whole turn loop is unchanged (one column on the scoreboard); the
   goal is instead to beat your **best single turn**. Records live in `lib/solo.ts`
@@ -295,9 +303,9 @@ noted otherwise:
 
 | Event | Fires on | Props |
 |---|---|---|
-| `game_started` | leaving `setup` | `mode`, `wordSet`, `turnSeconds`, `numTeams` |
-| `turn_completed` | entering `reveal` | `mode`, `wordSet`, `turnSeconds`, `score` |
-| `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
+| `game_started` | leaving `setup` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `numTeams` |
+| `turn_completed` | entering `reveal` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `score` |
+| `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
 | `share_clicked` | `ShareButton` tap resolves, any outcome | `method` (`native`/`clipboard`), `result` (`sent`/`cancelled`/`copied`/`failed`) — a cancelled share sheet is tracked, not swallowed |
 | `pwa_installed` | `appinstalled` window event | — Chrome/Android only; iOS Safari has no equivalent, so install rate there comes from `is_pwa` on later pageviews instead |
 
