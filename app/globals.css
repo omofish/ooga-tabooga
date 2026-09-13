@@ -345,6 +345,23 @@ html {
   animation: flash 0.6s ease-in-out infinite;
 }
 
+/* Same urgency flash, but for elements too visually heavy for the countdown
+   digit's full 12% grow (e.g. a full-width bar) — half the scale increase. */
+@keyframes flash-soft {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.06);
+  }
+}
+.animate-flash-soft {
+  animation: flash-soft 0.6s ease-in-out infinite;
+}
+
 /* The fall (translate/rotate) and the grow-in/shrink-out (scale/opacity) are
    separate animations on separate CSS properties, not one `transform` — two
    animations can't both drive `transform` at once (the later one just wins
@@ -414,6 +431,7 @@ html {
   .animate-tada,
   .animate-pulse-soft,
   .animate-flash,
+  .animate-flash-soft,
   .animate-rise,
   .confetti-piece {
     animation-duration: 0.01ms !important;
