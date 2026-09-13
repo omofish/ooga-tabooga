@@ -99,9 +99,12 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     dispatch({ type: "PASS" });
   }, [now, speedMode, paused, timesUp, cardEndsAt, cardIndex, active, dispatch]);
 
-  const cardSecondsLeft = speedMode && cardEndsAt
-    ? Math.max(0, Math.ceil((cardEndsAt - now) / 1000))
-    : null;
+  // Whole seconds for the label, but the *bar* tracks the raw ms remaining
+  // (cardRemainingMs) so it drains smoothly instead of stepping once a second.
+  const cardRemainingMs =
+    speedMode && cardEndsAt ? Math.max(0, cardEndsAt - now) : 0;
+  const cardSecondsLeft =
+    speedMode && cardEndsAt ? Math.ceil(cardRemainingMs / 1000) : null;
 
   // "Bird Bomb" mode: huge splats block part of the screen — each positioned
   // to straddle the seam between the two cards, since that's what they're
@@ -239,16 +242,24 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         key={active.resolved.length}
         className="animate-swap flex flex-1 flex-col gap-3 p-4"
       >
-        {/* Speed Round: this card's own 10s clock, spanning the card width */}
+        {/* Speed Round: this card's own 10s clock, spanning the card width.
+            The fill tracks raw ms (cardRemainingMs) rather than the whole-
+            second label so it drains smoothly; colour steps green -> yellow
+            at 7s -> red + soft flash at 3s. */}
         {cardSecondsLeft !== null && (
           <div
-            className={`relative h-8 shrink-0 overflow-hidden rounded-full border-[3px] border-ink bg-black/20 ${cardSecondsLeft <= 3 ? "animate-flash" : ""}`}
+            className={`relative h-8 shrink-0 overflow-hidden rounded-full border-[3px] border-ink bg-black/20 ${cardSecondsLeft <= 3 ? "animate-flash-soft" : ""}`}
           >
             <div
-              className="absolute inset-y-0 left-0 transition-[width] duration-200 ease-linear"
+              className="absolute inset-y-0 left-0 transition-[width,background-color] duration-200 ease-linear"
               style={{
-                width: `${(cardSecondsLeft / 10) * 100}%`,
-                background: cardSecondsLeft <= 3 ? "#ff6a5c" : "#ffdd55",
+                width: `${(cardRemainingMs / SPEED_CARD_MS) * 100}%`,
+                background:
+                  cardSecondsLeft <= 3
+                    ? "#ff6a5c"
+                    : cardSecondsLeft <= 7
+                      ? "#ffdd55"
+                      : "#3da95b",
               }}
             />
             <div className="relative flex h-full items-center justify-center">
