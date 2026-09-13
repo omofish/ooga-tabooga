@@ -7,6 +7,7 @@ import { MUNCHIES_CARDS } from "./munchies";
 import { SINGAPORE_CARDS } from "./singapore";
 import { ANIMAL_CARDS } from "./animals";
 import { BIBLE_CARDS } from "./bible";
+import { INTERNET_SLANG_CARDS } from "./internet-slang";
 
 // The "caveman" twist is the *mechanic* — you may only clue using
 // single-syllable words — not the cards. Each card has a simple
@@ -69,6 +70,13 @@ export const WORD_SETS: WordSet[] = [
     emoji: "📖",
     blurb: "Famous terms, places & characters",
     cards: BIBLE_CARDS,
+  },
+  {
+    id: "internet-slang",
+    name: "Internet Slang",
+    emoji: "💀",
+    blurb: "Rizz, aura, brain rot & extremely online terms",
+    cards: INTERNET_SLANG_CARDS,
   },
 ];
 

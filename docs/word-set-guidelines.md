@@ -2,8 +2,9 @@
 
 How to write and review the word sets in `lib/word-sets/` (`everyday.ts`,
 `fantasy.ts`, `movies.ts`, `tv-shows.ts`, `munchies.ts`, `singapore.ts`,
-`animals.ts`, `bible.ts`). These rules exist so every card plays cleanly in a
-party game where clues can only use one-syllable words.
+`animals.ts`, `bible.ts`, `internet-slang.ts`). These rules exist so every
+card plays cleanly in a party game where clues can only use one-syllable
+words.
 
 ## The card model
 
@@ -200,3 +201,4 @@ those by reading the cards.
 | Munchies | food & drink | Real dishes; ethnic dishes welcome, no local slang venues. |
 | Sunny Singapore | Singapore | Local food/places/slang; `easy` must appear in them. |
 | Animals | animal idioms | `easy` is an animal; `hard` a real phrase it's in (`Night Owl`). |
+| Internet Slang | Gen Z / online terms | `easy` is a slang word or the noun in one; `hard` the real compound it's in (`Aura Farming`). A term with no natural 2-word phrase (`Rizz` alone, `Mid`) isn't a card — skip it. |
