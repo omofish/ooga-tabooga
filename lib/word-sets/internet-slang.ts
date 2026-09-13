@@ -10,6 +10,7 @@ const TABLE: [string, string[]][] = [
   ["Aura", ["Aura Farming", "Aura Points"]],
   ["Sigma", ["Sigma Male", "Sigma Female"]],
   ["Skibidi", ["Skibidi Toilet"]],
+  ["Six", ["Six Seven"]],
   ["Rizz", ["Unspoken Rizz"]],
   ["Era", ["Villain Era", "Flop Era"]],
   ["Grass", ["Touch Grass", "Grass Toucher"]],
