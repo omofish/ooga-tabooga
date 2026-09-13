@@ -135,9 +135,6 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             className="btn btn-ink flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
           >
             <span className="font-display text-3xl">Next Word ▶</span>
-            <span className="text-xs font-bold opacity-80">
-              ✅ “{cur.card.easy}” in the bag · +1
-            </span>
           </button>
         )}
 
