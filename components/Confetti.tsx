@@ -10,19 +10,31 @@ function rand(seed: number): number {
   return x - Math.floor(x);
 }
 
-/** A burst of falling confetti pieces, purely decorative. */
+/** A burst of falling confetti pieces, purely decorative. Each grows in from
+ *  nothing near the start of its fall and shrinks away before the end — both
+ *  windows sized randomly per piece (see confetti-grow/-shrink in
+ *  globals.css) so they don't all pop in and out in sync. */
 export default function Confetti({ count = 44 }: { count?: number }) {
   const pieces = useMemo(
     () =>
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        left: rand(i * 1.3) * 100,
-        delay: rand(i * 2.7) * 0.8,
-        duration: 2.2 + rand(i * 3.9) * 1.8,
-        color: COLORS[i % COLORS.length],
-        rotate: rand(i * 5.1) * 360,
-        w: 8 + rand(i * 6.3) * 8,
-      })),
+      Array.from({ length: count }, (_, i) => {
+        const duration = 2.2 + rand(i * 3.9) * 1.8;
+        const delay = rand(i * 2.7) * 0.8;
+        const growDuration = duration * (0.15 + rand(i * 7.7) * 0.25);
+        const shrinkStart = duration * (0.45 + rand(i * 8.3) * 0.15);
+        const shrinkDuration = duration * (0.15 + rand(i * 9.1) * 0.15);
+        return {
+          id: i,
+          left: rand(i * 1.3) * 100,
+          color: COLORS[i % COLORS.length],
+          w: 8 + rand(i * 6.3) * 8,
+          duration,
+          delay,
+          growDuration,
+          shrinkDelay: delay + shrinkStart,
+          shrinkDuration,
+        };
+      }),
     [count],
   );
 
@@ -37,9 +49,11 @@ export default function Confetti({ count = 44 }: { count?: number }) {
             width: p.w,
             height: p.w * 1.3,
             background: p.color,
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-            transform: `rotate(${p.rotate}deg)`,
+            animation: [
+              `confetti-fall ${p.duration}s linear ${p.delay}s forwards`,
+              `confetti-grow ${p.growDuration}s linear ${p.delay}s forwards`,
+              `confetti-shrink ${p.shrinkDuration}s linear ${p.shrinkDelay}s forwards`,
+            ].join(", "),
           }}
         />
       ))}
