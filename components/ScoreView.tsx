@@ -60,7 +60,11 @@ export default function ScoreView({ state, dispatch }: ScreenProps) {
           </p>
         </div>
         <button
-          onClick={() => setQuitOpen(true)}
+          onClick={() =>
+            played
+              ? setQuitOpen(true)
+              : dispatch({ type: "RETURN_TO_START" })
+          }
           className="btn btn-cream px-3 py-2 text-xs"
         >
           Quit

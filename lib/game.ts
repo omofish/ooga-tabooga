@@ -514,8 +514,13 @@ export function reducer(state: GameState, action: Action): GameState {
       };
     }
 
-    case "RESET_WORDS":
-      return { ...state, seen: {} };
+    case "RESET_WORDS": {
+      // Only forget the currently selected set — other packs keep their
+      // own word memory untouched.
+      const seen = { ...state.seen };
+      delete seen[state.wordSetId];
+      return { ...state, seen };
+    }
 
     case "RETURN_TO_START":
       // Keep the word memory so "new game" still avoids recently seen cards, and
