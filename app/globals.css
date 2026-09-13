@@ -345,30 +345,28 @@ html {
   animation: flash 0.6s ease-in-out infinite;
 }
 
-/* `top` (a %) resolves against the fixed confetti layer's own box — the
-   real, current visual viewport — so the fall always spans edge to edge.
-   A `vh`/`svh` transform looked right on desktop but, on iOS Safari, those
-   units can resolve smaller than the live viewport (address bar and
-   Dynamic Island chrome throw off the large/small viewport calc), so most
-   of the fall landed outside the clip box and only the tail was visible. */
-@keyframes confetti-fall {
+/* Pieces fly in from the left/right edges (vw + horizontal %) rather than
+   falling from the top (vh/top%). iOS Safari's address bar only resizes the
+   viewport's *height*, so a vertical fall could start or end outside the
+   visible area depending on whether the bar was shown or hidden. Width isn't
+   affected by that, so a sideways flight avoids the issue entirely. */
+@keyframes confetti-fly {
   0% {
-    top: -12%;
-    transform: rotate(0deg);
+    transform: translate(var(--x0), 0) rotate(var(--r0));
     opacity: 1;
   }
   100% {
-    top: 110%;
-    transform: rotate(720deg);
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1));
     opacity: 1;
   }
 }
 .confetti-piece {
   position: absolute;
+  left: 0;
   width: 12px;
   height: 16px;
   border-radius: 2px;
-  animation: confetti-fall linear forwards;
+  animation: confetti-fly linear forwards;
 }
 
 @keyframes rise-in {
