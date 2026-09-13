@@ -27,7 +27,7 @@ export default function Confetti({ count = 44 }: { count?: number }) {
   );
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+    <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden>
       {pieces.map((p) => (
         <span
           key={p.id}
