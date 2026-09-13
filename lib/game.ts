@@ -22,11 +22,21 @@ export const TURN_SECONDS = 60; // default round length
 export const TURN_OPTIONS = [60, 90, 120] as const;
 export const MAX_TEAMS = 3;
 
-/** Optional house-rule modes, picked on the setup screen (mutually
- *  exclusive — see `SET_CHALLENGE_MODE`). Read by `Gameplay` to alter a turn. */
-// Name + blurb both speak caveman, matching the rest of the game's voice
-// ("Who be the chief?", "Ug good!") — no proper grammar, short and playful.
+export const CLASSIC_MODE = "classic";
+
+/** House-rule modes, picked on the setup screen (mutually exclusive — see
+ *  `SET_CHALLENGE_MODE`). `CLASSIC_MODE` is the default/no-frills entry;
+ *  `Gameplay` only branches on the other ids, so classic just does nothing
+ *  special. Name + blurb both speak caveman, matching the rest of the
+ *  game's voice ("Who be the chief?", "Ug good!") — no proper grammar,
+ *  short and playful. */
 export const CHALLENGE_MODES = [
+  {
+    id: CLASSIC_MODE,
+    name: "Just Normal Talk",
+    emoji: "🦴",
+    blurb: "No trick, no rule! Just clue and guess, plain old cave way.",
+  },
   {
     id: "speed",
     name: "Talk More Fast",
@@ -54,7 +64,7 @@ export function defaultState(): GameState {
     numTeams: 2,
     wordSetId: WORD_SETS[0].id,
     turnSeconds: TURN_SECONDS,
-    challengeMode: null,
+    challengeMode: CLASSIC_MODE,
     teams: [],
     deck: [],
     deckCursor: 0,
@@ -194,7 +204,7 @@ export type Action =
   | { type: "SET_TEAM_NAME"; teamId: string; name: string; emoji?: string }
   | { type: "SET_WORDSET"; id: string }
   | { type: "SET_TURN_SECONDS"; seconds: number }
-  | { type: "SET_CHALLENGE_MODE"; mode: string | null }
+  | { type: "SET_CHALLENGE_MODE"; mode: string }
   | { type: "START_GAME" }
   | { type: "OPEN_MODAL"; teamId: string }
   | { type: "SET_NAME"; name: string }
@@ -580,7 +590,9 @@ export function loadState(): GameState | null {
     const parsed = JSON.parse(raw) as GameState;
     if (parsed.version !== STATE_VERSION) return null;
     if (!parsed.seen) parsed.seen = {};
-    if (parsed.challengeMode === undefined) parsed.challengeMode = null;
+    // `null` was the old "no mode" sentinel before CLASSIC_MODE existed as a
+    // real, selectable entry — treat both as "not set" for old saves.
+    if (parsed.challengeMode == null) parsed.challengeMode = CLASSIC_MODE;
     return parsed;
   } catch {
     return null;

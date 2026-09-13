@@ -75,10 +75,10 @@ export type GameState = {
   numTeams: number;
   wordSetId: string;
   turnSeconds: number; // round length in seconds (60 / 90 / 120)
-  /** Optional extra house rule for the turn, or null for classic play. See
-   *  `CHALLENGE_MODES` in lib/game.ts. Mutually exclusive — picking one
-   *  replaces any other. */
-  challengeMode: string | null;
+  /** The turn's house rule — one of `CHALLENGE_MODES` in lib/game.ts,
+   *  always set (defaults to `CLASSIC_MODE`, the no-frills entry).
+   *  Mutually exclusive — picking one replaces any other. */
+  challengeMode: string;
   teams: Team[];
   deck: WordCard[]; // shuffled cards for this game
   deckCursor: number; // shared pointer so turns don't repeat cards
