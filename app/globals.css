@@ -347,11 +347,11 @@ html {
 
 @keyframes confetti-fall {
   0% {
-    transform: translateY(-12vh) rotate(0deg);
+    transform: translateY(-12svh) rotate(0deg);
     opacity: 1;
   }
   100% {
-    transform: translateY(110vh) rotate(720deg);
+    transform: translateY(110svh) rotate(720deg);
     opacity: 1;
   }
 }
