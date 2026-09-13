@@ -2,7 +2,6 @@
 
 import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
-import { bestTurn } from "@/lib/solo";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import AddToHomeScreen from "./AddToHomeScreen";
@@ -17,10 +16,6 @@ const TEAM_OPTIONS = Array.from(
 export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const seen = seenCount(state, state.wordSetId);
   const total = wordSetById(state.wordSetId).cards.length;
-  // Safe to read localStorage during render: <Game/> only mounts this screen
-  // after its hydration gate, so there's no SSR mismatch.
-  const solo = state.numTeams === 1;
-  const best = solo ? bestTurn(state.wordSetId, state.turnSeconds) : null;
 
   return (
     // No background of its own — deliberately left transparent so <body>'s
@@ -56,11 +51,6 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
               );
             })}
           </div>
-          {solo && best && (
-            <p className="mt-2 px-1 text-xs font-bold text-ink-soft">
-              Best: {best.score} ({best.name}).
-            </p>
-          )}
         </section>
 
         {/* Round length */}
