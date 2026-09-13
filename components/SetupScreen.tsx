@@ -88,7 +88,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
                   className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
                 >
                   <span className="text-3xl">{set.emoji}</span>
-                  <span className="flex flex-col">
+                  <span className="flex flex-col justify-center gap-0.5 self-center">
                     <span className="font-display text-lg leading-tight">
                       {set.name}
                     </span>
