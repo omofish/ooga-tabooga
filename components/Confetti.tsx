@@ -20,7 +20,8 @@ export default function Confetti({ count = 44 }: { count?: number }) {
       Array.from({ length: count }, (_, i) => {
         const duration = 2.2 + rand(i * 3.9) * 1.8;
         const delay = rand(i * 2.7) * 0.8;
-        const growDuration = duration * (0.15 + rand(i * 7.7) * 0.25);
+        // 2x faster than a plain proportional grow-in.
+        const growDuration = duration * (0.15 + rand(i * 7.7) * 0.25) * 0.5;
         const shrinkStart = duration * (0.45 + rand(i * 8.3) * 0.15);
         const shrinkDuration = duration * (0.15 + rand(i * 9.1) * 0.15);
         return {
@@ -51,7 +52,7 @@ export default function Confetti({ count = 44 }: { count?: number }) {
             background: p.color,
             animation: [
               `confetti-fall ${p.duration}s linear ${p.delay}s forwards`,
-              `confetti-grow ${p.growDuration}s linear ${p.delay}s forwards`,
+              `confetti-grow ${p.growDuration}s linear ${p.delay}s both`,
               `confetti-shrink ${p.shrinkDuration}s linear ${p.shrinkDelay}s forwards`,
             ].join(", "),
           }}
