@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import type { ScreenProps } from "./types";
@@ -9,10 +9,17 @@ import MuteToggle from "./MuteToggle";
 // Seconds-remaining marks that get a spoken announcement (when below the turn length).
 const ANNOUNCE_AT = [90, 60, 30, 10];
 
+const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
+const BIRD_BOMB_MIN_MS = 5_000; // "Bird Bomb" mode: gap before the next splat
+const BIRD_BOMB_MAX_MS = 11_000;
+
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
   const team = state.teams.find((t) => t.id === active?.teamId);
   const c = colorForKey(team?.colorKey ?? "red");
+  const speedMode = state.challengeMode === "speed";
+  const muteMode = state.challengeMode === "mute";
+  const birdBombMode = state.challengeMode === "birdbomb";
 
   const paused = active?.paused ?? false;
   const [now, setNow] = useState(() => Date.now());
@@ -61,6 +68,75 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     sound.tick(seconds);
   }, [seconds, paused, timesUp, state.turnSeconds]);
 
+  // "Speed Round" mode: each card gets its own 10s clock, reset whenever a new
+  // card is dealt or the turn resumes from pause (so unpausing never triggers
+  // an instant skip). `firedRef` guards against double-dispatching PASS for
+  // the same card across the effect's rapid re-runs as `now` ticks.
+  const cardIndex = active?.resolved.length ?? 0;
+  const [cardEndsAt, setCardEndsAt] = useState<number | null>(null);
+  const firedForCard = useRef(-1);
+
+  useEffect(() => {
+    if (!speedMode || paused) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCardEndsAt(Date.now() + SPEED_CARD_MS);
+  }, [speedMode, paused, cardIndex]);
+
+  useEffect(() => {
+    if (!speedMode || paused || timesUp || !cardEndsAt) return;
+    if (now < cardEndsAt || firedForCard.current === cardIndex) return;
+    firedForCard.current = cardIndex;
+    if (!active?.current?.banked1) {
+      sound.pass();
+      sound.vibrate(35);
+    }
+    dispatch({ type: "PASS" });
+  }, [now, speedMode, paused, timesUp, cardEndsAt, cardIndex, active, dispatch]);
+
+  const cardSecondsLeft = speedMode && cardEndsAt
+    ? Math.max(0, Math.ceil((cardEndsAt - now) / 1000))
+    : null;
+
+  // "Bird Bomb" mode: a splat blocks part of the screen every so often until
+  // tapped clear. A new one is only scheduled once the previous is gone.
+  const [splat, setSplat] = useState<{
+    left: number;
+    top: number;
+    size: number;
+    tapsNeeded: number;
+    tapsDone: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!birdBombMode || paused || timesUp || splat) return;
+    const delay =
+      BIRD_BOMB_MIN_MS + Math.random() * (BIRD_BOMB_MAX_MS - BIRD_BOMB_MIN_MS);
+    const id = setTimeout(() => {
+      setSplat({
+        left: 10 + Math.random() * 60,
+        top: 15 + Math.random() * 50,
+        size: 140 + Math.random() * 70,
+        tapsNeeded: 4 + Math.floor(Math.random() * 4),
+        tapsDone: 0,
+      });
+    }, delay);
+    return () => clearTimeout(id);
+  }, [birdBombMode, paused, timesUp, splat]);
+
+  const tapSplat = () => {
+    if (!splat) return;
+    const tapsDone = splat.tapsDone + 1;
+    if (tapsDone >= splat.tapsNeeded) {
+      sound.bank();
+      sound.vibrate(20);
+      setSplat(null);
+    } else {
+      sound.click();
+      sound.vibrate(10);
+      setSplat({ ...splat, tapsDone });
+    }
+  };
+
   if (!active?.current) return null;
 
   const cur = active.current;
@@ -88,6 +164,13 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
               {seconds}
             </span>
             <span className="text-xs font-bold opacity-80">sec left</span>
+            {cardSecondsLeft !== null && (
+              <span
+                className={`ml-auto shrink-0 rounded-full border-2 border-ink px-2.5 py-1 text-xs font-extrabold ${cardSecondsLeft <= 3 ? "animate-flash bg-[#ffdd55]" : "bg-cream/20"}`}
+              >
+                ⏱️ {cardSecondsLeft}s card
+              </span>
+            )}
           </div>
           <div className="mt-1 h-3 w-full overflow-hidden rounded-full border-2 border-ink bg-black/20">
             <div
@@ -108,6 +191,12 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           <PauseIcon className="text-[19px]" />
         </button>
       </header>
+
+      {muteMode && (
+        <div className="mx-4 mt-2 rounded-xl border-2 border-ink bg-cream/90 px-3 py-1.5 text-center text-xs font-extrabold text-ink">
+          🤐 Mute Mode — gestures only, no words!
+        </div>
+      )}
 
       {/* Cards */}
       <main
@@ -180,6 +269,29 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           )}
         </button>
       </footer>
+
+      {/* Bird Bomb splat — blocks part of the screen until tapped clear */}
+      {birdBombMode && splat && (
+        <button
+          onClick={tapSplat}
+          aria-label={`Tap ${splat.tapsNeeded - splat.tapsDone} more times to clear the bird bomb`}
+          className="chunk absolute z-10 flex flex-col items-center justify-center gap-1 rounded-full text-center active:translate-y-[2px]"
+          style={{
+            left: `${splat.left}%`,
+            top: `${splat.top}%`,
+            width: splat.size,
+            height: splat.size,
+            background: "#e8dcc8",
+            color: "#4a3520",
+          }}
+        >
+          <span className="text-4xl">💩</span>
+          <span className="font-display text-sm">SPLAT!</span>
+          <span className="text-xs font-bold">
+            Tap {splat.tapsNeeded - splat.tapsDone}x
+          </span>
+        </button>
+      )}
 
       {/* Pause overlay — hides the words */}
       {paused && (

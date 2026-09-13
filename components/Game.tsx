@@ -70,6 +70,7 @@ export default function Game() {
       wordSet: state.wordSetId,
       turnSeconds: state.turnSeconds,
       mode: isSolo(state) ? "solo" : "multi",
+      challengeMode: state.challengeMode ?? "classic",
     } as const;
 
     if (prevPhase === "setup") {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
+import { CHALLENGE_MODES, MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
@@ -20,6 +20,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const wordSet = wordSetById(state.wordSetId);
   const total = wordSet.cards.length;
   const [resetOpen, setResetOpen] = useState(false);
+  const [modesOpen, setModesOpen] = useState(false);
 
   return (
     // No background of its own — deliberately left transparent so <body>'s
@@ -150,6 +151,50 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
                 </button>
               </div>
             </Modal>
+          )}
+        </section>
+
+        {/* More game modes: optional house rules, collapsed by default so the
+            default flow stays simple. Mutually exclusive — picking one
+            deselects any other. */}
+        <section>
+          <button
+            onClick={() => setModesOpen((v) => !v)}
+            className="btn btn-cream flex w-full items-center justify-between px-4 py-3"
+          >
+            <span className="font-display text-lg">🎲 More Game Modes</span>
+            <span className="text-xl">{modesOpen ? "▴" : "▾"}</span>
+          </button>
+
+          {modesOpen && (
+            <div className="mt-3 flex flex-col gap-3">
+              {CHALLENGE_MODES.map((mode) => {
+                const selected = state.challengeMode === mode.id;
+                return (
+                  <button
+                    key={mode.id}
+                    onClick={() =>
+                      dispatch({
+                        type: "SET_CHALLENGE_MODE",
+                        mode: selected ? null : mode.id,
+                      })
+                    }
+                    className={`btn ${selected ? "btn-ink" : "btn-cream"} flex items-center gap-3 px-4 py-3 text-left`}
+                  >
+                    <span className="text-3xl">{mode.emoji}</span>
+                    <span className="flex flex-col justify-center gap-0.5 self-center">
+                      <span className="font-display text-lg leading-tight">
+                        {mode.name}
+                      </span>
+                      <span className="text-xs font-semibold opacity-80">
+                        {mode.blurb}
+                      </span>
+                    </span>
+                    {selected && <span className="ml-auto text-xl">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
           )}
         </section>
 

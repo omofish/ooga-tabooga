@@ -22,6 +22,29 @@ export const TURN_SECONDS = 60; // default round length
 export const TURN_OPTIONS = [60, 90, 120] as const;
 export const MAX_TEAMS = 3;
 
+/** Optional house-rule modes, picked on the setup screen (mutually
+ *  exclusive — see `SET_CHALLENGE_MODE`). Read by `Gameplay` to alter a turn. */
+export const CHALLENGE_MODES = [
+  {
+    id: "speed",
+    name: "Speed Round",
+    emoji: "⏱️",
+    blurb: "Auto-skip a card after 10 seconds (−1)",
+  },
+  {
+    id: "mute",
+    name: "Mute Mode",
+    emoji: "🤐",
+    blurb: "Gestures only — no words allowed",
+  },
+  {
+    id: "birdbomb",
+    name: "Bird Bomb",
+    emoji: "💩",
+    blurb: "Splats block the screen — tap fast to clear!",
+  },
+] as const;
+
 export function defaultState(): GameState {
   return {
     version: STATE_VERSION,
@@ -29,6 +52,7 @@ export function defaultState(): GameState {
     numTeams: 2,
     wordSetId: WORD_SETS[0].id,
     turnSeconds: TURN_SECONDS,
+    challengeMode: null,
     teams: [],
     deck: [],
     deckCursor: 0,
@@ -168,6 +192,7 @@ export type Action =
   | { type: "SET_TEAM_NAME"; teamId: string; name: string; emoji?: string }
   | { type: "SET_WORDSET"; id: string }
   | { type: "SET_TURN_SECONDS"; seconds: number }
+  | { type: "SET_CHALLENGE_MODE"; mode: string | null }
   | { type: "START_GAME" }
   | { type: "OPEN_MODAL"; teamId: string }
   | { type: "SET_NAME"; name: string }
@@ -279,6 +304,9 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "SET_TURN_SECONDS":
       return { ...state, turnSeconds: action.seconds };
+
+    case "SET_CHALLENGE_MODE":
+      return { ...state, challengeMode: action.mode };
 
     case "START_GAME": {
       const teams = buildTeams(state.numTeams);
@@ -532,6 +560,7 @@ export function reducer(state: GameState, action: Action): GameState {
         numTeams: state.numTeams,
         turnSeconds: state.turnSeconds,
         wordSetId: state.wordSetId,
+        challengeMode: state.challengeMode,
       };
 
     default:
@@ -549,6 +578,7 @@ export function loadState(): GameState | null {
     const parsed = JSON.parse(raw) as GameState;
     if (parsed.version !== STATE_VERSION) return null;
     if (!parsed.seen) parsed.seen = {};
+    if (parsed.challengeMode === undefined) parsed.challengeMode = null;
     return parsed;
   } catch {
     return null;
