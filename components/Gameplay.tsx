@@ -10,9 +10,14 @@ import MuteToggle from "./MuteToggle";
 const ANNOUNCE_AT = [90, 60, 30, 10];
 
 const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
-const BIRD_BOMB_MIN_MS = 5_000; // "Bird Bomb" mode: gap before the next splat
-const BIRD_BOMB_MAX_MS = 11_000;
+// "Bird Bomb" mode: gap before another splat can spawn (~30% more often than
+// the original 5-11s range, i.e. divided by 1.3).
+const BIRD_BOMB_MIN_MS = 3_850;
+const BIRD_BOMB_MAX_MS = 8_460;
 const BIRD_BOMB_WIPE_PX = 480; // cumulative swipe distance to fully clear one
+const BIRD_BOMB_MIN_SIZE = 340; // px — ~2x the original 170-260 range
+const BIRD_BOMB_MAX_SIZE = 650; // px — ~2.5x
+const BIRD_BOMB_MAX_CONCURRENT = 3;
 
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
@@ -98,65 +103,81 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     ? Math.max(0, Math.ceil((cardEndsAt - now) / 1000))
     : null;
 
-  // "Bird Bomb" mode: a huge splat blocks part of the screen every so often —
-  // positioned to straddle the seam between the two cards, since that's what
-  // it's meant to obstruct — until wiped away by a swipe. A new one is only
-  // scheduled once the previous is gone. `wipeDistance`/`dragPos` are refs
-  // (not state) since pointermove fires far too often to re-render on; only
-  // the derived opacity needs to be state.
-  const [splat, setSplat] = useState<{
-    left: number;
-    top: number;
-    size: number;
-    opacity: number;
-  } | null>(null);
-  const wipeDistance = useRef(0);
-  const dragPos = useRef<{ x: number; y: number } | null>(null);
+  // "Bird Bomb" mode: huge splats block part of the screen — each positioned
+  // to straddle the seam between the two cards, since that's what they're
+  // meant to obstruct — until wiped away by a swipe. Several can be on
+  // screen at once (capped at BIRD_BOMB_MAX_CONCURRENT); this effect keeps
+  // scheduling another independent spawn any time there's room for one, so
+  // clearing one doesn't wait on the others. `wipeDistances`/`dragPositions`
+  // are keyed-by-id refs (not state) since pointermove fires far too often
+  // to re-render on; only the derived opacity needs to be state.
+  const [splats, setSplats] = useState<
+    { id: number; left: number; top: number; size: number; rotate: number; opacity: number }[]
+  >([]);
+  const nextSplatId = useRef(0);
+  const wipeDistances = useRef(new Map<number, number>());
+  const dragPositions = useRef(new Map<number, { x: number; y: number }>());
 
   useEffect(() => {
-    if (!birdBombMode || paused || timesUp || splat) return;
+    if (!birdBombMode || paused || timesUp) return;
+    if (splats.length >= BIRD_BOMB_MAX_CONCURRENT) return;
     const delay =
       BIRD_BOMB_MIN_MS + Math.random() * (BIRD_BOMB_MAX_MS - BIRD_BOMB_MIN_MS);
     const id = setTimeout(() => {
-      wipeDistance.current = 0;
-      setSplat({
-        left: 25 + Math.random() * 50, // % — center point, so it stays roughly mid-screen
-        top: 38 + Math.random() * 17, // % — straddles the seam between the two cards
-        size: 170 + Math.random() * 90, // px, huge on purpose
-        opacity: 1,
-      });
+      const splatId = nextSplatId.current++;
+      wipeDistances.current.set(splatId, 0);
+      setSplats((prev) =>
+        prev.length >= BIRD_BOMB_MAX_CONCURRENT
+          ? prev
+          : [
+              ...prev,
+              {
+                id: splatId,
+                left: 25 + Math.random() * 50, // % — center point, stays roughly mid-screen
+                top: 38 + Math.random() * 17, // % — straddles the seam between the two cards
+                size:
+                  BIRD_BOMB_MIN_SIZE +
+                  Math.random() * (BIRD_BOMB_MAX_SIZE - BIRD_BOMB_MIN_SIZE),
+                rotate: -35 + Math.random() * 70,
+                opacity: 1,
+              },
+            ],
+      );
     }, delay);
     return () => clearTimeout(id);
-  }, [birdBombMode, paused, timesUp, splat]);
+  }, [birdBombMode, paused, timesUp, splats.length]);
 
-  const clearSplat = () => {
+  const clearSplat = (id: number) => {
     sound.bank();
     sound.vibrate(20);
-    dragPos.current = null;
-    setSplat(null);
+    dragPositions.current.delete(id);
+    wipeDistances.current.delete(id);
+    setSplats((prev) => prev.filter((s) => s.id !== id));
   };
 
-  const onSplatPointerDown = (e: React.PointerEvent) => {
+  const onSplatPointerDown = (id: number) => (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
-    dragPos.current = { x: e.clientX, y: e.clientY };
+    dragPositions.current.set(id, { x: e.clientX, y: e.clientY });
   };
 
-  const onSplatPointerMove = (e: React.PointerEvent) => {
-    if (!dragPos.current || !splat) return;
-    const dx = e.clientX - dragPos.current.x;
-    const dy = e.clientY - dragPos.current.y;
-    dragPos.current = { x: e.clientX, y: e.clientY };
-    wipeDistance.current += Math.hypot(dx, dy);
-    const opacity = Math.max(0, 1 - wipeDistance.current / BIRD_BOMB_WIPE_PX);
+  const onSplatPointerMove = (id: number) => (e: React.PointerEvent) => {
+    const last = dragPositions.current.get(id);
+    if (!last) return;
+    dragPositions.current.set(id, { x: e.clientX, y: e.clientY });
+    const total =
+      (wipeDistances.current.get(id) ?? 0) +
+      Math.hypot(e.clientX - last.x, e.clientY - last.y);
+    wipeDistances.current.set(id, total);
+    const opacity = Math.max(0, 1 - total / BIRD_BOMB_WIPE_PX);
     if (opacity <= 0) {
-      clearSplat();
+      clearSplat(id);
       return;
     }
-    setSplat({ ...splat, opacity });
+    setSplats((prev) => prev.map((s) => (s.id === id ? { ...s, opacity } : s)));
   };
 
-  const onSplatPointerEnd = () => {
-    dragPos.current = null;
+  const onSplatPointerEnd = (id: number) => () => {
+    dragPositions.current.delete(id);
   };
 
   if (!active?.current) return null;
@@ -292,36 +313,39 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         </button>
       </footer>
 
-      {/* Bird Bomb splat — a huge emoji blocking part of the screen until
+      {/* Bird Bomb splats — huge emoji blocking part of the screen until
           swiped away. No click handler (swiping over the cards underneath
-          must never register as a tap on them), just pointer-move tracking. */}
-      {birdBombMode && splat && (
-        <div
-          role="button"
-          aria-label="Bird bomb — swipe to wipe it away"
-          onPointerDown={onSplatPointerDown}
-          onPointerMove={onSplatPointerMove}
-          onPointerUp={onSplatPointerEnd}
-          onPointerCancel={onSplatPointerEnd}
-          className="absolute z-10 flex touch-none select-none flex-col items-center"
-          style={{
-            left: `${splat.left}%`,
-            top: `${splat.top}%`,
-            transform: "translate(-50%, -50%)",
-            opacity: splat.opacity,
-          }}
-        >
-          <span
-            className="leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
-            style={{ fontSize: splat.size }}
+          must never register as a tap on them), just pointer-move tracking.
+          Several can be up at once. */}
+      {birdBombMode &&
+        splats.map((splat) => (
+          <div
+            key={splat.id}
+            role="button"
+            aria-label="Bird bomb — swipe to wipe it away"
+            onPointerDown={onSplatPointerDown(splat.id)}
+            onPointerMove={onSplatPointerMove(splat.id)}
+            onPointerUp={onSplatPointerEnd(splat.id)}
+            onPointerCancel={onSplatPointerEnd(splat.id)}
+            className="absolute z-10 flex touch-none select-none flex-col items-center"
+            style={{
+              left: `${splat.left}%`,
+              top: `${splat.top}%`,
+              transform: "translate(-50%, -50%)",
+              opacity: splat.opacity,
+            }}
           >
-            💩
-          </span>
-          <span className="font-display text-shadow-pop -mt-2 text-sm text-cream">
-            Swipe to wipe!
-          </span>
-        </div>
-      )}
+            <span
+              className="leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
+              style={{ fontSize: splat.size, transform: `rotate(${splat.rotate}deg)` }}
+            >
+              💩
+            </span>
+            <span className="font-display text-shadow-pop -mt-2 text-sm text-cream">
+              Swipe to wipe!
+            </span>
+          </div>
+        ))}
 
       {/* Pause overlay — hides the words */}
       {paused && (
