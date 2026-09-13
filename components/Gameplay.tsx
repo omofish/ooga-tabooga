@@ -14,7 +14,7 @@ const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
 // the original 5-11s range, i.e. divided by 1.3).
 const BIRD_BOMB_MIN_MS = 3_850;
 const BIRD_BOMB_MAX_MS = 8_460;
-const BIRD_BOMB_WIPE_PX = 480; // cumulative swipe distance to fully clear one
+const BIRD_BOMB_WIPE_PX = 720; // cumulative swipe distance to fully clear one (1.5x)
 const BIRD_BOMB_MIN_SIZE = 340; // px — ~2x the original 170-260 range
 const BIRD_BOMB_MAX_SIZE = 650; // px — ~2.5x
 const BIRD_BOMB_MAX_CONCURRENT = 3;
@@ -207,13 +207,6 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
               {seconds}
             </span>
             <span className="text-xs font-bold opacity-80">sec left</span>
-            {cardSecondsLeft !== null && (
-              <span
-                className={`ml-auto shrink-0 rounded-full border-2 border-ink px-2.5 py-1 text-xs font-extrabold ${cardSecondsLeft <= 3 ? "animate-flash bg-[#ffdd55]" : "bg-cream/20"}`}
-              >
-                ⏱️ {cardSecondsLeft}s card
-              </span>
-            )}
           </div>
           <div className="mt-1 h-3 w-full overflow-hidden rounded-full border-2 border-ink bg-black/20">
             <div
@@ -246,6 +239,26 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         key={active.resolved.length}
         className="animate-swap flex flex-1 flex-col gap-3 p-4"
       >
+        {/* Speed Round: this card's own 10s clock, spanning the card width */}
+        {cardSecondsLeft !== null && (
+          <div
+            className={`relative h-8 shrink-0 overflow-hidden rounded-full border-[3px] border-ink bg-black/20 ${cardSecondsLeft <= 3 ? "animate-flash" : ""}`}
+          >
+            <div
+              className="absolute inset-y-0 left-0 transition-[width] duration-200 ease-linear"
+              style={{
+                width: `${(cardSecondsLeft / 10) * 100}%`,
+                background: cardSecondsLeft <= 3 ? "#ff6a5c" : "#ffdd55",
+              }}
+            />
+            <div className="relative flex h-full items-center justify-center">
+              <span className="font-display text-shadow-pop text-sm text-cream">
+                ⏱️ {cardSecondsLeft}s
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* +1 word / next-word */}
         {!cur.banked1 ? (
           <button
