@@ -30,6 +30,13 @@ const TABLE: [string, string[]][] = [
   ["Clout", ["Clout Chaser"]],
   ["Trait", ["Toxic Trait"]],
   ["Energy", ["Main Character Energy"]],
+  ["Holiday", ["Jet2 Holiday"]],
+  ["Tax", ["Fanum Tax"]],
+  ["Guy", ["Chill Guy"]],
+  ["Demure", ["Very Demure"]],
+  ["Grimace", ["Grimace Shake"]],
+  ["Math", ["Girl Math"]],
+  ["Online", ["Chronically Online"]],
 ];
 
 export const INTERNET_SLANG_CARDS: WordCard[] = fromTable(TABLE);
