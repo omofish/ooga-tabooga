@@ -163,11 +163,11 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
             className="mb-2 flex w-full items-center gap-2 text-left"
           >
             <span
-              className={`inline-block text-lg text-ink-soft transition-transform ${modesOpen ? "rotate-90" : ""}`}
+              className={`inline-block text-4xl text-ink-soft transition-transform ${modesOpen ? "rotate-90" : ""}`}
             >
               ▸
             </span>
-            <h2 className="font-display text-xl text-ink">🎲 More Game Modes</h2>
+            <h2 className="font-display text-xl text-ink">More Game Modes</h2>
           </button>
 
           {modesOpen && (
