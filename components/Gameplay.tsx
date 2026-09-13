@@ -12,6 +12,7 @@ const ANNOUNCE_AT = [90, 60, 30, 10];
 const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
 const BIRD_BOMB_MIN_MS = 5_000; // "Bird Bomb" mode: gap before the next splat
 const BIRD_BOMB_MAX_MS = 11_000;
+const BIRD_BOMB_WIPE_PX = 480; // cumulative swipe distance to fully clear one
 
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
@@ -97,44 +98,65 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     ? Math.max(0, Math.ceil((cardEndsAt - now) / 1000))
     : null;
 
-  // "Bird Bomb" mode: a splat blocks part of the screen every so often until
-  // tapped clear. A new one is only scheduled once the previous is gone.
+  // "Bird Bomb" mode: a huge splat blocks part of the screen every so often —
+  // positioned to straddle the seam between the two cards, since that's what
+  // it's meant to obstruct — until wiped away by a swipe. A new one is only
+  // scheduled once the previous is gone. `wipeDistance`/`dragPos` are refs
+  // (not state) since pointermove fires far too often to re-render on; only
+  // the derived opacity needs to be state.
   const [splat, setSplat] = useState<{
     left: number;
     top: number;
     size: number;
-    tapsNeeded: number;
-    tapsDone: number;
+    opacity: number;
   } | null>(null);
+  const wipeDistance = useRef(0);
+  const dragPos = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (!birdBombMode || paused || timesUp || splat) return;
     const delay =
       BIRD_BOMB_MIN_MS + Math.random() * (BIRD_BOMB_MAX_MS - BIRD_BOMB_MIN_MS);
     const id = setTimeout(() => {
+      wipeDistance.current = 0;
       setSplat({
-        left: 10 + Math.random() * 60,
-        top: 15 + Math.random() * 50,
-        size: 140 + Math.random() * 70,
-        tapsNeeded: 4 + Math.floor(Math.random() * 4),
-        tapsDone: 0,
+        left: 25 + Math.random() * 50, // % — center point, so it stays roughly mid-screen
+        top: 38 + Math.random() * 17, // % — straddles the seam between the two cards
+        size: 170 + Math.random() * 90, // px, huge on purpose
+        opacity: 1,
       });
     }, delay);
     return () => clearTimeout(id);
   }, [birdBombMode, paused, timesUp, splat]);
 
-  const tapSplat = () => {
-    if (!splat) return;
-    const tapsDone = splat.tapsDone + 1;
-    if (tapsDone >= splat.tapsNeeded) {
-      sound.bank();
-      sound.vibrate(20);
-      setSplat(null);
-    } else {
-      sound.click();
-      sound.vibrate(10);
-      setSplat({ ...splat, tapsDone });
+  const clearSplat = () => {
+    sound.bank();
+    sound.vibrate(20);
+    dragPos.current = null;
+    setSplat(null);
+  };
+
+  const onSplatPointerDown = (e: React.PointerEvent) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragPos.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const onSplatPointerMove = (e: React.PointerEvent) => {
+    if (!dragPos.current || !splat) return;
+    const dx = e.clientX - dragPos.current.x;
+    const dy = e.clientY - dragPos.current.y;
+    dragPos.current = { x: e.clientX, y: e.clientY };
+    wipeDistance.current += Math.hypot(dx, dy);
+    const opacity = Math.max(0, 1 - wipeDistance.current / BIRD_BOMB_WIPE_PX);
+    if (opacity <= 0) {
+      clearSplat();
+      return;
     }
+    setSplat({ ...splat, opacity });
+  };
+
+  const onSplatPointerEnd = () => {
+    dragPos.current = null;
   };
 
   if (!active?.current) return null;
@@ -270,27 +292,35 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         </button>
       </footer>
 
-      {/* Bird Bomb splat — blocks part of the screen until tapped clear */}
+      {/* Bird Bomb splat — a huge emoji blocking part of the screen until
+          swiped away. No click handler (swiping over the cards underneath
+          must never register as a tap on them), just pointer-move tracking. */}
       {birdBombMode && splat && (
-        <button
-          onClick={tapSplat}
-          aria-label={`Tap ${splat.tapsNeeded - splat.tapsDone} more times to clear the bird bomb`}
-          className="chunk absolute z-10 flex flex-col items-center justify-center gap-1 rounded-full text-center active:translate-y-[2px]"
+        <div
+          role="button"
+          aria-label="Bird bomb — swipe to wipe it away"
+          onPointerDown={onSplatPointerDown}
+          onPointerMove={onSplatPointerMove}
+          onPointerUp={onSplatPointerEnd}
+          onPointerCancel={onSplatPointerEnd}
+          className="absolute z-10 flex touch-none select-none flex-col items-center"
           style={{
             left: `${splat.left}%`,
             top: `${splat.top}%`,
-            width: splat.size,
-            height: splat.size,
-            background: "#e8dcc8",
-            color: "#4a3520",
+            transform: "translate(-50%, -50%)",
+            opacity: splat.opacity,
           }}
         >
-          <span className="text-4xl">💩</span>
-          <span className="font-display text-sm">SPLAT!</span>
-          <span className="text-xs font-bold">
-            Tap {splat.tapsNeeded - splat.tapsDone}x
+          <span
+            className="leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
+            style={{ fontSize: splat.size }}
+          >
+            💩
           </span>
-        </button>
+          <span className="font-display text-shadow-pop -mt-2 text-sm text-cream">
+            Swipe to wipe!
+          </span>
+        </div>
       )}
 
       {/* Pause overlay — hides the words */}
