@@ -156,10 +156,15 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
 
         {/* More game modes: optional house rules, collapsed by default so the
             default flow stays simple. Mutually exclusive — picking one
-            deselects any other. */}
+            deselects any other. Closing the section clears whatever was
+            picked (it doesn't come back just from reopening). */}
         <section>
           <button
-            onClick={() => setModesOpen((v) => !v)}
+            onClick={() => {
+              const next = !modesOpen;
+              if (!next) dispatch({ type: "SET_CHALLENGE_MODE", mode: null });
+              setModesOpen(next);
+            }}
             className="mb-2 flex w-full items-center gap-2 text-left"
           >
             <span
