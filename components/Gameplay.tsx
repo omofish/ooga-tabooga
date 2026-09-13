@@ -132,7 +132,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         ) : (
           <button
             onClick={() => dispatch({ type: "NEXT_WORD" })}
-            className="btn btn-team flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
+            className="btn btn-ink flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
           >
             <span className="font-display text-3xl">Next Word ▶</span>
             <span className="text-xs font-bold opacity-80">
@@ -172,7 +172,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 text-xl"
         >
           {cur.banked1 ? (
-            <span className="font-display">Skip ▶</span>
+            <span className="font-display">Next ▶</span>
           ) : (
             <>
               <span className="font-display">Pass</span>
