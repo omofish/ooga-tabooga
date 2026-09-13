@@ -345,22 +345,27 @@ html {
   animation: flash 0.6s ease-in-out infinite;
 }
 
-/* Pieces fade in and grow from a pinprick just above the screen, then fall.
-   The 15% mark keeps translateY/rotate proportional to their 0%→100% totals
-   (720deg * 0.15 = 108deg) so the fall still reads as one constant motion,
-   not a pause-then-speed-up. */
+/* Pieces spawn already inside the visible area (translateY starts at 0, not
+   above the screen) so the fade-in/grow at 0%→10% is actually seen — starting
+   it off-screen (like the fall itself used to) meant it finished clipped and
+   invisible before the piece ever appeared. They fade back out over the last
+   15% as they near the bottom, same reasoning in reverse. */
 @keyframes confetti-fall {
   0% {
-    transform: translateY(-12vh) scale(0.4) rotate(0deg);
+    transform: translateY(0vh) scale(0.3) rotate(0deg);
     opacity: 0;
   }
-  15% {
-    transform: translateY(6vh) scale(1) rotate(108deg);
+  10% {
+    transform: translateY(3vh) scale(1) rotate(90deg);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(95vh) scale(1) rotate(630deg);
     opacity: 1;
   }
   100% {
     transform: translateY(110vh) scale(1) rotate(720deg);
-    opacity: 1;
+    opacity: 0;
   }
 }
 .confetti-piece {
