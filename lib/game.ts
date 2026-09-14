@@ -51,9 +51,9 @@ export const CHALLENGE_MODES = [
   },
   {
     id: "birdbomb",
-    name: "Bird Make Poop",
+    name: "Birds Make Poop",
     emoji: "💩",
-    blurb: "Poop fall on card! Wipe fast with finger, make it go away.",
+    blurb: "Big poop block card, more than one! Swipe hard, wipe away.",
   },
   {
     id: "batattack",
