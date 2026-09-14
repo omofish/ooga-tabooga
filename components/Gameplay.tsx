@@ -14,7 +14,7 @@ const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
 // the original 5-11s range, i.e. divided by 1.3).
 const BIRD_BOMB_MIN_MS = 3_850;
 const BIRD_BOMB_MAX_MS = 8_460;
-const BIRD_BOMB_WIPE_PX = 720; // cumulative swipe distance to fully clear one (1.5x)
+const BIRD_BOMB_WIPE_PX = 2160; // cumulative swipe distance to fully clear one (3x)
 const BIRD_BOMB_MIN_SIZE = 340; // px — ~2x the original 170-260 range
 const BIRD_BOMB_MAX_SIZE = 650; // px — ~2.5x
 const BIRD_BOMB_MAX_CONCURRENT = 3;
