@@ -44,13 +44,20 @@ saved to `localStorage` on every change.
   before the sequencer moves on to the next gap. All three drive one shared
   pulsing "how to clear this" banner (`disruptionMessage`) at the top of the
   screen, naming whichever one is currently up. Chaos mode needs sensor
-  permission first (iOS only) — `SetupScreen` requests both
+  permission (iOS only) — `StartRoundModal` requests both
   (`lib/motion.ts`'s `requestOrientationPermission()` /
-  `requestDeviceMotionPermission()`, called from the mode-picker tap since
-  iOS only grants from a user gesture) but never reverts to `CLASSIC_MODE`
-  on a denial: each disruption already carries its own 12s safety timeout in
-  `Gameplay` that auto-clears it on devices/browsers where the sensor event
-  never fires (missing permission included), so a denied sensor just means
+  `requestDeviceMotionPermission()`) on every "Start Round" tap, not once at
+  mode-selection time: that tap is a real user gesture (iOS only grants from
+  one) that happens right before the sensors are actually needed, for every
+  player's turn — cheap to repeat since an already-granted permission
+  resolves instantly with no dialog, but it also means a grant that was
+  somehow lost gets a fresh chance to be re-requested before each turn
+  rather than silently staying broken for the rest of the game. Neither call
+  is awaited (`START_TURN` dispatches immediately) and a denial never
+  reverts the mode: each disruption already carries its own 12s safety
+  timeout in `Gameplay` that auto-clears it on devices/browsers where the
+  sensor event never fires (missing permission included), so a denied
+  sensor just means
   that one disruption always falls back to auto-clearing instead of a real
   gesture.
 - **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no

@@ -1,43 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import {
-  CHALLENGE_MODES,
-  CLASSIC_MODE,
-  MAX_TEAMS,
-  TURN_OPTIONS,
-  seenCount,
-} from "@/lib/game";
+import { CHALLENGE_MODES, MAX_TEAMS, TURN_OPTIONS, seenCount } from "@/lib/game";
 import { TEAM_COLORS } from "@/lib/colors";
-import {
-  requestDeviceMotionPermission,
-  requestOrientationPermission,
-} from "@/lib/motion";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import AddToHomeScreen from "./AddToHomeScreen";
 import Modal from "./Modal";
 import ShareButton from "./ShareButton";
 import type { ScreenProps } from "./types";
-
-// Modes that need a sensor permission before they're usable, and the check
-// to request it. Requested right here at selection time (this tap IS the
-// user gesture iOS requires) rather than waiting for Start Round, so a
-// denial can fall back immediately instead of silently breaking a turn.
-// Chaos mode asks for both, but never blocks on a denial — each disruption
-// it drives already has its own safety timeout, so a "no" on one sensor
-// just means that disruption always falls back to auto-clearing instead of
-// a real gesture, rather than the whole mode reverting to Standard.
-const MODE_PERMISSIONS: Record<string, () => Promise<boolean>> = {
-  chaos: async () => {
-    await Promise.all([
-      requestOrientationPermission(),
-      requestDeviceMotionPermission(),
-    ]);
-    return true;
-  },
-};
 
 const TEAM_OPTIONS = Array.from(
   { length: MAX_TEAMS },
@@ -53,14 +24,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
   const [packPickerOpen, setPackPickerOpen] = useState(false);
   const mode = CHALLENGE_MODES.find((m) => m.id === state.challengeMode) ?? CHALLENGE_MODES[0];
 
-  const selectMode = async (id: string) => {
-    const requestPermission = MODE_PERMISSIONS[id];
-    if (requestPermission && !(await requestPermission())) {
-      toast("No allow? Sticking with Standard mode!");
-      dispatch({ type: "SET_CHALLENGE_MODE", mode: CLASSIC_MODE });
-      setModePickerOpen(false);
-      return;
-    }
+  const selectMode = (id: string) => {
     dispatch({ type: "SET_CHALLENGE_MODE", mode: id });
     setModePickerOpen(false);
   };
