@@ -27,18 +27,23 @@ saved to `localStorage` on every change.
   directly (no reducer/state-machine changes): `"speed"` gives each card its
   own 10s clock (local `cardEndsAt` state, ref-guarded so the auto-`PASS`
   only fires once per card), `"mute"` just shows a reminder banner, and
-  `"chaos"` ("Everything Go Wrong") turns on all three disruptions at once,
-  each gated by its own independent effect so they can overlap: swipe-to-clear
-  poop splats (local `splats` array, several concurrent, cleared by
-  cumulative pointer-move distance), a bat swarm (local `batsActive` +
-  `bats` state) cleared by holding the phone upside-down for 300ms
-  (`deviceorientation`'s `beta`), and a rockfall (local `rocksActive` +
-  `rocks` state) cleared by shaking the phone (`devicemotion`'s
-  acceleration — accumulates "shake energy" from frame-to-frame jerk the
-  same way the poop splats accumulate swipe distance). All three drive one
-  shared pulsing "how to clear this" banner (`disruptionMessage`) at the top
-  of the screen, joining every currently-active instruction with " • " since
-  more than one disruption can be active at once. Chaos mode needs sensor
+  `"chaos"` ("Everything Go Wrong") runs a sequencer (local
+  `currentDisruption: "poop" | "bats" | "rocks" | null`) that picks ONE of
+  the three at random once the previous one is fully cleared, after a random
+  8-15s gap — never more than one up at once. Poop is a single swipe-to-clear
+  splat (local `splat` state, cleared by cumulative pointer-move distance,
+  falls in from above and grows to full size on spawn); bats are a swarm
+  (local `batsPhase: "active" | "leaving" | null`) cleared by holding the
+  phone upside-down for 300ms (`deviceorientation`'s `beta`), flying in from
+  the right and — once cleared — back out to the left; rocks (local
+  `rocksPhase`, same active/leaving shape) are cleared by shaking the phone
+  (`devicemotion`'s acceleration — accumulates "shake energy" from
+  frame-to-frame jerk the same way poop accumulates swipe distance), falling
+  in from above and — once cleared — the rest of the way off the bottom.
+  The `"leaving"` phase exists so the exit animation can finish playing
+  before the sequencer moves on to the next gap. All three drive one shared
+  pulsing "how to clear this" banner (`disruptionMessage`) at the top of the
+  screen, naming whichever one is currently up. Chaos mode needs sensor
   permission first (iOS only) — `SetupScreen` requests both
   (`lib/motion.ts`'s `requestOrientationPermission()` /
   `requestDeviceMotionPermission()`, called from the mode-picker tap since
@@ -211,20 +216,8 @@ background from flashing through the gap.
 
 ## Browser chrome colour (status bar / bottom toolbar)
 
-`app/layout.tsx` sets `<meta name="theme-color">` to `#3a2a1b` (dark ink,
-matching `TopBar`) — but iOS Safari itself (its "Liquid Glass" chrome)
-ignores that meta tag entirely; it's there for **other** mobile
-browsers/in-app WebViews (Telegram's, X's, Discord's own in-app browser,
-etc.) that still read it directly. Leaving it unset doesn't mean those
-browsers do nothing — it means they fall back to *their own* guess, which
-can be an arbitrary, wrong colour (observed: a stray green top bar in
-Telegram's in-app browser). A static value here can't track per-phase
-colour the way the mechanism below does for Safari, so it's set once to
-match the very first thing a cold load shows (`TopBar`, dark ink) rather
-than attempting to chase every phase — good enough for browsers that don't
-support real per-phase chrome theming anyway.
-
-For Safari specifically, for each edge (top/bottom) it finds the
+There's no `<meta name="theme-color">` — iOS 26 Safari (its "Liquid Glass"
+chrome) ignores it entirely. Instead, for each edge (top/bottom) it finds the
 nearest qualifying element — `position: fixed`/`sticky`, at least ~80% of
 the viewport width, within a few px of that edge — and **mirrors both its
 `background-color` and its `backdrop-filter`** onto its own native chrome.
