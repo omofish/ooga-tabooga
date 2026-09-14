@@ -21,13 +21,23 @@ saved to `localStorage` on every change.
 - `state.seen` remembers played cards per set so a fresh game deals unseen cards
   first (see `buildDeck`); the setup screen can reset it (only for the
   currently selected set — other packs keep their own word memory).
-- `state.challengeMode` is an optional house rule (`CHALLENGE_MODES` in
-  `lib/game.ts`), picked on Setup and mutually exclusive with any other.
-  `Gameplay` reads it directly (no reducer/state-machine changes): `"speed"`
-  gives each card its own 10s clock (local `cardEndsAt` state, ref-guarded so
-  the auto-`PASS` only fires once per card), `"mute"` just shows a reminder
-  banner, and `"birdbomb"` schedules a randomly-positioned tap-to-clear splat
-  (local `splat` state) that blocks part of the screen until cleared.
+- `state.challengeMode` is a house rule (`CHALLENGE_MODES` in `lib/game.ts`,
+  always set — `CLASSIC_MODE`/"Standard" is the default/no-frills entry),
+  picked on Setup and mutually exclusive with any other. `Gameplay` reads it
+  directly (no reducer/state-machine changes): `"speed"` gives each card its
+  own 10s clock (local `cardEndsAt` state, ref-guarded so the auto-`PASS`
+  only fires once per card), `"mute"` just shows a reminder banner,
+  `"birdbomb"` schedules randomly-positioned swipe-to-clear splats (local
+  `splats` array, several concurrent, cleared by cumulative pointer-move
+  distance), and `"batattack"` schedules a bat swarm (local `batsActive` +
+  `bats` state) cleared by holding the phone upside-down for 300ms
+  (`deviceorientation`'s `beta` — needs `lib/motion.ts`'s
+  `requestMotionPermission()` called from a user gesture first, since iOS
+  gates it; a 12s safety timeout auto-clears the swarm on devices/browsers
+  where orientation never fires at all, so denied/absent permission can't
+  soft-lock the turn). `birdbomb`/`batattack` also drive a shared pulsing
+  "how to clear this" banner (`disruptionMessage`) at the top of the screen,
+  reused as-is by whichever disruption is currently active.
 - **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no
   opponent. The whole turn loop is unchanged (one column on the scoreboard); the
   goal is instead to beat your **best single turn**. Records live in `lib/solo.ts`

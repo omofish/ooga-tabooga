@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import type { ScreenProps } from "./types";
@@ -19,6 +19,18 @@ const BIRD_BOMB_MIN_SIZE = 340; // px — ~2x the original 170-260 range
 const BIRD_BOMB_MAX_SIZE = 650; // px — ~2.5x
 const BIRD_BOMB_MAX_CONCURRENT = 3;
 
+// "Bat Swarm Attack" mode: same spawn cadence as Bird Bomb, cleared by
+// holding the phone upside-down instead of a swipe.
+const BAT_ATTACK_MIN_MS = 3_850;
+const BAT_ATTACK_MAX_MS = 8_460;
+const BAT_COUNT = 14;
+const BAT_FLIP_HOLD_MS = 300; // how long "upside-down" must be sustained
+const BAT_FLIP_BETA_THRESHOLD = -45; // deviceorientation beta below this ~= upside-down
+// Devices/browsers with no gyroscope (desktop) or that denied the iOS
+// permission prompt would otherwise never fire deviceorientation at all,
+// soft-locking the turn — auto-clear the swarm after this long regardless.
+const BAT_ATTACK_SAFETY_MS = 12_000;
+
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
   const team = state.teams.find((t) => t.id === active?.teamId);
@@ -26,6 +38,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const speedMode = state.challengeMode === "speed";
   const muteMode = state.challengeMode === "mute";
   const birdBombMode = state.challengeMode === "birdbomb";
+  const batAttackMode = state.challengeMode === "batattack";
 
   const paused = active?.paused ?? false;
   const [now, setNow] = useState(() => Date.now());
@@ -46,7 +59,6 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   // When the clock runs out, flash a quick "Time's Up!" splash…
   useEffect(() => {
     if (!paused && active && remaining <= 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTimesUp(true);
     }
   }, [paused, remaining, active]);
@@ -84,7 +96,6 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
 
   useEffect(() => {
     if (!speedMode || paused) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCardEndsAt(Date.now() + SPEED_CARD_MS);
   }, [speedMode, paused, cardIndex]);
 
@@ -182,6 +193,75 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const onSplatPointerEnd = (id: number) => () => {
     dragPositions.current.delete(id);
   };
+
+  // "Bat Swarm Attack" mode: a swarm rushes in and stays until the phone is
+  // held upside-down for BAT_FLIP_HOLD_MS straight. Only one swarm at a time
+  // (unlike Bird Bomb's splats) — it's a single dismiss gesture, not several
+  // independent ones.
+  const [batsActive, setBatsActive] = useState(false);
+  const flipStartedAt = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!batAttackMode || paused || timesUp || batsActive) return;
+    const delay =
+      BAT_ATTACK_MIN_MS + Math.random() * (BAT_ATTACK_MAX_MS - BAT_ATTACK_MIN_MS);
+    const id = setTimeout(() => setBatsActive(true), delay);
+    return () => clearTimeout(id);
+  }, [batAttackMode, paused, timesUp, batsActive]);
+
+  useEffect(() => {
+    if (!batsActive) return;
+    flipStartedAt.current = null;
+
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      const isUpsideDown = e.beta !== null && e.beta < BAT_FLIP_BETA_THRESHOLD;
+      if (!isUpsideDown) {
+        flipStartedAt.current = null;
+        return;
+      }
+      flipStartedAt.current ??= Date.now();
+      if (Date.now() - flipStartedAt.current >= BAT_FLIP_HOLD_MS) {
+        sound.bank();
+        sound.vibrate([20, 30, 20]);
+        setBatsActive(false);
+      }
+    };
+    window.addEventListener("deviceorientation", onOrientation);
+
+    // Safety net for devices/browsers that never fire deviceorientation at
+    // all (see BAT_ATTACK_SAFETY_MS above) — not a "flip", just a timeout.
+    const safety = setTimeout(() => setBatsActive(false), BAT_ATTACK_SAFETY_MS);
+
+    return () => {
+      window.removeEventListener("deviceorientation", onOrientation);
+      clearTimeout(safety);
+    };
+  }, [batsActive]);
+
+  // Regenerated each time a swarm spawns; positions/sizes are fixed for that
+  // swarm's whole lifetime, only the CSS animations move them.
+  const bats = useMemo(
+    () =>
+      batsActive
+        ? Array.from({ length: BAT_COUNT }, (_, i) => ({
+            id: i,
+            leftPct: 5 + Math.random() * 85,
+            topPct: 8 + Math.random() * 77,
+            size: 30 + Math.random() * 20,
+            enterDelay: Math.random() * 0.08,
+            bobDuration: 0.9 + Math.random() * 0.4,
+            bobOffset: Math.random() * 1.3,
+          }))
+        : [],
+    [batsActive],
+  );
+
+  const disruptionMessage =
+    birdBombMode && splats.length > 0
+      ? "WIPE TO CLEAR AWAY POOP"
+      : batAttackMode && batsActive
+        ? "FLIP PHONE TO CHASE AWAY BATS"
+        : null;
 
   if (!active?.current) return null;
 
@@ -340,7 +420,8 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       {/* Bird Bomb splats — huge emoji blocking part of the screen until
           swiped away. No click handler (swiping over the cards underneath
           must never register as a tap on them), just pointer-move tracking.
-          Several can be up at once. */}
+          Several can be up at once. The how-to instruction lives in the
+          shared pulsing banner below instead of repeating under every splat. */}
       {birdBombMode &&
         splats.map((splat) => (
           <div
@@ -351,7 +432,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             onPointerMove={onSplatPointerMove(splat.id)}
             onPointerUp={onSplatPointerEnd(splat.id)}
             onPointerCancel={onSplatPointerEnd(splat.id)}
-            className="absolute z-10 flex touch-none select-none flex-col items-center"
+            className="absolute z-10 touch-none select-none"
             style={{
               left: `${splat.left}%`,
               top: `${splat.top}%`,
@@ -360,16 +441,58 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             }}
           >
             <span
-              className="leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
+              className="block leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
               style={{ fontSize: splat.size, transform: `rotate(${splat.rotate}deg)` }}
             >
               💩
             </span>
-            <span className="font-display text-shadow-pop -mt-2 text-sm text-cream">
-              Swipe to wipe!
-            </span>
           </div>
         ))}
+
+      {/* Bat Swarm Attack: a swarm flies in from the left (see .bat-fly-in)
+          then bobs in place (see .bat-bob) until the phone is flipped
+          upside-down. Purely visual — cleared by orientation, not touch — so
+          no pointer handlers. */}
+      {batAttackMode && batsActive && (
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+          {bats.map((bat) => (
+            <div
+              key={bat.id}
+              className="bat-fly-in absolute"
+              style={{
+                left: `${bat.leftPct}%`,
+                top: `${bat.topPct}%`,
+                animationDelay: `${bat.enterDelay}s`,
+              }}
+            >
+              <span
+                className="bat-bob"
+                style={{
+                  fontSize: bat.size,
+                  animationDelay: `-${bat.bobOffset}s`,
+                  animationDuration: `${bat.bobDuration}s`,
+                }}
+              >
+                🦇
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Shared "how to clear this" banner for whichever disruption is
+          currently up — reused as-is by any future one too. Sits above the
+          splats/bats (z-10) but below Pause/Time's-up (z-20/30) so it's
+          naturally hidden by either without extra conditions. */}
+      {disruptionMessage && (
+        <div className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+0.5rem)] z-[15] flex justify-center px-6">
+          <div className="chunk animate-pulse-soft rounded-full px-4 py-2">
+            <span className="font-display text-sm text-ink">
+              {disruptionMessage}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Pause overlay — hides the words */}
       {paused && (

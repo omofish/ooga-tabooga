@@ -69,6 +69,7 @@ Deeper detail (state machine, screen flow, styling gotchas) is in
 - `lib/solo.ts` — solo mode's "best single turn" records (own localStorage key).
 - `lib/analytics.ts` — PostHog wrapper (`track()`/`initAnalytics()`); no-ops without a configured key. See [`docs/architecture.md`](docs/architecture.md#analytics).
 - `lib/pwa.ts` — `isStandalone()`, shared by `AddToHomeScreen` and `lib/analytics.ts`.
+- `lib/motion.ts` — `requestMotionPermission()`, the iOS gyroscope permission gate used by the "Bat Swarm Attack" game mode.
 - `lib/word-sets/` — `index.ts` (the `WORD_SETS` registry), `<set>.ts` (the sets), and `gen.ts` (build helpers).
 - `docs/` — this documentation.
 
