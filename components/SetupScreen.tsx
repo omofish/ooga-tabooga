@@ -193,7 +193,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
         {/* More game modes: same shows-only-the-current-pick pattern as the
             word set above, for the same reason (the list keeps growing). */}
         <section>
-          <h2 className="font-display mb-2 text-xl text-ink">More Game Modes</h2>
+          <h2 className="font-display mb-2 text-xl text-ink">Game Mode</h2>
           <button
             onClick={() => setModePickerOpen(true)}
             className="btn btn-cream flex w-full items-center gap-3 px-4 py-3 text-left"
@@ -211,11 +211,11 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
           </button>
 
           {modePickerOpen && (
-            <Modal onClose={() => setModePickerOpen(false)} title="More game modes">
+            <Modal onClose={() => setModePickerOpen(false)} title="Game mode">
               <div className="text-center">
                 <div className="text-5xl">🦴</div>
                 <h2 className="mt-1 font-display text-2xl text-ink">
-                  More Game Modes
+                  Game Mode
                 </h2>
               </div>
               {/* pb-2: see the matching comment on the word-set picker above. */}

@@ -33,7 +33,7 @@ export const CLASSIC_MODE = "classic";
 export const CHALLENGE_MODES = [
   {
     id: CLASSIC_MODE,
-    name: "Just Normal Talk",
+    name: "Standard",
     emoji: "🦴",
     blurb: "No trick, no rule! Just clue and guess, plain old cave way.",
   },
@@ -41,7 +41,7 @@ export const CHALLENGE_MODES = [
     id: "speed",
     name: "Talk More Fast",
     emoji: "⏱️",
-    blurb: "Ten count only! No finish, card go bye-bye. Minus one point.",
+    blurb: "Only 10s per word! No finish, card go bye-bye. Minus one point.",
   },
   {
     id: "mute",
