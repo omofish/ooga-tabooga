@@ -61,6 +61,12 @@ export const CHALLENGE_MODES = [
     emoji: "🦇",
     blurb: "Bats block your eyes! Flip phone upside-down, bats fly away.",
   },
+  {
+    id: "rockshake",
+    name: "Rocks Fall Down",
+    emoji: "🪨",
+    blurb: "Big rocks fall, block eyes! Shake phone hard, rocks go away.",
+  },
 ] as const;
 
 export function defaultState(): GameState {
