@@ -26,27 +26,28 @@ saved to `localStorage` on every change.
   picked on Setup and mutually exclusive with any other. `Gameplay` reads it
   directly (no reducer/state-machine changes): `"speed"` gives each card its
   own 10s clock (local `cardEndsAt` state, ref-guarded so the auto-`PASS`
-  only fires once per card), `"mute"` just shows a reminder banner,
-  `"birdbomb"` schedules randomly-positioned swipe-to-clear splats (local
-  `splats` array, several concurrent, cleared by cumulative pointer-move
-  distance), `"batattack"` schedules a bat swarm (local `batsActive` +
+  only fires once per card), `"mute"` just shows a reminder banner, and
+  `"chaos"` ("Everything Go Wrong") turns on all three disruptions at once,
+  each gated by its own independent effect so they can overlap: swipe-to-clear
+  poop splats (local `splats` array, several concurrent, cleared by
+  cumulative pointer-move distance), a bat swarm (local `batsActive` +
   `bats` state) cleared by holding the phone upside-down for 300ms
-  (`deviceorientation`'s `beta`), and `"rockshake"` schedules a rockfall
-  (local `rocksActive` + `rocks` state) cleared by shaking the phone
-  (`devicemotion`'s acceleration — accumulates "shake energy" from
-  frame-to-frame jerk the same way Bird Bomb accumulates swipe distance).
-  `birdbomb`/`batattack`/`rockshake` all drive one shared pulsing "how to
-  clear this" banner (`disruptionMessage`) at the top of the screen, reused
-  as-is by whichever disruption is currently active. The two sensor modes
-  need a permission first (iOS only) — `SetupScreen` requests it right when
-  the mode is picked (`lib/motion.ts`'s `requestOrientationPermission()` /
-  `requestDeviceMotionPermission()`, called from that tap since iOS only
-  grants from a user gesture) and falls back to `CLASSIC_MODE` with a toast
-  if denied, rather than leaving an unusable mode selected. Both also carry
-  a 12s safety timeout in `Gameplay` that auto-clears the swarm/rockfall on
-  devices/browsers where the sensor event never fires at all, so a gap
-  between "permission granted" and "sensor actually works" can't soft-lock
-  a turn either.
+  (`deviceorientation`'s `beta`), and a rockfall (local `rocksActive` +
+  `rocks` state) cleared by shaking the phone (`devicemotion`'s
+  acceleration — accumulates "shake energy" from frame-to-frame jerk the
+  same way the poop splats accumulate swipe distance). All three drive one
+  shared pulsing "how to clear this" banner (`disruptionMessage`) at the top
+  of the screen, joining every currently-active instruction with " • " since
+  more than one disruption can be active at once. Chaos mode needs sensor
+  permission first (iOS only) — `SetupScreen` requests both
+  (`lib/motion.ts`'s `requestOrientationPermission()` /
+  `requestDeviceMotionPermission()`, called from the mode-picker tap since
+  iOS only grants from a user gesture) but never reverts to `CLASSIC_MODE`
+  on a denial: each disruption already carries its own 12s safety timeout in
+  `Gameplay` that auto-clears it on devices/browsers where the sensor event
+  never fires (missing permission included), so a denied sensor just means
+  that one disruption always falls back to auto-clearing instead of a real
+  gesture.
 - **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no
   opponent. The whole turn loop is unchanged (one column on the scoreboard); the
   goal is instead to beat your **best single turn**. Records live in `lib/solo.ts`
