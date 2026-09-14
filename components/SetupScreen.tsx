@@ -25,9 +25,18 @@ import type { ScreenProps } from "./types";
 // to request it. Requested right here at selection time (this tap IS the
 // user gesture iOS requires) rather than waiting for Start Round, so a
 // denial can fall back immediately instead of silently breaking a turn.
+// Chaos mode asks for both, but never blocks on a denial — each disruption
+// it drives already has its own safety timeout, so a "no" on one sensor
+// just means that disruption always falls back to auto-clearing instead of
+// a real gesture, rather than the whole mode reverting to Standard.
 const MODE_PERMISSIONS: Record<string, () => Promise<boolean>> = {
-  batattack: requestOrientationPermission,
-  rockshake: requestDeviceMotionPermission,
+  chaos: async () => {
+    await Promise.all([
+      requestOrientationPermission(),
+      requestDeviceMotionPermission(),
+    ]);
+    return true;
+  },
 };
 
 const TEAM_OPTIONS = Array.from(

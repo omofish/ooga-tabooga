@@ -24,7 +24,7 @@ async function requestPermissionFor(
   }
 }
 
-/** Needed by "Bat Swarm Attack" to read deviceorientation's `beta`. */
+/** Needed by "Everything Go Wrong" (chaos mode) to read deviceorientation's `beta`. */
 export function requestOrientationPermission(): Promise<boolean> {
   return requestPermissionFor(
     typeof DeviceOrientationEvent !== "undefined"
@@ -33,7 +33,7 @@ export function requestOrientationPermission(): Promise<boolean> {
   );
 }
 
-/** Needed by "Rock Slide" to read devicemotion's acceleration. */
+/** Needed by "Everything Go Wrong" (chaos mode) to read devicemotion's acceleration. */
 export function requestDeviceMotionPermission(): Promise<boolean> {
   return requestPermissionFor(
     typeof DeviceMotionEvent !== "undefined"

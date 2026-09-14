@@ -47,9 +47,12 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const c = colorForKey(team?.colorKey ?? "red");
   const speedMode = state.challengeMode === "speed";
   const muteMode = state.challengeMode === "mute";
-  const birdBombMode = state.challengeMode === "birdbomb";
-  const batAttackMode = state.challengeMode === "batattack";
-  const rockSlideMode = state.challengeMode === "rockshake";
+  // Chaos mode spawns all three disruptions at once, each independently
+  // gated below — so they can overlap. That's the "disruption heavy" ask.
+  const chaosMode = state.challengeMode === "chaos";
+  const birdBombMode = chaosMode;
+  const batAttackMode = chaosMode;
+  const rockSlideMode = chaosMode;
 
   const paused = active?.paused ?? false;
   const [now, setNow] = useState(() => Date.now());
@@ -336,14 +339,15 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     [rocksActive],
   );
 
+  // More than one disruption can be active at once under chaos mode, so
+  // stack every active instruction into one banner instead of picking one.
+  const activeDisruptions = [
+    birdBombMode && splats.length > 0 ? "WIPE POOP" : null,
+    batAttackMode && batsActive ? "FLIP FOR BATS" : null,
+    rockSlideMode && rocksActive ? "SHAKE FOR ROCKS" : null,
+  ].filter((m): m is string => m !== null);
   const disruptionMessage =
-    birdBombMode && splats.length > 0
-      ? "WIPE TO CLEAR AWAY POOP"
-      : batAttackMode && batsActive
-        ? "FLIP PHONE TO CHASE AWAY BATS"
-        : rockSlideMode && rocksActive
-          ? "SHAKE PHONE TO CLEAR AWAY ROCKS"
-          : null;
+    activeDisruptions.length > 0 ? activeDisruptions.join(" • ") : null;
 
   if (!active?.current) return null;
 

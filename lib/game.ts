@@ -50,22 +50,11 @@ export const CHALLENGE_MODES = [
     blurb: "Hands talk, mouth quiet! No say word, only point and wiggle.",
   },
   {
-    id: "birdbomb",
-    name: "Birds Make Poop",
-    emoji: "💩",
-    blurb: "Big poop block card, more than one! Swipe hard, wipe away.",
-  },
-  {
-    id: "batattack",
-    name: "Bat Swarm Attack",
-    emoji: "🦇",
-    blurb: "Bats block your eyes! Flip phone upside-down, bats fly away.",
-  },
-  {
-    id: "rockshake",
-    name: "Rocks Fall Down",
-    emoji: "🪨",
-    blurb: "Big rocks fall, block eyes! Shake phone hard, rocks go away.",
+    id: "chaos",
+    name: "Everything Go Wrong",
+    emoji: "🌪️",
+    blurb:
+      "Poop, bats, rocks, all attack! Swipe poop, flip for bats, shake for rocks.",
   },
 ] as const;
 
