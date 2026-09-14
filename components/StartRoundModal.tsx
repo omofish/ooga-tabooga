@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
+import { requestMotionPermission } from "@/lib/motion";
 import { randomCaveName } from "@/lib/names";
 import { unlockAudio } from "@/lib/sound";
 import Modal from "./Modal";
@@ -21,6 +22,9 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
     // This tap is the user gesture that lets audio play for the whole turn
     // (countdown pips, ticks, buzzer), per the browser autoplay policy.
     unlockAudio();
+    // Same deal for the gyroscope, needed to detect a flip in Bat Swarm
+    // Attack — iOS only grants it from inside a user gesture like this one.
+    if (state.challengeMode === "batattack") requestMotionPermission();
     if (!active.playerName.trim()) {
       dispatch({ type: "SET_NAME", name: suggested });
     }

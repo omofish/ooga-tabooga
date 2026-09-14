@@ -55,6 +55,12 @@ export const CHALLENGE_MODES = [
     emoji: "💩",
     blurb: "Poop fall on card! Wipe fast with finger, make it go away.",
   },
+  {
+    id: "batattack",
+    name: "Bat Swarm Attack",
+    emoji: "🦇",
+    blurb: "Bats block your eyes! Flip phone upside-down, bats fly away.",
+  },
 ] as const;
 
 export function defaultState(): GameState {
