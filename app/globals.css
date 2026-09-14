@@ -362,14 +362,14 @@ html {
   animation: flash-soft 0.6s ease-in-out infinite;
 }
 
-/* "Bat Swarm Attack" mode: bats rush in from off-screen left, each already
-   sitting at its own resting `left`/`top` (set inline per-bat) — this just
-   animates the entrance. Kept to a single shared shape (no per-bat CSS
-   variables needed) since the resting spot is already the element's own
-   position; the animation only needs to travel *to* translateX(0). */
+/* Chaos mode's bats: rush in from off-screen right, each already sitting at
+   its own resting `left`/`top` (set inline per-bat) — this just animates the
+   entrance. Kept to a single shared shape (no per-bat CSS variables needed)
+   since the resting spot is already the element's own position; the
+   animation only needs to travel *to* translateX(0). */
 @keyframes bat-fly-in {
   0% {
-    transform: translateX(-130vw);
+    transform: translateX(130vw);
     opacity: 0;
   }
   40% {
@@ -384,10 +384,28 @@ html {
   animation: bat-fly-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Once cleared (phone flipped upside-down), the swarm flies back out to the
+   left — the mirror of the entrance, swapped in by changing the element's
+   class (a fresh `animation-name` value replaces the finished entrance
+   animation outright, no remount needed). */
+@keyframes bat-fly-out {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-130vw);
+    opacity: 0;
+  }
+}
+.bat-fly-out {
+  animation: bat-fly-out 0.4s cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+
 /* Continuous bob once a bat has landed — grows slightly as it rises, for a
    coming-closer/going-further parallax illusion. Runs on the emoji itself
-   (a child of the fly-in element) so the two animations don't fight over
-   `transform` on the same element. */
+   (a child of the fly-in/fly-out element) so these animations don't fight
+   over `transform` on the same element. */
 @keyframes bat-bob {
   0%,
   100% {
@@ -402,8 +420,8 @@ html {
   animation: bat-bob 1.1s ease-in-out infinite;
 }
 
-/* "Rock Slide" mode: rocks drop in from above (vs. bats flying in from the
-   side) with a bounce landing, then tremble in place as a "shake me" hint. */
+/* Chaos mode's rocks: drop in from above (vs. bats flying in from the side)
+   with a bounce landing, then tremble in place as a "shake me" hint. */
 @keyframes rock-fall-in {
   0% {
     transform: translateY(-130vh);
@@ -420,6 +438,24 @@ html {
 .rock-fall-in {
   animation: rock-fall-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
+
+/* Once cleared (phone shaken), rocks keep falling the rest of the way off
+   the bottom of the screen instead of the bounce-in reversed — same
+   class-swap approach as the bats' fly-out. */
+@keyframes rock-fall-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(130vh);
+    opacity: 1;
+  }
+}
+.rock-fall-out {
+  animation: rock-fall-out 0.45s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+
 @keyframes rock-tremble {
   0%,
   100% {
@@ -435,6 +471,24 @@ html {
 .rock-tremble {
   display: inline-block;
   animation: rock-tremble 0.6s ease-in-out infinite;
+}
+
+/* Chaos mode's poop: falls in from above and grows from nothing to full
+   size, very quickly. Uses the standalone `translate`/`scale` properties
+   (not `transform`) so this composes with the splat wrapper's own inline
+   `transform: translate(-50%, -50%)` centering instead of fighting it. */
+@keyframes poop-fall-in {
+  0% {
+    translate: 0 -55vh;
+    scale: 0;
+  }
+  100% {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+.poop-fall-in {
+  animation: poop-fall-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 /* The fall (translate/rotate) and the grow-in/shrink-out (scale/opacity) are
@@ -509,9 +563,12 @@ html {
   .animate-flash-soft,
   .animate-rise,
   .bat-fly-in,
+  .bat-fly-out,
   .bat-bob,
   .rock-fall-in,
+  .rock-fall-out,
   .rock-tremble,
+  .poop-fall-in,
   .confetti-piece {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

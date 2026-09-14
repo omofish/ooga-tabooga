@@ -10,36 +10,44 @@ import MuteToggle from "./MuteToggle";
 const ANNOUNCE_AT = [90, 60, 30, 10];
 
 const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
-// "Bird Bomb" mode: gap before another splat can spawn (~30% more often than
-// the original 5-11s range, i.e. divided by 1.3).
-const BIRD_BOMB_MIN_MS = 3_850;
-const BIRD_BOMB_MAX_MS = 8_460;
-const BIRD_BOMB_WIPE_PX = 2160; // cumulative swipe distance to fully clear one (3x)
-const BIRD_BOMB_MIN_SIZE = 340; // px — ~2x the original 170-260 range
-const BIRD_BOMB_MAX_SIZE = 650; // px — ~2.5x
-const BIRD_BOMB_MAX_CONCURRENT = 3;
 
-// "Bat Swarm Attack" mode: same spawn cadence as Bird Bomb, cleared by
-// holding the phone upside-down instead of a swipe.
-const BAT_ATTACK_MIN_MS = 3_850;
-const BAT_ATTACK_MAX_MS = 8_460;
-const BAT_COUNT = 14;
+// Chaos mode ("Everything Go Wrong"): only ONE disruption (poop, bats, or
+// rocks) is ever up at a time, picked at random once the previous one is
+// fully cleared. This is the random gap between a clear and the next spawn.
+type Disruption = "poop" | "bats" | "rocks";
+const DISRUPTION_GAP_MIN_MS = 8_000;
+const DISRUPTION_GAP_MAX_MS = 15_000;
+
+// Poop: cleared by swipe, same as before. Falls in from above and grows to
+// full size on spawn (see .poop-fall-in in globals.css).
+const BIRD_BOMB_WIPE_PX = 2160; // cumulative swipe distance to fully clear it
+const BIRD_BOMB_MIN_SIZE = 340; // px
+const BIRD_BOMB_MAX_SIZE = 650; // px
+
+// Bats: cleared by holding the phone upside-down. Fly in from the right (see
+// .bat-fly-in) and, once cleared, fly out to the left (.bat-fly-out).
+const BAT_COUNT = 7; // ~half the original 14, to match the bigger size
+const BAT_MIN_SIZE = 54; // px — biggest can be ~2x the smallest, ~2x old average
+const BAT_MAX_SIZE = 108; // px
 const BAT_FLIP_HOLD_MS = 300; // how long "upside-down" must be sustained
 const BAT_FLIP_BETA_THRESHOLD = -45; // deviceorientation beta below this ~= upside-down
 // Devices/browsers with no gyroscope (desktop) or that denied the iOS
 // permission prompt would otherwise never fire deviceorientation at all,
 // soft-locking the turn — auto-clear the swarm after this long regardless.
 const BAT_ATTACK_SAFETY_MS = 12_000;
+const BAT_FLY_OUT_MS = 400; // must match .bat-fly-out's CSS duration
 
-// "Rock Slide" mode: same spawn cadence again, cleared by shaking instead of
-// flipping. Detection accumulates "shake energy" the same way Bird Bomb
-// accumulates swipe distance — harder/longer shaking clears it faster.
-const ROCK_SLIDE_MIN_MS = 3_850;
-const ROCK_SLIDE_MAX_MS = 8_460;
-const ROCK_COUNT = 12;
+// Rocks: cleared by shaking. Detection accumulates "shake energy" the same
+// way poop accumulates swipe distance — harder/longer shaking clears it
+// faster. Falls in from above (.rock-fall-in) and, once cleared, falls the
+// rest of the way off the bottom of the screen (.rock-fall-out).
+const ROCK_COUNT = 6; // ~half the original 12, to match the bigger size
+const ROCK_MIN_SIZE = 82; // px — biggest can be ~2x the smallest, ~3x old average
+const ROCK_MAX_SIZE = 164; // px
 const ROCK_SHAKE_JERK_THRESHOLD = 12; // m/s² change between readings to count as "shaking"
 const ROCK_SHAKE_ENERGY_TO_CLEAR = 90;
 const ROCK_SLIDE_SAFETY_MS = 12_000; // same reasoning as BAT_ATTACK_SAFETY_MS
+const ROCK_FALL_OUT_MS = 450; // must match .rock-fall-out's CSS duration
 
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
@@ -47,12 +55,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const c = colorForKey(team?.colorKey ?? "red");
   const speedMode = state.challengeMode === "speed";
   const muteMode = state.challengeMode === "mute";
-  // Chaos mode spawns all three disruptions at once, each independently
-  // gated below — so they can overlap. That's the "disruption heavy" ask.
   const chaosMode = state.challengeMode === "chaos";
-  const birdBombMode = chaosMode;
-  const batAttackMode = chaosMode;
-  const rockSlideMode = chaosMode;
 
   const paused = active?.paused ?? false;
   const [now, setNow] = useState(() => Date.now());
@@ -131,100 +134,97 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const cardSecondsLeft =
     speedMode && cardEndsAt ? Math.ceil(cardRemainingMs / 1000) : null;
 
-  // "Bird Bomb" mode: huge splats block part of the screen — each positioned
-  // to straddle the seam between the two cards, since that's what they're
-  // meant to obstruct — until wiped away by a swipe. Several can be on
-  // screen at once (capped at BIRD_BOMB_MAX_CONCURRENT); this effect keeps
-  // scheduling another independent spawn any time there's room for one, so
-  // clearing one doesn't wait on the others. `wipeDistances`/`dragPositions`
-  // are keyed-by-id refs (not state) since pointermove fires far too often
-  // to re-render on; only the derived opacity needs to be state.
-  const [splats, setSplats] = useState<
-    { id: number; left: number; top: number; size: number; rotate: number; opacity: number }[]
-  >([]);
-  const nextSplatId = useRef(0);
-  const wipeDistances = useRef(new Map<number, number>());
-  const dragPositions = useRef(new Map<number, { x: number; y: number }>());
+  // Chaos mode's sequencer: picks the next disruption once the current one
+  // (if any) is fully cleared, after a random gap. Each disruption section
+  // below just reacts to `currentDisruption` turning into (or out of) its
+  // own id — none of them schedule their own spawns any more.
+  const [currentDisruption, setCurrentDisruption] = useState<Disruption | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (!birdBombMode || paused || timesUp) return;
-    if (splats.length >= BIRD_BOMB_MAX_CONCURRENT) return;
+    if (!chaosMode || paused || timesUp || currentDisruption) return;
     const delay =
-      BIRD_BOMB_MIN_MS + Math.random() * (BIRD_BOMB_MAX_MS - BIRD_BOMB_MIN_MS);
+      DISRUPTION_GAP_MIN_MS +
+      Math.random() * (DISRUPTION_GAP_MAX_MS - DISRUPTION_GAP_MIN_MS);
     const id = setTimeout(() => {
-      const splatId = nextSplatId.current++;
-      wipeDistances.current.set(splatId, 0);
-      setSplats((prev) =>
-        prev.length >= BIRD_BOMB_MAX_CONCURRENT
-          ? prev
-          : [
-              ...prev,
-              {
-                id: splatId,
-                left: 25 + Math.random() * 50, // % — center point, stays roughly mid-screen
-                top: 38 + Math.random() * 17, // % — straddles the seam between the two cards
-                size:
-                  BIRD_BOMB_MIN_SIZE +
-                  Math.random() * (BIRD_BOMB_MAX_SIZE - BIRD_BOMB_MIN_SIZE),
-                rotate: -35 + Math.random() * 70,
-                opacity: 1,
-              },
-            ],
-      );
+      const pool: Disruption[] = ["poop", "bats", "rocks"];
+      setCurrentDisruption(pool[Math.floor(Math.random() * pool.length)]);
     }, delay);
     return () => clearTimeout(id);
-  }, [birdBombMode, paused, timesUp, splats.length]);
+  }, [chaosMode, paused, timesUp, currentDisruption]);
 
-  const clearSplat = (id: number) => {
-    sound.bank();
-    sound.vibrate(20);
-    dragPositions.current.delete(id);
-    wipeDistances.current.delete(id);
-    setSplats((prev) => prev.filter((s) => s.id !== id));
-  };
+  // Poop: a single splat, cleared by swipe. `wipeDistance`/`dragStart` are
+  // refs (not state) since pointermove fires far too often to re-render on;
+  // only the derived opacity needs to be state. Falls in from above and
+  // grows to full size on spawn (see .poop-fall-in in globals.css) — since
+  // the element unmounts/remounts between spawns, that animation replays
+  // every time without any extra key.
+  const [splat, setSplat] = useState<{
+    left: number;
+    top: number;
+    size: number;
+    rotate: number;
+    opacity: number;
+  } | null>(null);
+  const wipeDistance = useRef(0);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
 
-  const onSplatPointerDown = (id: number) => (e: React.PointerEvent) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    dragPositions.current.set(id, { x: e.clientX, y: e.clientY });
-  };
-
-  const onSplatPointerMove = (id: number) => (e: React.PointerEvent) => {
-    const last = dragPositions.current.get(id);
-    if (!last) return;
-    dragPositions.current.set(id, { x: e.clientX, y: e.clientY });
-    const total =
-      (wipeDistances.current.get(id) ?? 0) +
-      Math.hypot(e.clientX - last.x, e.clientY - last.y);
-    wipeDistances.current.set(id, total);
-    const opacity = Math.max(0, 1 - total / BIRD_BOMB_WIPE_PX);
-    if (opacity <= 0) {
-      clearSplat(id);
+  useEffect(() => {
+    if (currentDisruption !== "poop") {
+      setSplat(null);
       return;
     }
-    setSplats((prev) => prev.map((s) => (s.id === id ? { ...s, opacity } : s)));
+    wipeDistance.current = 0;
+    setSplat({
+      left: 25 + Math.random() * 50, // % — center point, stays roughly mid-screen
+      top: 38 + Math.random() * 17, // % — straddles the seam between the two cards
+      size:
+        BIRD_BOMB_MIN_SIZE + Math.random() * (BIRD_BOMB_MAX_SIZE - BIRD_BOMB_MIN_SIZE),
+      rotate: -35 + Math.random() * 70,
+      opacity: 1,
+    });
+  }, [currentDisruption]);
+
+  const onSplatPointerDown = (e: React.PointerEvent) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragStart.current = { x: e.clientX, y: e.clientY };
   };
 
-  const onSplatPointerEnd = (id: number) => () => {
-    dragPositions.current.delete(id);
+  const onSplatPointerMove = (e: React.PointerEvent) => {
+    const last = dragStart.current;
+    if (!last) return;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    wipeDistance.current += Math.hypot(e.clientX - last.x, e.clientY - last.y);
+    const opacity = Math.max(0, 1 - wipeDistance.current / BIRD_BOMB_WIPE_PX);
+    if (opacity <= 0) {
+      sound.bank();
+      sound.vibrate(20);
+      dragStart.current = null;
+      setSplat(null);
+      setCurrentDisruption(null);
+      return;
+    }
+    setSplat((s) => (s ? { ...s, opacity } : s));
   };
 
-  // "Bat Swarm Attack" mode: a swarm rushes in and stays until the phone is
-  // held upside-down for BAT_FLIP_HOLD_MS straight. Only one swarm at a time
-  // (unlike Bird Bomb's splats) — it's a single dismiss gesture, not several
-  // independent ones.
-  const [batsActive, setBatsActive] = useState(false);
+  const onSplatPointerEnd = () => {
+    dragStart.current = null;
+  };
+
+  // Bats: cleared by holding the phone upside-down for BAT_FLIP_HOLD_MS
+  // straight. "active" -> "leaving" (flying out, see .bat-fly-out) -> gone —
+  // the leave animation needs to finish playing before the swarm actually
+  // unmounts, so clearing isn't instant.
+  const [batsPhase, setBatsPhase] = useState<"active" | "leaving" | null>(null);
   const flipStartedAt = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!batAttackMode || paused || timesUp || batsActive) return;
-    const delay =
-      BAT_ATTACK_MIN_MS + Math.random() * (BAT_ATTACK_MAX_MS - BAT_ATTACK_MIN_MS);
-    const id = setTimeout(() => setBatsActive(true), delay);
-    return () => clearTimeout(id);
-  }, [batAttackMode, paused, timesUp, batsActive]);
+    setBatsPhase(currentDisruption === "bats" ? "active" : null);
+  }, [currentDisruption]);
 
   useEffect(() => {
-    if (!batsActive) return;
+    if (batsPhase !== "active") return;
     flipStartedAt.current = null;
 
     const onOrientation = (e: DeviceOrientationEvent) => {
@@ -237,59 +237,66 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       if (Date.now() - flipStartedAt.current >= BAT_FLIP_HOLD_MS) {
         sound.bank();
         sound.vibrate([20, 30, 20]);
-        setBatsActive(false);
+        setBatsPhase("leaving");
       }
     };
     window.addEventListener("deviceorientation", onOrientation);
 
     // Safety net for devices/browsers that never fire deviceorientation at
     // all (see BAT_ATTACK_SAFETY_MS above) — not a "flip", just a timeout.
-    const safety = setTimeout(() => setBatsActive(false), BAT_ATTACK_SAFETY_MS);
+    const safety = setTimeout(() => setBatsPhase("leaving"), BAT_ATTACK_SAFETY_MS);
 
     return () => {
       window.removeEventListener("deviceorientation", onOrientation);
       clearTimeout(safety);
     };
-  }, [batsActive]);
+  }, [batsPhase]);
+
+  useEffect(() => {
+    if (batsPhase !== "leaving") return;
+    const id = setTimeout(() => {
+      setBatsPhase(null);
+      setCurrentDisruption(null);
+    }, BAT_FLY_OUT_MS);
+    return () => clearTimeout(id);
+  }, [batsPhase]);
 
   // Regenerated each time a swarm spawns; positions/sizes are fixed for that
-  // swarm's whole lifetime, only the CSS animations move them.
+  // swarm's whole lifetime (unaffected by the active->leaving transition),
+  // only the CSS animations move them.
+  const batsSpawned = batsPhase !== null;
   const bats = useMemo(
     () =>
-      batsActive
+      batsSpawned
         ? Array.from({ length: BAT_COUNT }, (_, i) => ({
             id: i,
             leftPct: 5 + Math.random() * 85,
             topPct: 8 + Math.random() * 77,
-            size: 30 + Math.random() * 20,
+            size: BAT_MIN_SIZE + Math.random() * (BAT_MAX_SIZE - BAT_MIN_SIZE),
             enterDelay: Math.random() * 0.08,
             bobDuration: 0.9 + Math.random() * 0.4,
             bobOffset: Math.random() * 1.3,
           }))
         : [],
-    [batsActive],
+    [batsSpawned],
   );
 
-  // "Rock Slide" mode: rocks drop in and stay until shaken off. Same overall
-  // shape as the bat swarm (single active/inactive flag, not several
-  // independent objects like Bird Bomb's splats), swapping the orientation
-  // check for an accumulated devicemotion "shake energy" — conceptually the
-  // same idea as Bird Bomb's cumulative swipe distance, just driven by the
-  // accelerometer instead of a pointer.
-  const [rocksActive, setRocksActive] = useState(false);
+  // Rocks: cleared by shaking. Same "active" -> "leaving" -> gone shape as
+  // the bat swarm, swapping the orientation check for an accumulated
+  // devicemotion "shake energy" — conceptually the same idea as poop's
+  // cumulative swipe distance, just driven by the accelerometer.
+  const [rocksPhase, setRocksPhase] = useState<"active" | "leaving" | null>(
+    null,
+  );
   const shakeEnergy = useRef(0);
   const lastAcceleration = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!rockSlideMode || paused || timesUp || rocksActive) return;
-    const delay =
-      ROCK_SLIDE_MIN_MS + Math.random() * (ROCK_SLIDE_MAX_MS - ROCK_SLIDE_MIN_MS);
-    const id = setTimeout(() => setRocksActive(true), delay);
-    return () => clearTimeout(id);
-  }, [rockSlideMode, paused, timesUp, rocksActive]);
+    setRocksPhase(currentDisruption === "rocks" ? "active" : null);
+  }, [currentDisruption]);
 
   useEffect(() => {
-    if (!rocksActive) return;
+    if (rocksPhase !== "active") return;
     shakeEnergy.current = 0;
     lastAcceleration.current = null;
 
@@ -305,7 +312,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           if (shakeEnergy.current >= ROCK_SHAKE_ENERGY_TO_CLEAR) {
             sound.bank();
             sound.vibrate([20, 30, 20]);
-            setRocksActive(false);
+            setRocksPhase("leaving");
           }
         }
       }
@@ -313,41 +320,53 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     };
     window.addEventListener("devicemotion", onMotion);
 
-    // Same reasoning as Bat Swarm Attack's safety timeout: a device/browser
-    // that never fires devicemotion (desktop, denied permission) shouldn't
-    // be able to soft-lock the turn.
-    const safety = setTimeout(() => setRocksActive(false), ROCK_SLIDE_SAFETY_MS);
+    // Same reasoning as the bats' safety timeout: a device/browser that
+    // never fires devicemotion (desktop, denied permission) shouldn't be
+    // able to soft-lock the turn.
+    const safety = setTimeout(() => setRocksPhase("leaving"), ROCK_SLIDE_SAFETY_MS);
 
     return () => {
       window.removeEventListener("devicemotion", onMotion);
       clearTimeout(safety);
     };
-  }, [rocksActive]);
+  }, [rocksPhase]);
 
+  useEffect(() => {
+    if (rocksPhase !== "leaving") return;
+    const id = setTimeout(() => {
+      setRocksPhase(null);
+      setCurrentDisruption(null);
+    }, ROCK_FALL_OUT_MS);
+    return () => clearTimeout(id);
+  }, [rocksPhase]);
+
+  const rocksSpawned = rocksPhase !== null;
   const rocks = useMemo(
     () =>
-      rocksActive
+      rocksSpawned
         ? Array.from({ length: ROCK_COUNT }, (_, i) => ({
             id: i,
             leftPct: 5 + Math.random() * 85,
             topPct: 8 + Math.random() * 77,
-            size: 30 + Math.random() * 22,
+            size: ROCK_MIN_SIZE + Math.random() * (ROCK_MAX_SIZE - ROCK_MIN_SIZE),
             enterDelay: Math.random() * 0.1,
             tremble: 0.5 + Math.random() * 0.3,
           }))
         : [],
-    [rocksActive],
+    [rocksSpawned],
   );
 
-  // More than one disruption can be active at once under chaos mode, so
-  // stack every active instruction into one banner instead of picking one.
-  const activeDisruptions = [
-    birdBombMode && splats.length > 0 ? "WIPE POOP" : null,
-    batAttackMode && batsActive ? "FLIP FOR BATS" : null,
-    rockSlideMode && rocksActive ? "SHAKE FOR ROCKS" : null,
-  ].filter((m): m is string => m !== null);
+  // Only one disruption is ever up, so the banner just names it directly —
+  // and disappears the instant the gesture succeeds, even while the visual
+  // (bats/rocks) is still animating off screen.
   const disruptionMessage =
-    activeDisruptions.length > 0 ? activeDisruptions.join(" • ") : null;
+    currentDisruption === "poop" && splat
+      ? "WIPE THE POOP"
+      : batsPhase === "active"
+        ? "FLIP YOUR PHONE"
+        : rocksPhase === "active"
+          ? "SHAKE YOUR PHONE"
+          : null;
 
   if (!active?.current) return null;
 
@@ -503,52 +522,51 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         </button>
       </footer>
 
-      {/* Bird Bomb splats — huge emoji blocking part of the screen until
-          swiped away. No click handler (swiping over the cards underneath
-          must never register as a tap on them), just pointer-move tracking.
-          Several can be up at once. The how-to instruction lives in the
-          shared pulsing banner below instead of repeating under every splat. */}
-      {birdBombMode &&
-        splats.map((splat) => (
-          <div
-            key={splat.id}
-            role="button"
-            aria-label="Bird bomb — swipe to wipe it away"
-            onPointerDown={onSplatPointerDown(splat.id)}
-            onPointerMove={onSplatPointerMove(splat.id)}
-            onPointerUp={onSplatPointerEnd(splat.id)}
-            onPointerCancel={onSplatPointerEnd(splat.id)}
-            className="absolute z-10 touch-none select-none"
-            style={{
-              left: `${splat.left}%`,
-              top: `${splat.top}%`,
-              transform: "translate(-50%, -50%)",
-              opacity: splat.opacity,
-            }}
+      {/* Poop splat — a huge emoji blocking part of the screen, falling in
+          and growing to full size on spawn (see .poop-fall-in), cleared by
+          swiping it away. No click handler (swiping over the cards
+          underneath must never register as a tap on them), just
+          pointer-move tracking. Only one up at a time under chaos mode. The
+          how-to instruction lives in the shared pulsing banner below. */}
+      {splat && (
+        <div
+          role="button"
+          aria-label="Poop splat — swipe to wipe it away"
+          onPointerDown={onSplatPointerDown}
+          onPointerMove={onSplatPointerMove}
+          onPointerUp={onSplatPointerEnd}
+          onPointerCancel={onSplatPointerEnd}
+          className="poop-fall-in absolute z-10 touch-none select-none"
+          style={{
+            left: `${splat.left}%`,
+            top: `${splat.top}%`,
+            transform: "translate(-50%, -50%)",
+            opacity: splat.opacity,
+          }}
+        >
+          <span
+            className="block leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
+            style={{ fontSize: splat.size, transform: `rotate(${splat.rotate}deg)` }}
           >
-            <span
-              className="block leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.3)]"
-              style={{ fontSize: splat.size, transform: `rotate(${splat.rotate}deg)` }}
-            >
-              💩
-            </span>
-          </div>
-        ))}
+            💩
+          </span>
+        </div>
+      )}
 
-      {/* Bat Swarm Attack: a swarm flies in from the left (see .bat-fly-in)
-          then bobs in place (see .bat-bob) until the phone is flipped
-          upside-down. Purely visual — cleared by orientation, not touch — so
-          no pointer handlers. */}
-      {batAttackMode && batsActive && (
+      {/* Bats: a swarm flies in from the right (see .bat-fly-in), bobs in
+          place (see .bat-bob) until the phone is flipped upside-down, then
+          flies out to the left (.bat-fly-out). Purely visual — cleared by
+          orientation, not touch — so no pointer handlers. */}
+      {batsPhase && (
         <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
           {bats.map((bat) => (
             <div
               key={bat.id}
-              className="bat-fly-in absolute"
+              className={batsPhase === "leaving" ? "bat-fly-out absolute" : "bat-fly-in absolute"}
               style={{
                 left: `${bat.leftPct}%`,
                 top: `${bat.topPct}%`,
-                animationDelay: `${bat.enterDelay}s`,
+                animationDelay: batsPhase === "leaving" ? "0s" : `${bat.enterDelay}s`,
               }}
             >
               <span
@@ -566,20 +584,21 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         </div>
       )}
 
-      {/* Rock Slide: rocks drop in from above (see .rock-fall-in) then
-          tremble in place (see .rock-tremble, a "shake me" hint) until
-          shaken off. Purely visual — cleared by the accelerometer, not
-          touch — so no pointer handlers. */}
-      {rockSlideMode && rocksActive && (
+      {/* Rocks: fall in from above (see .rock-fall-in) then tremble in place
+          (see .rock-tremble, a "shake me" hint) until shaken off, then fall
+          the rest of the way off the bottom of the screen (.rock-fall-out).
+          Purely visual — cleared by the accelerometer, not touch — so no
+          pointer handlers. */}
+      {rocksPhase && (
         <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
           {rocks.map((rock) => (
             <div
               key={rock.id}
-              className="rock-fall-in absolute"
+              className={rocksPhase === "leaving" ? "rock-fall-out absolute" : "rock-fall-in absolute"}
               style={{
                 left: `${rock.leftPct}%`,
                 top: `${rock.topPct}%`,
-                animationDelay: `${rock.enterDelay}s`,
+                animationDelay: rocksPhase === "leaving" ? "0s" : `${rock.enterDelay}s`,
               }}
             >
               <span
@@ -598,9 +617,9 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           splats/bats (z-10) but below Pause/Time's-up (z-20/30) so it's
           naturally hidden by either without extra conditions. */}
       {disruptionMessage && (
-        <div className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+0.5rem)] z-[15] flex justify-center px-6">
-          <div className="chunk animate-pulse-soft rounded-full px-4 py-2">
-            <span className="font-display text-sm text-ink">
+        <div className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+5.25rem)] z-[15] flex justify-center px-6">
+          <div className="chunk animate-pulse-soft rounded-full px-5 py-3 text-center">
+            <span className="font-display text-[28px] text-ink">
               {disruptionMessage}
             </span>
           </div>
