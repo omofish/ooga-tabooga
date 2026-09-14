@@ -41,7 +41,7 @@ export const CHALLENGE_MODES = [
     id: "speed",
     name: "Talk More Fast",
     emoji: "⏱️",
-    blurb: "Only 10s per word! No finish, card go bye-bye. Minus one point.",
+    blurb: "Only 12s per word! No finish, card go bye-bye. Minus one point.",
   },
   {
     id: "mute",
