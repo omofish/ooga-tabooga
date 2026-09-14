@@ -1,20 +1,43 @@
 /**
- * Device-orientation permission. iOS 13+ requires an explicit request from
- * inside a user gesture (a button's onClick) or the browser silently
- * withholds sensor data forever — there's no way to prompt for it lazily.
- * Android and desktop have no such gate: `deviceorientation` just works
- * there, or never fires at all on hardware with no gyroscope. Callers that
- * depend on it ("Bat Swarm Attack") need their own timeout fallback for
- * that case — this can't detect "will never fire," only ask for permission.
+ * Device sensor permissions. iOS 13+ requires an explicit request from
+ * inside a user gesture (a button's onClick) for BOTH orientation and
+ * motion data — there's no way to prompt for either lazily, and they're
+ * gated separately (granting one doesn't grant the other). Android and
+ * desktop have no such gate: the events just work there, or never fire at
+ * all on hardware with no gyroscope/accelerometer. These resolve `true`
+ * immediately on any platform without the gate, so callers can treat the
+ * result as "go ahead" either way — they still need their own timeout
+ * fallback for the "never fires" case, which this can't detect.
  */
-type OrientationPermissionRequester = {
+type PermissionRequester = {
   requestPermission?: () => Promise<"granted" | "denied">;
 };
 
-export function requestMotionPermission(): void {
-  const ctor =
+async function requestPermissionFor(
+  ctor: PermissionRequester | undefined,
+): Promise<boolean> {
+  if (!ctor?.requestPermission) return true;
+  try {
+    return (await ctor.requestPermission()) === "granted";
+  } catch {
+    return false;
+  }
+}
+
+/** Needed by "Bat Swarm Attack" to read deviceorientation's `beta`. */
+export function requestOrientationPermission(): Promise<boolean> {
+  return requestPermissionFor(
     typeof DeviceOrientationEvent !== "undefined"
-      ? (DeviceOrientationEvent as unknown as OrientationPermissionRequester)
-      : undefined;
-  ctor?.requestPermission?.().catch(() => {});
+      ? (DeviceOrientationEvent as unknown as PermissionRequester)
+      : undefined,
+  );
+}
+
+/** Needed by "Rock Slide" to read devicemotion's acceleration. */
+export function requestDeviceMotionPermission(): Promise<boolean> {
+  return requestPermissionFor(
+    typeof DeviceMotionEvent !== "undefined"
+      ? (DeviceMotionEvent as unknown as PermissionRequester)
+      : undefined,
+  );
 }

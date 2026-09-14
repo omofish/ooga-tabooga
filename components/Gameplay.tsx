@@ -31,6 +31,16 @@ const BAT_FLIP_BETA_THRESHOLD = -45; // deviceorientation beta below this ~= ups
 // soft-locking the turn — auto-clear the swarm after this long regardless.
 const BAT_ATTACK_SAFETY_MS = 12_000;
 
+// "Rock Slide" mode: same spawn cadence again, cleared by shaking instead of
+// flipping. Detection accumulates "shake energy" the same way Bird Bomb
+// accumulates swipe distance — harder/longer shaking clears it faster.
+const ROCK_SLIDE_MIN_MS = 3_850;
+const ROCK_SLIDE_MAX_MS = 8_460;
+const ROCK_COUNT = 12;
+const ROCK_SHAKE_JERK_THRESHOLD = 12; // m/s² change between readings to count as "shaking"
+const ROCK_SHAKE_ENERGY_TO_CLEAR = 90;
+const ROCK_SLIDE_SAFETY_MS = 12_000; // same reasoning as BAT_ATTACK_SAFETY_MS
+
 export default function Gameplay({ state, dispatch }: ScreenProps) {
   const active = state.active;
   const team = state.teams.find((t) => t.id === active?.teamId);
@@ -39,6 +49,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
   const muteMode = state.challengeMode === "mute";
   const birdBombMode = state.challengeMode === "birdbomb";
   const batAttackMode = state.challengeMode === "batattack";
+  const rockSlideMode = state.challengeMode === "rockshake";
 
   const paused = active?.paused ?? false;
   const [now, setNow] = useState(() => Date.now());
@@ -256,12 +267,83 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     [batsActive],
   );
 
+  // "Rock Slide" mode: rocks drop in and stay until shaken off. Same overall
+  // shape as the bat swarm (single active/inactive flag, not several
+  // independent objects like Bird Bomb's splats), swapping the orientation
+  // check for an accumulated devicemotion "shake energy" — conceptually the
+  // same idea as Bird Bomb's cumulative swipe distance, just driven by the
+  // accelerometer instead of a pointer.
+  const [rocksActive, setRocksActive] = useState(false);
+  const shakeEnergy = useRef(0);
+  const lastAcceleration = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!rockSlideMode || paused || timesUp || rocksActive) return;
+    const delay =
+      ROCK_SLIDE_MIN_MS + Math.random() * (ROCK_SLIDE_MAX_MS - ROCK_SLIDE_MIN_MS);
+    const id = setTimeout(() => setRocksActive(true), delay);
+    return () => clearTimeout(id);
+  }, [rockSlideMode, paused, timesUp, rocksActive]);
+
+  useEffect(() => {
+    if (!rocksActive) return;
+    shakeEnergy.current = 0;
+    lastAcceleration.current = null;
+
+    const onMotion = (e: DeviceMotionEvent) => {
+      const acc = e.accelerationIncludingGravity ?? e.acceleration;
+      if (!acc) return;
+      const magnitude =
+        Math.abs(acc.x ?? 0) + Math.abs(acc.y ?? 0) + Math.abs(acc.z ?? 0);
+      if (lastAcceleration.current !== null) {
+        const jerk = Math.abs(magnitude - lastAcceleration.current);
+        if (jerk > ROCK_SHAKE_JERK_THRESHOLD) {
+          shakeEnergy.current += jerk;
+          if (shakeEnergy.current >= ROCK_SHAKE_ENERGY_TO_CLEAR) {
+            sound.bank();
+            sound.vibrate([20, 30, 20]);
+            setRocksActive(false);
+          }
+        }
+      }
+      lastAcceleration.current = magnitude;
+    };
+    window.addEventListener("devicemotion", onMotion);
+
+    // Same reasoning as Bat Swarm Attack's safety timeout: a device/browser
+    // that never fires devicemotion (desktop, denied permission) shouldn't
+    // be able to soft-lock the turn.
+    const safety = setTimeout(() => setRocksActive(false), ROCK_SLIDE_SAFETY_MS);
+
+    return () => {
+      window.removeEventListener("devicemotion", onMotion);
+      clearTimeout(safety);
+    };
+  }, [rocksActive]);
+
+  const rocks = useMemo(
+    () =>
+      rocksActive
+        ? Array.from({ length: ROCK_COUNT }, (_, i) => ({
+            id: i,
+            leftPct: 5 + Math.random() * 85,
+            topPct: 8 + Math.random() * 77,
+            size: 30 + Math.random() * 22,
+            enterDelay: Math.random() * 0.1,
+            tremble: 0.5 + Math.random() * 0.3,
+          }))
+        : [],
+    [rocksActive],
+  );
+
   const disruptionMessage =
     birdBombMode && splats.length > 0
       ? "WIPE TO CLEAR AWAY POOP"
       : batAttackMode && batsActive
         ? "FLIP PHONE TO CHASE AWAY BATS"
-        : null;
+        : rockSlideMode && rocksActive
+          ? "SHAKE PHONE TO CLEAR AWAY ROCKS"
+          : null;
 
   if (!active?.current) return null;
 
@@ -474,6 +556,33 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
                 }}
               >
                 🦇
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Rock Slide: rocks drop in from above (see .rock-fall-in) then
+          tremble in place (see .rock-tremble, a "shake me" hint) until
+          shaken off. Purely visual — cleared by the accelerometer, not
+          touch — so no pointer handlers. */}
+      {rockSlideMode && rocksActive && (
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+          {rocks.map((rock) => (
+            <div
+              key={rock.id}
+              className="rock-fall-in absolute"
+              style={{
+                left: `${rock.leftPct}%`,
+                top: `${rock.topPct}%`,
+                animationDelay: `${rock.enterDelay}s`,
+              }}
+            >
+              <span
+                className="rock-tremble"
+                style={{ fontSize: rock.size, animationDuration: `${rock.tremble}s` }}
+              >
+                🪨
               </span>
             </div>
           ))}

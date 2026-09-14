@@ -29,15 +29,24 @@ saved to `localStorage` on every change.
   only fires once per card), `"mute"` just shows a reminder banner,
   `"birdbomb"` schedules randomly-positioned swipe-to-clear splats (local
   `splats` array, several concurrent, cleared by cumulative pointer-move
-  distance), and `"batattack"` schedules a bat swarm (local `batsActive` +
+  distance), `"batattack"` schedules a bat swarm (local `batsActive` +
   `bats` state) cleared by holding the phone upside-down for 300ms
-  (`deviceorientation`'s `beta` — needs `lib/motion.ts`'s
-  `requestMotionPermission()` called from a user gesture first, since iOS
-  gates it; a 12s safety timeout auto-clears the swarm on devices/browsers
-  where orientation never fires at all, so denied/absent permission can't
-  soft-lock the turn). `birdbomb`/`batattack` also drive a shared pulsing
-  "how to clear this" banner (`disruptionMessage`) at the top of the screen,
-  reused as-is by whichever disruption is currently active.
+  (`deviceorientation`'s `beta`), and `"rockshake"` schedules a rockfall
+  (local `rocksActive` + `rocks` state) cleared by shaking the phone
+  (`devicemotion`'s acceleration — accumulates "shake energy" from
+  frame-to-frame jerk the same way Bird Bomb accumulates swipe distance).
+  `birdbomb`/`batattack`/`rockshake` all drive one shared pulsing "how to
+  clear this" banner (`disruptionMessage`) at the top of the screen, reused
+  as-is by whichever disruption is currently active. The two sensor modes
+  need a permission first (iOS only) — `SetupScreen` requests it right when
+  the mode is picked (`lib/motion.ts`'s `requestOrientationPermission()` /
+  `requestDeviceMotionPermission()`, called from that tap since iOS only
+  grants from a user gesture) and falls back to `CLASSIC_MODE` with a toast
+  if denied, rather than leaving an unusable mode selected. Both also carry
+  a 12s safety timeout in `Gameplay` that auto-clears the swarm/rockfall on
+  devices/browsers where the sensor event never fires at all, so a gap
+  between "permission granted" and "sensor actually works" can't soft-lock
+  a turn either.
 - **Solo mode** (`isSolo`, i.e. `numTeams === 1`): a single tribe with no
   opponent. The whole turn loop is unchanged (one column on the scoreboard); the
   goal is instead to beat your **best single turn**. Records live in `lib/solo.ts`
