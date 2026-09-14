@@ -15,7 +15,7 @@ const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
 // rocks) is ever up at a time, picked at random once the previous one is
 // fully cleared. This is the random gap between a clear and the next spawn.
 type Disruption = "poop" | "bats" | "rocks";
-const DISRUPTION_GAP_MIN_MS = 8_000;
+const DISRUPTION_GAP_MIN_MS = 10_000;
 const DISRUPTION_GAP_MAX_MS = 15_000;
 
 // Poop: cleared by swipe, same as before. Falls in from above and grows to

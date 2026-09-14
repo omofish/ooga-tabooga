@@ -30,7 +30,7 @@ saved to `localStorage` on every change.
   `"chaos"` ("Everything Go Wrong") runs a sequencer (local
   `currentDisruption: "poop" | "bats" | "rocks" | null`) that picks ONE of
   the three at random once the previous one is fully cleared, after a random
-  8-15s gap — never more than one up at once. Poop is a single swipe-to-clear
+  10-15s gap — never more than one up at once. Poop is a single swipe-to-clear
   splat (local `splat` state, cleared by cumulative pointer-move distance,
   falls in from above and grows to full size on spawn); bats are a swarm
   (local `batsPhase: "active" | "leaving" | null`) cleared by holding the
