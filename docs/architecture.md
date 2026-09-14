@@ -25,7 +25,7 @@ saved to `localStorage` on every change.
   always set — `CLASSIC_MODE`/"Standard" is the default/no-frills entry),
   picked on Setup and mutually exclusive with any other. `Gameplay` reads it
   directly (no reducer/state-machine changes): `"speed"` gives each card its
-  own 10s clock (local `cardEndsAt` state, ref-guarded so the auto-`PASS`
+  own 12s clock (local `cardEndsAt` state, ref-guarded so the auto-`PASS`
   only fires once per card), `"mute"` just shows a reminder banner, and
   `"chaos"` ("Everything Go Wrong") runs a sequencer (local
   `currentDisruption: "poop" | "bats" | "rocks" | null`) that picks ONE of
