@@ -211,8 +211,20 @@ background from flashing through the gap.
 
 ## Browser chrome colour (status bar / bottom toolbar)
 
-There's no `<meta name="theme-color">` — iOS 26 Safari (its "Liquid Glass"
-chrome) ignores it entirely. Instead, for each edge (top/bottom) it finds the
+`app/layout.tsx` sets `<meta name="theme-color">` to `#3a2a1b` (dark ink,
+matching `TopBar`) — but iOS Safari itself (its "Liquid Glass" chrome)
+ignores that meta tag entirely; it's there for **other** mobile
+browsers/in-app WebViews (Telegram's, X's, Discord's own in-app browser,
+etc.) that still read it directly. Leaving it unset doesn't mean those
+browsers do nothing — it means they fall back to *their own* guess, which
+can be an arbitrary, wrong colour (observed: a stray green top bar in
+Telegram's in-app browser). A static value here can't track per-phase
+colour the way the mechanism below does for Safari, so it's set once to
+match the very first thing a cold load shows (`TopBar`, dark ink) rather
+than attempting to chase every phase — good enough for browsers that don't
+support real per-phase chrome theming anyway.
+
+For Safari specifically, for each edge (top/bottom) it finds the
 nearest qualifying element — `position: fixed`/`sticky`, at least ~80% of
 the viewport width, within a few px of that edge — and **mirrors both its
 `background-color` and its `backdrop-filter`** onto its own native chrome.

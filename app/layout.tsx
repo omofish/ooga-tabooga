@@ -41,14 +41,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // No themeColor: iOS 26 Safari ignores the meta tag entirely, deriving its
-  // chrome colour (status bar / bottom toolbar) from actual rendered CSS
-  // instead — sampled once, at first paint, never again. A client-rendered
-  // SPA like this one can't usefully target that per screen (every phase
-  // change happens after that first paint, so it'd never be re-sampled
-  // anyway) — so this is deliberately left for Safari's own documented
-  // fallback: <body>'s plain background-color (--color-body, see
-  // globals.css), which is already what we want everywhere.
+  // iOS Safari itself ignores this meta tag — it derives chrome colour from
+  // actual rendered CSS instead (see docs/architecture.md), so this line
+  // does nothing there. But plenty of *other* mobile browsers/in-app
+  // WebViews (Telegram's, X's, Discord's own in-app browser, etc.) still
+  // read theme-color directly and, with no value here, were falling back to
+  // an arbitrary default — observed as a stray green top bar in Telegram's
+  // in-app browser. Set to match TopBar's dark-ink strip (the first thing a
+  // cold load shows) so those browsers get a real colour instead of guessing.
+  themeColor: "#3a2a1b",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
