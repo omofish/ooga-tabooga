@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { colorForKey, colorVars } from "@/lib/colors";
+import {
+  requestDeviceMotionPermission,
+  requestOrientationPermission,
+} from "@/lib/motion";
 import { randomCaveName } from "@/lib/names";
 import { unlockAudio } from "@/lib/sound";
 import Modal from "./Modal";
@@ -19,8 +23,20 @@ export default function StartRoundModal({ state, dispatch }: ScreenProps) {
 
   const start = () => {
     // This tap is the user gesture that lets audio play for the whole turn
-    // (countdown pips, ticks, buzzer), per the browser autoplay policy.
+    // (countdown pips, ticks, buzzer), per the browser autoplay policy — and,
+    // for chaos mode, the one that iOS requires for the sensor permission
+    // prompts below. Requested here (every player's turn) rather than once
+    // at mode-selection time on Setup: that tap can happen minutes before
+    // gameplay actually needs the sensors, and re-asking costs nothing if
+    // already granted (resolves instantly, no dialog) but re-prompts if a
+    // grant was somehow lost — Chaos mode's disruptions never block on the
+    // result anyway, each already falls back to auto-clearing on its own
+    // safety timeout.
     unlockAudio();
+    if (state.challengeMode === "chaos") {
+      void requestOrientationPermission();
+      void requestDeviceMotionPermission();
+    }
     if (!active.playerName.trim()) {
       dispatch({ type: "SET_NAME", name: suggested });
     }

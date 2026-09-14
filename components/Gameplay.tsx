@@ -9,7 +9,7 @@ import MuteToggle from "./MuteToggle";
 // Seconds-remaining marks that get a spoken announcement (when below the turn length).
 const ANNOUNCE_AT = [90, 60, 30, 10];
 
-const SPEED_CARD_MS = 10_000; // "Speed Round" mode: auto-skip after this long
+const SPEED_CARD_MS = 12_000; // "Speed Round" mode: auto-skip after this long
 
 // Chaos mode ("Everything Go Wrong"): only ONE disruption (poop, bats, or
 // rocks) is ever up at a time, picked at random once the previous one is
@@ -44,8 +44,13 @@ const BAT_FLY_OUT_MS = 400; // must match .bat-fly-out's CSS duration
 const ROCK_COUNT = 6; // ~half the original 12, to match the bigger size
 const ROCK_MIN_SIZE = 82; // px — biggest can be ~2x the smallest, ~3x old average
 const ROCK_MAX_SIZE = 164; // px
-const ROCK_SHAKE_JERK_THRESHOLD = 12; // m/s² change between readings to count as "shaking"
-const ROCK_SHAKE_ENERGY_TO_CLEAR = 90;
+// Real shakes were barely registering (rocks only ever cleared via the
+// safety timeout below, never the gesture) — accelerometer jerk from an
+// actual hand-shake runs lower than these were tuned for, so both are
+// dropped well below their original values (12 / 90) to make the gesture
+// much more forgiving.
+const ROCK_SHAKE_JERK_THRESHOLD = 5; // m/s² change between readings to count as "shaking"
+const ROCK_SHAKE_ENERGY_TO_CLEAR = 40;
 const ROCK_SLIDE_SAFETY_MS = 12_000; // same reasoning as BAT_ATTACK_SAFETY_MS
 const ROCK_FALL_OUT_MS = 450; // must match .rock-fall-out's CSS duration
 
@@ -427,7 +432,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         key={active.resolved.length}
         className="animate-swap flex flex-1 flex-col gap-3 p-4"
       >
-        {/* Speed Round: this card's own 10s clock, spanning the card width.
+        {/* Speed Round: this card's own 12s clock, spanning the card width.
             The fill tracks raw ms (cardRemainingMs) rather than the whole-
             second label so it drains smoothly; colour steps green -> yellow
             at 7s -> red + soft flash at 3s. */}
