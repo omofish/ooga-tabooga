@@ -51,6 +51,10 @@ const ROCK_MAX_SIZE = 164; // px
 // much more forgiving.
 const ROCK_SHAKE_JERK_THRESHOLD = 5; // m/s² change between readings to count as "shaking"
 const ROCK_SHAKE_ENERGY_TO_CLEAR = 40;
+// Each time the energy threshold is hit, only this many rocks fall away
+// (~1/3 of the batch) rather than the whole thing at once — takes a few
+// good shakes to clear them all instead of just one.
+const ROCK_CLEAR_PER_SHAKE = Math.max(1, Math.round(ROCK_COUNT / 3));
 const ROCK_SLIDE_SAFETY_MS = 12_000; // same reasoning as BAT_ATTACK_SAFETY_MS
 const ROCK_FALL_OUT_MS = 450; // must match .rock-fall-out's CSS duration
 
@@ -286,22 +290,80 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     [batsSpawned],
   );
 
-  // Rocks: cleared by shaking. Same "active" -> "leaving" -> gone shape as
-  // the bat swarm, swapping the orientation check for an accumulated
-  // devicemotion "shake energy" — conceptually the same idea as poop's
-  // cumulative swipe distance, just driven by the accelerometer.
-  const [rocksPhase, setRocksPhase] = useState<"active" | "leaving" | null>(
-    null,
-  );
+  // Rocks: cleared by shaking, but each successful shake only clears
+  // ROCK_CLEAR_PER_SHAKE of them instead of the whole batch at once — takes
+  // a few good shakes to clear them all. Individual rocks carry their own
+  // `leaving` flag (rock-fall-out) rather than the bat swarm's single
+  // active/leaving shape, since different rocks can be mid-exit at
+  // different times. `rocksRef` mirrors the state for the devicemotion
+  // handler to read synchronously (the listener closure would otherwise see
+  // a stale `rocks` array from whenever the effect last ran).
+  const [rocks, setRocks] = useState<
+    {
+      id: number;
+      leftPct: number;
+      topPct: number;
+      size: number;
+      enterDelay: number;
+      tremble: number;
+      leaving: boolean;
+    }[]
+  >([]);
+  const rocksRef = useRef<typeof rocks>([]);
+  useEffect(() => {
+    rocksRef.current = rocks;
+  }, [rocks]);
   const shakeEnergy = useRef(0);
   const lastAcceleration = useRef<number | null>(null);
 
   useEffect(() => {
-    setRocksPhase(currentDisruption === "rocks" ? "active" : null);
+    if (currentDisruption !== "rocks") {
+      setRocks([]);
+      return;
+    }
+    setRocks(
+      Array.from({ length: ROCK_COUNT }, (_, i) => ({
+        id: i,
+        leftPct: 5 + Math.random() * 85,
+        topPct: 8 + Math.random() * 77,
+        size: ROCK_MIN_SIZE + Math.random() * (ROCK_MAX_SIZE - ROCK_MIN_SIZE),
+        enterDelay: Math.random() * 0.1,
+        tremble: 0.5 + Math.random() * 0.3,
+        leaving: false,
+      })),
+    );
   }, [currentDisruption]);
 
+  // Marks up to `count` still-standing rocks as leaving (or all of them,
+  // for the safety timeout), then actually removes just that batch once its
+  // exit animation finishes — capturing the ids up front so a second batch
+  // clearing mid-animation can't have its own still-falling rocks swept up
+  // by the first batch's cleanup.
+  const clearRocks = (count: number) => {
+    const standing = rocksRef.current.filter((r) => !r.leaving);
+    if (standing.length === 0) return;
+    sound.bank();
+    sound.vibrate([20, 30, 20]);
+    const clearIds = new Set(
+      [...standing]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, Math.min(standing.length, count))
+        .map((r) => r.id),
+    );
+    setRocks((prev) =>
+      prev.map((r) => (clearIds.has(r.id) ? { ...r, leaving: true } : r)),
+    );
+    setTimeout(() => {
+      setRocks((prev) => {
+        const next = prev.filter((r) => !clearIds.has(r.id));
+        if (next.length === 0) setCurrentDisruption(null);
+        return next;
+      });
+    }, ROCK_FALL_OUT_MS);
+  };
+
   useEffect(() => {
-    if (rocksPhase !== "active") return;
+    if (currentDisruption !== "rocks") return;
     shakeEnergy.current = 0;
     lastAcceleration.current = null;
 
@@ -315,9 +377,8 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         if (jerk > ROCK_SHAKE_JERK_THRESHOLD) {
           shakeEnergy.current += jerk;
           if (shakeEnergy.current >= ROCK_SHAKE_ENERGY_TO_CLEAR) {
-            sound.bank();
-            sound.vibrate([20, 30, 20]);
-            setRocksPhase("leaving");
+            shakeEnergy.current = 0;
+            clearRocks(ROCK_CLEAR_PER_SHAKE);
           }
         }
       }
@@ -327,51 +388,36 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
 
     // Same reasoning as the bats' safety timeout: a device/browser that
     // never fires devicemotion (desktop, denied permission) shouldn't be
-    // able to soft-lock the turn.
-    const safety = setTimeout(() => setRocksPhase("leaving"), ROCK_SLIDE_SAFETY_MS);
+    // able to soft-lock the turn — force-clear whatever's left regardless
+    // of shake progress.
+    const safety = setTimeout(
+      () => clearRocks(ROCK_COUNT),
+      ROCK_SLIDE_SAFETY_MS,
+    );
 
     return () => {
       window.removeEventListener("devicemotion", onMotion);
       clearTimeout(safety);
     };
-  }, [rocksPhase]);
-
-  useEffect(() => {
-    if (rocksPhase !== "leaving") return;
-    const id = setTimeout(() => {
-      setRocksPhase(null);
-      setCurrentDisruption(null);
-    }, ROCK_FALL_OUT_MS);
-    return () => clearTimeout(id);
-  }, [rocksPhase]);
-
-  const rocksSpawned = rocksPhase !== null;
-  const rocks = useMemo(
-    () =>
-      rocksSpawned
-        ? Array.from({ length: ROCK_COUNT }, (_, i) => ({
-            id: i,
-            leftPct: 5 + Math.random() * 85,
-            topPct: 8 + Math.random() * 77,
-            size: ROCK_MIN_SIZE + Math.random() * (ROCK_MAX_SIZE - ROCK_MIN_SIZE),
-            enterDelay: Math.random() * 0.1,
-            tremble: 0.5 + Math.random() * 0.3,
-          }))
-        : [],
-    [rocksSpawned],
-  );
+  }, [currentDisruption]);
 
   // Only one disruption is ever up, so the banner just names it directly —
-  // and disappears the instant the gesture succeeds, even while the visual
-  // (bats/rocks) is still animating off screen.
+  // and disappears the instant the gesture succeeds (or, for rocks, once
+  // every last one has been shaken loose), even while the visual (bats/
+  // rocks) is still animating off screen.
   const disruptionMessage =
     currentDisruption === "poop" && splat
       ? "WIPE THE POOP"
       : batsPhase === "active"
         ? "FLIP YOUR PHONE"
-        : rocksPhase === "active"
+        : currentDisruption === "rocks" && rocks.some((r) => !r.leaving)
           ? "SHAKE YOUR PHONE"
           : null;
+
+  // Card/pass buttons are blocked for the whole time a disruption is up —
+  // tapping through a screen-obstructing poop/bat/rock shouldn't score or
+  // pass a card the player couldn't actually read.
+  const disruptionBlocking = currentDisruption !== null;
 
   if (!active?.current) return null;
 
@@ -468,7 +514,8 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
               sound.vibrate(15);
               dispatch({ type: "PLUS_ONE" });
             }}
-            className="chunk relative flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
+            disabled={disruptionBlocking}
+            className={`chunk relative flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px] ${disruptionBlocking ? "opacity-45" : ""}`}
           >
             <span className="font-display text-4xl leading-tight text-ink">
               {cur.card.easy}
@@ -478,6 +525,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         ) : (
           <button
             onClick={() => dispatch({ type: "NEXT_WORD" })}
+            disabled={disruptionBlocking}
             className="btn btn-ink flex min-h-0 flex-[1_1_0px] flex-col items-center justify-center gap-1.5 rounded-2xl px-4 text-center"
           >
             <span className="font-display text-3xl">Next Word ▶</span>
@@ -491,7 +539,8 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
             sound.vibrate([12, 30, 12]);
             dispatch({ type: "PLUS_THREE" });
           }}
-          className="chunk relative flex min-h-0 flex-[1.25_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px]"
+          disabled={disruptionBlocking}
+          className={`chunk relative flex min-h-0 flex-[1.25_1_0px] flex-col items-center justify-center rounded-2xl px-4 text-center active:translate-y-[3px] ${disruptionBlocking ? "opacity-45" : ""}`}
           style={{ background: "#fffdf5" }}
         >
           <span className="font-display text-3xl leading-tight text-ink">
@@ -504,6 +553,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       {/* Pass */}
       <footer className="px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
         <button
+          disabled={disruptionBlocking}
           onClick={() => {
             // A skip (already banked +1) carries no penalty — no buzzer.
             if (!cur.banked1) {
@@ -590,20 +640,21 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
       )}
 
       {/* Rocks: fall in from above (see .rock-fall-in) then tremble in place
-          (see .rock-tremble, a "shake me" hint) until shaken off, then fall
-          the rest of the way off the bottom of the screen (.rock-fall-out).
-          Purely visual — cleared by the accelerometer, not touch — so no
-          pointer handlers. */}
-      {rocksPhase && (
+          (see .rock-tremble, a "shake me" hint) until shaken off — in
+          batches of ROCK_CLEAR_PER_SHAKE per successful shake, each falling
+          the rest of the way off the bottom of the screen (.rock-fall-out)
+          independently of any rocks still standing. Purely visual — cleared
+          by the accelerometer, not touch — so no pointer handlers. */}
+      {rocks.length > 0 && (
         <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
           {rocks.map((rock) => (
             <div
               key={rock.id}
-              className={rocksPhase === "leaving" ? "rock-fall-out absolute" : "rock-fall-in absolute"}
+              className={rock.leaving ? "rock-fall-out absolute" : "rock-fall-in absolute"}
               style={{
                 left: `${rock.leftPct}%`,
                 top: `${rock.topPct}%`,
-                animationDelay: rocksPhase === "leaving" ? "0s" : `${rock.enterDelay}s`,
+                animationDelay: rock.leaving ? "0s" : `${rock.enterDelay}s`,
               }}
             >
               <span
