@@ -35,15 +35,22 @@ saved to `localStorage` on every change.
   falls in from above and grows to full size on spawn); bats are a swarm
   (local `batsPhase: "active" | "leaving" | null`) cleared by holding the
   phone upside-down for 300ms (`deviceorientation`'s `beta`), flying in from
-  the right and — once cleared — back out to the left; rocks (local
-  `rocksPhase`, same active/leaving shape) are cleared by shaking the phone
-  (`devicemotion`'s acceleration — accumulates "shake energy" from
-  frame-to-frame jerk the same way poop accumulates swipe distance), falling
-  in from above and — once cleared — the rest of the way off the bottom.
-  The `"leaving"` phase exists so the exit animation can finish playing
-  before the sequencer moves on to the next gap. All three drive one shared
-  pulsing "how to clear this" banner (`disruptionMessage`) at the top of the
-  screen, naming whichever one is currently up. Chaos mode needs sensor
+  the right and — once cleared — back out to the left; rocks (local `rocks`
+  array, each with its own `leaving` flag rather than one shared phase,
+  since different rocks can be mid-exit at different times) are cleared by
+  shaking the phone (`devicemotion`'s acceleration — accumulates "shake
+  energy" from frame-to-frame jerk the same way poop accumulates swipe
+  distance), but each threshold-crossing shake only clears
+  `ROCK_CLEAR_PER_SHAKE` of them (~1/3 of the batch) rather than all at
+  once, falling in from above and — once cleared, per rock — the rest of
+  the way off the bottom; a safety timeout that fires with rocks still
+  standing force-clears everything left in one go instead of waiting for
+  more shakes. All three drive one shared pulsing "how to clear this"
+  banner (`disruptionMessage`) at the top of the screen, naming whichever
+  one is currently up, and all three also disable the +1/+3/Pass buttons
+  (`disruptionBlocking = currentDisruption !== null`) for as long as
+  they're up, so a screen-obstructing disruption can't be tapped through
+  blind. Chaos mode needs sensor
   permission (iOS only) — `StartRoundModal` requests both
   (`lib/motion.ts`'s `requestOrientationPermission()` /
   `requestDeviceMotionPermission()`) on every "Start Round" tap, not once at
