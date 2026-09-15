@@ -22,7 +22,7 @@ const TABLE: [string, string[]][] = [
   ["Boss", ["Girl Boss", "Boss Fight", "Final Boss"]],
   ["Rot", ["Brain Rot"]],
   ["Core", ["Cottage Core"]],
-  ["Meme", ["Meme Lord"]],
+  ["Meme", ["Meme Lord", "Meme Stock"]],
   ["Lord", ["Cringe Lord"]],
   ["Check", ["Vibe Check", "Fit Check"]],
   ["Zone", ["Friend Zone"]],
@@ -94,12 +94,11 @@ const TABLE: [string, string[]][] = [
   ["Vibes", ["Good Vibes", "Immaculate Vibes"]],
   ["Face", ["Face Palm", "Poker Face", "Duck Face"]],
   ["Cat", ["Nyan Cat"]],
-  ["Comic", ["Rage Comic"]],
   ["Chat", ["Chat Room", "Group Chat"]],
   ["Screen", ["Screen Time"]],
   ["Watch", ["Binge Watch"]],
   ["Alert", ["Spoiler Alert"]],
-  ["Bait", ["Click Bait"]],
+  ["Bait", ["Click Bait", "Rage Bait"]],
   ["Hole", ["Rabbit Hole"]],
   ["Scroll", ["Doom Scroll"]],
   ["Thursday", ["Throwback Thursday"]],
@@ -113,6 +112,11 @@ const TABLE: [string, string[]][] = [
   ["Legend", ["Living Legend", "Absolute Legend"]],
   ["Fail", ["Epic Fail"]],
   ["Win", ["Epic Win"]],
+
+  // More slang & memes
+  ["Mode", ["Goblin Mode"]],
+  ["Girl", ["Pick Me Girl"]],
+  ["Hands", ["Diamond Hands", "Paper Hands"]],
 ];
 
 export const INTERNET_SLANG_CARDS: WordCard[] = fromTable(TABLE);
