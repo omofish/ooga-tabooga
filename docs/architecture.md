@@ -83,7 +83,7 @@ saved to `localStorage` on every change.
 
 | Phase | Component | Role |
 |---|---|---|
-| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set; `ShareButton` then `AddToHomeScreen` sit under Start Game |
+| setup | `SetupScreen` | choose tribes (1 = solo) / round length / word set / game mode; `ShareButton` then `AddToHomeScreen` sit under Start Game |
 | score | `ScoreView` | scoreboard; one Play button for the team up next, tap a team name to rename |
 | — | `StartRoundModal`, `RenameTeamModal` | shown over the scoreboard |
 | countdown | `Countdown` | 3·2·1·GO |
@@ -345,13 +345,35 @@ noted otherwise:
 | `game_started` | leaving `setup` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `numTeams` |
 | `turn_completed` | entering `reveal` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `score` |
 | `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
-| `share_clicked` | `ShareButton` tap resolves, any outcome | `method` (`native`/`clipboard`), `result` (`sent`/`cancelled`/`copied`/`failed`) — a cancelled share sheet is tracked, not swallowed |
+| `share_clicked` | `ShareButton` tap resolves, any outcome | `method` (`native`/`clipboard`), `result` (`sent`/`cancelled`/`copied`/`failed`), `withPreset` (always `true` now — the link carries the setup) — a cancelled share sheet is tracked, not swallowed |
+| `preset_applied` | a shared-link setup is applied (`Game.tsx`'s `applyPreset`, not the phase effect) | `appliedFrom` (`setup`/`mid_game`), `wordSet`, `challengeMode`, `turnSeconds`, `numTeams` (`null` for any param the link didn't carry) |
 | `pwa_installed` | `appinstalled` window event | — Chrome/Android only; iOS Safari has no equivalent, so install rate there comes from `is_pwa` on later pageviews instead |
 
 `ShareButton` also tags its link with `utm_source=share_button&utm_medium=organic`
 (stripping any params already on the page URL first) — PostHog reads standard
 `utm_*` query params on pageview automatically, no extra wiring, so visits
 from an organic share show up distinctly from a bare-URL visit.
+
+## URL presets (shared setup links)
+
+`lib/preset.ts` lets a link carry the setup choices:
+`?pack=<word set id>&mode=<challenge mode id>&time=<60|90|120>&tribes=<1-3>`.
+`ShareButton` always adds the current setup (`addPresetParams`) next to its
+utm tags.
+
+- Every param is optional and checked on its own against `WORD_SETS` /
+  `CHALLENGE_MODES` / `TURN_OPTIONS` / `MAX_TEAMS` (`parsePreset`); a bad or
+  unknown value is just dropped, the rest still apply.
+- `Game.tsx`'s mount effect reads `window.location.search` right after
+  `HYDRATE` (not `useSearchParams` — static export, client-only). If the
+  saved game is on `setup` (or there's none), the preset applies straight
+  away (`APPLY_PRESET`, a plain merge into state) with a toast. Any other
+  phase means a game is in progress, so a `Modal` asks first: "Use link"
+  runs `RETURN_TO_START` then `APPLY_PRESET`; "Keep game" ignores the link.
+- `stripPresetParams()` removes the preset params (only those — utm_* stay)
+  from the address bar with `history.replaceState`, so a reload doesn't
+  re-apply the link over changes made since.
+- No persisted-shape change, so no `STATE_VERSION` bump.
 
 ## Deployment (GitHub Pages + basePath)
 

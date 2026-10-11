@@ -12,6 +12,7 @@ import {
 import { TEAM_COLORS } from "./colors";
 import { randomCaveName } from "./names";
 import { randomTribes } from "./tribes";
+import type { Preset } from "./preset";
 import { WORD_SETS, wordSetById } from "./word-sets";
 
 export const STORAGE_KEY = "pfn-game-state-v1";
@@ -206,6 +207,7 @@ export type Action =
   | { type: "SET_WORDSET"; id: string }
   | { type: "SET_TURN_SECONDS"; seconds: number }
   | { type: "SET_CHALLENGE_MODE"; mode: string }
+  | { type: "APPLY_PRESET"; preset: Preset } // setup from a shared link
   | { type: "START_GAME" }
   | { type: "OPEN_MODAL"; teamId: string }
   | { type: "SET_NAME"; name: string }
@@ -320,6 +322,10 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "SET_CHALLENGE_MODE":
       return { ...state, challengeMode: action.mode };
+
+    case "APPLY_PRESET":
+      // Values are already checked by parsePreset (lib/preset.ts).
+      return { ...state, ...action.preset };
 
     case "START_GAME": {
       const teams = buildTeams(state.numTeams);

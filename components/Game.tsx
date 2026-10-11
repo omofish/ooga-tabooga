@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useReducer, useRef, useState } from "react";
+import {
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+  type Dispatch,
+} from "react";
 import {
   defaultState,
+  type Action,
   isSolo,
   loadState,
   reducer,
@@ -11,6 +18,14 @@ import {
 import { colorForKey } from "@/lib/colors";
 import * as sound from "@/lib/sound";
 import { track } from "@/lib/analytics";
+import {
+  isEmptyPreset,
+  parsePreset,
+  stripPresetParams,
+  type Preset,
+} from "@/lib/preset";
+import { toast } from "sonner";
+import Modal from "./Modal";
 import TopBar from "./TopBar";
 import SetupScreen from "./SetupScreen";
 import ScoreView from "./ScoreView";
@@ -21,18 +36,51 @@ import RoundReview from "./RoundReview";
 import ScoreReveal from "./ScoreReveal";
 import GameOver from "./GameOver";
 
+/** Applies a shared-link setup (lib/preset.ts). Mid-game, the current game
+ *  is dropped first (the user already confirmed via the prompt). */
+function applyPreset(
+  dispatch: Dispatch<Action>,
+  preset: Preset,
+  appliedFrom: "setup" | "mid_game",
+) {
+  if (appliedFrom === "mid_game") dispatch({ type: "RETURN_TO_START" });
+  dispatch({ type: "APPLY_PRESET", preset });
+  track("preset_applied", {
+    appliedFrom,
+    wordSet: preset.wordSetId ?? null,
+    challengeMode: preset.challengeMode ?? null,
+    turnSeconds: preset.turnSeconds ?? null,
+    numTeams: preset.numTeams ?? null,
+  });
+  toast("Setup loaded from link. Ug!");
+}
+
 export default function Game() {
   const [state, dispatch] = useReducer(reducer, undefined, defaultState);
   const [hydrated, setHydrated] = useState(false);
+  // A shared-link setup waiting on the "drop current game?" prompt.
+  const [pendingPreset, setPendingPreset] = useState<Preset | null>(null);
 
   // Load any saved game from localStorage after mount. This one-time mount gate
   // is the intended pattern for reading client-only state without an SSR/
   // hydration mismatch, so the set-state-in-effect heuristic is expected here.
+  // Then apply any setup carried in the URL (lib/preset.ts): straight away on
+  // the setup screen, or behind a prompt if a game is in progress so a tapped
+  // link can't wipe it by accident.
   useEffect(() => {
     const saved = loadState();
     if (saved) dispatch({ type: "HYDRATE", state: saved });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHydrated(true);
+
+    const preset = parsePreset(window.location.search);
+    stripPresetParams();
+    if (isEmptyPreset(preset)) return;
+    if (!saved || saved.phase === "setup") {
+      applyPreset(dispatch, preset, "setup");
+    } else {
+      setPendingPreset(preset);
+    }
   }, []);
 
   // Persist on every change once hydrated.
@@ -173,6 +221,38 @@ export default function Game() {
 
       {state.phase === "gameover" && (
         <GameOver state={state} dispatch={dispatch} />
+      )}
+
+      {pendingPreset && (
+        <Modal onClose={() => setPendingPreset(null)} title="Use shared setup">
+          <div className="text-center">
+            <div className="text-5xl">🔗</div>
+            <h2 className="mt-1 font-display text-2xl text-ink">
+              Use friend setup?
+            </h2>
+            <p className="mt-2 text-sm font-bold text-ink-soft">
+              Game still going. Use link setup and drop this game? Scores go
+              bye-bye.
+            </p>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setPendingPreset(null)}
+              className="btn btn-cream py-3 text-lg"
+            >
+              <span className="font-display">Keep game</span>
+            </button>
+            <button
+              onClick={() => {
+                applyPreset(dispatch, pendingPreset, "mid_game");
+                setPendingPreset(null);
+              }}
+              className="btn btn-ink py-3 text-lg"
+            >
+              <span className="font-display">Use link</span>
+            </button>
+          </div>
+        </Modal>
       )}
     </main>
   );

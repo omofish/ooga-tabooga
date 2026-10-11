@@ -267,7 +267,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
             <span className="font-display">Start Game 🔥</span>
           </button>
 
-          <ShareButton />
+          <ShareButton state={state} />
           <AddToHomeScreen />
         </div>
 
