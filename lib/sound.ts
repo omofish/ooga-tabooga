@@ -7,7 +7,13 @@
 //
 // A single "muted" flag gates both sound *and* haptics, persisted in
 // localStorage under its own key so it never touches the game-state shape (no
-// STATE_VERSION bump). Sounds are pure side effects fired from component event
+// STATE_VERSION bump). The app starts **muted** until the player opts in.
+//
+// While unmuted, the Audio Session API (`navigator.audioSession.type =
+// "playback"`) makes iOS Safari play through the ring/silent switch. That
+// session type also pauses other apps' music — accepted trade-off, and the
+// reason we start muted. While muted, the session drops back to "auto" and the
+// AudioContext is suspended so we never hold the audio session. Sounds are pure side effects fired from component event
 // handlers, so the game reducer stays pure.
 
 import { useSyncExternalStore } from "react";
@@ -15,13 +21,14 @@ import { useSyncExternalStore } from "react";
 const MUTE_KEY = "pfn-muted";
 
 let ctx: AudioContext | null = null;
-let muted = false;
+let muted = true;
 let speechPrimed = false;
 
 // Restore the persisted mute preference on the client (guarded for SSR).
 if (typeof window !== "undefined") {
   try {
-    muted = window.localStorage.getItem(MUTE_KEY) === "1";
+    // Muted unless the player has explicitly unmuted before.
+    muted = window.localStorage.getItem(MUTE_KEY) !== "0";
   } catch {
     // ignore private-mode / access errors
   }
@@ -44,6 +51,14 @@ export function setMuted(next: boolean): void {
   } catch {
     // ignore quota / private-mode errors
   }
+  if (muted) {
+    setAudioSession("auto");
+    try {
+      if (ctx?.state === "running") void ctx.suspend();
+    } catch {
+      // ignore
+    }
+  }
   for (const l of listeners) l();
 }
 
@@ -58,7 +73,27 @@ function subscribe(l: Listener): () => void {
 
 /** React hook that re-renders when the mute preference changes. */
 export function useMuted(): boolean {
-  return useSyncExternalStore(subscribe, isMuted, () => false);
+  return useSyncExternalStore(subscribe, isMuted, () => true);
+}
+
+// ---- Audio session (iOS silent switch) -----------------------------------
+
+type AudioSessionType = "auto" | "playback" | "ambient";
+
+/**
+ * Set the Audio Session API type where supported (Safari 16.4+). "playback"
+ * ignores the iOS ring/silent switch (and interrupts other audio); "auto" is the
+ * browser default. No-op elsewhere.
+ */
+function setAudioSession(type: AudioSessionType): void {
+  if (typeof navigator === "undefined") return;
+  try {
+    const session = (navigator as unknown as { audioSession?: { type: string } })
+      .audioSession;
+    if (session && session.type !== type) session.type = type;
+  } catch {
+    // ignore
+  }
 }
 
 // ---- Audio context -------------------------------------------------------
@@ -66,13 +101,17 @@ export function useMuted(): boolean {
 /**
  * Lazily create (or resume) the shared AudioContext. Must be called from within
  * a user gesture the first time, per browser autoplay policy. Safe to call
- * repeatedly — e.g. on every "Start Round" tap and on the mute toggle.
+ * repeatedly — e.g. on every "Start Round" tap and on the mute toggle. No-op
+ * while muted.
  *
  * Also primes speech synthesis (see `primeSpeech`) so the timer-driven
  * `announce()` calls later in the turn aren't blocked by the same policy.
  */
 export function unlockAudio(): void {
-  if (typeof window === "undefined") return;
+  // While muted, don't touch audio at all so other apps' music keeps playing.
+  if (muted || typeof window === "undefined") return;
+  // Must be set before the context starts so iOS plays through silent mode.
+  setAudioSession("playback");
   try {
     if (!ctx) {
       const w = window as unknown as {

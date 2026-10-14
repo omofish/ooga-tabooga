@@ -9,9 +9,10 @@ export default function MuteToggle({ className }: { className?: string }) {
     <button
       onClick={() => {
         // Toggling is a user gesture — a good moment to unlock audio so the
-        // next sound can play immediately after unmuting.
-        unlockAudio();
+        // next sound can play immediately after unmuting. Toggle first:
+        // unlockAudio() is a no-op while muted.
         toggleMuted();
+        unlockAudio();
       }}
       aria-label={muted ? "Unmute sounds" : "Mute sounds"}
       aria-pressed={muted}

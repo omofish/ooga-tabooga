@@ -184,8 +184,14 @@ still offline-safe).
   autoplay policy). It's called on "Start Game", "Start Round", and the mute
   toggle, and **also primes speech synthesis** — browsers (esp. iOS Safari) drop
   timer-driven `speechSynthesis.speak()` unless speech was first invoked during a
-  gesture, so `announce()` would otherwise stay silent.
-- A single **mute flag** gates both sound *and* haptics, persisted under its own
+  gesture, so `announce()` would otherwise stay silent. It's a **no-op while
+  muted** (no AudioContext is created/resumed).
+- **Plays through the iOS silent switch**: on unmute/unlock, `unlockAudio()`
+  sets `navigator.audioSession.type = "playback"` (Audio Session API, Safari
+  16.4+). This also pauses other apps' music — accepted. On mute it resets to
+  `"auto"` and suspends the AudioContext so music can resume.
+- A single **mute flag** gates both sound *and* haptics. The app **starts muted**
+  (anything but a stored `"0"` = muted). Persisted under its own
   `localStorage` key (`pfn-muted`) — separate from game state, so **no
   `STATE_VERSION` bump**. `useMuted()` (a `useSyncExternalStore` hook) drives
   `MuteToggle`, embedded separately in `TopBar` (Setup/Score) and in
