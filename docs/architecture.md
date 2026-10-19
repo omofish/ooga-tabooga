@@ -249,6 +249,11 @@ a separate concern from chrome colour; don't make `<body>` itself dark to
 chase a chrome-colour goal (tried once, reverted — broke every screen's text
 contrast for no real benefit once the mechanism below was understood).
 
+`TopBar` also renders a `fixed` full-width ink strip (`h-[env(safe-area-inset-top)]`)
+flush with the top edge, plus `manifest.webmanifest`'s `theme_color` is the
+same ink (`#3a2a1b`). Without them the installed iOS PWA's status bar faded
+from body tan into the ink header instead of being solid ink.
+
 **This is why `TopBar` has no bottom counterpart.** An earlier version added
 a `BottomBar` — a solid, opaque, full-width sticky strip — specifically to
 give the bottom edge a colour to sample, mirroring `TopBar`. It worked for
