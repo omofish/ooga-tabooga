@@ -390,8 +390,8 @@ utm tags.
 
 `next.config.ts` builds a static export (`output: "export"`) served from
 `https://<user>.github.io/ooga-tabooga/` — set via `basePath`, sourced from
-`lib/base-path.ts`. `.github/workflows/deploy.yml` builds and publishes on
-push to `main`. Because the site isn't at the domain root, anything that
+`lib/base-path.ts`. `.github/workflows/deploy.yml` runs `scripts/verify.sh`,
+then builds and publishes on push to `main`. Because the site isn't at the domain root, anything that
 references a `public/` asset by absolute URL has to account for the
 basePath — Next only auto-prefixes bundler-managed assets (`_next/*`), not
 raw `public/` files or app metadata:

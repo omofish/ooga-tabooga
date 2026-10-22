@@ -34,7 +34,10 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 This app builds as a static export (`output: "export"` in `next.config.ts`) and
 deploys to GitHub Pages at `https://<user>.github.io/ooga-tabooga/`.
 
-- `.github/workflows/deploy.yml` builds and deploys on every push to `main`.
+- `.github/workflows/deploy.yml` runs `scripts/verify.sh`, then builds and
+  deploys on every push to `main`. A red commit never deploys.
+- `.github/workflows/ci.yml` runs the same verify on every branch push;
+  `npm run ship` waits for it before moving `main`.
 - One-time setup: in the repo's **Settings → Pages**, set **Source** to
   **GitHub Actions**.
 - The site path (`/ooga-tabooga`) is set via `basePath` in `next.config.ts`

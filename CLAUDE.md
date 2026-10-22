@@ -30,20 +30,30 @@ via `fromTable()`/`build()` from `lib/word-sets/gen.ts`), then register it in
 `WORD_SETS` in `lib/word-sets/index.ts`. Then run the audit and fix every failure:
 
 ```bash
-npx tsx scripts/audit-word-sets.mts
+npm run audit
 ```
 
 ## Run / check
 
 - `npm run dev` — dev server (Turbopack). PWA/offline are **prod-only**.
 - `npm run build && npm run start` — production; needed to test PWA/offline.
-- `npm run lint` and `npx tsc --noEmit` — run both before every commit.
+- `npm run verify` — typecheck + lint + word-set audit. The only gate; CI and
+  the deploy run the same script. A Stop hook runs it for you and won't let
+  you finish while it's red.
 
 ## Git workflow
 
-By default, agents should merge their changes to `main` automatically once the
-work is complete and checks pass — no need to wait for explicit approval to
-merge.
+Merge straight to `main`, no PR and no approval wait. Work on your branch,
+commit, then run:
+
+```bash
+npm run ship
+```
+
+It merges `origin/main`, runs verify, pushes the branch, waits for the CI
+`verify` check on that exact commit, then fast-forwards `main` to it (retrying
+if `main` moved). Never push to `main` any other way: a hook blocks it. On a
+merge conflict, resolve it, commit, and run ship again.
 
 After every push to `main`, report the commit hash (`git log -1 --format=%h`)
 back to the user, so they can check it against the `build <hash>` footer shown

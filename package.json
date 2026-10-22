@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "audit": "tsx scripts/audit-word-sets.mts",
+    "verify": "bash scripts/verify.sh",
+    "ship": "bash scripts/ship.sh"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.23",
@@ -24,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
