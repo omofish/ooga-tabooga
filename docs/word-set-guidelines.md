@@ -166,8 +166,10 @@ can differ game to game. Two consequences for authoring:
    and well-known and contain the anchor**. Stop when you run dry — don't reach.
 3. Put them in a `[easy, [hard, …]]` table and expand with `fromTable()`.
 4. `build()` (which `fromTable()` calls) drops duplicate `hard` phrases,
-   self-references, and any card that fails containment (Rule 2).
-5. Run the audit; fix or delete every containment failure and review the
+   self-references, and any card that fails containment (Rule 2), and records
+   each one in `droppedCards`. Duplicates are fine (list a compound under both
+   its words); the other two are bugs.
+5. Run the audit; fix or delete every dropped card it lists and review the
    base-word and Rule 5 warnings.
 
 Themed name sets (e.g. Movies) are the exception to the table shape: they're
@@ -177,12 +179,14 @@ flat `[easy, hard]` lists where `easy` is a word **taken from** the title
 ## Automated audit
 
 ```bash
-npx tsx scripts/audit-word-sets.mts
+npm run audit
 ```
 
 Reports, per set: how many cards satisfy Rule 2 (containment) and lists the
 failures, and the `unique-base` count (distinct base words = the real per-game
-deck size, Rule 7). It exits non-zero if any set has a containment violation. As
+deck size, Rule 7). It exits non-zero if any set has a containment violation
+or `build()` dropped a card for containment or self-reference. It
+runs in `npm run verify`, so CI and the deploy block on it. As
 **warnings** (never failures) it also flags any `hard` whose other half is a
 known non-word fragment (Rule 5, e.g. `Yester Day`, `Uni Corn`) and any base
 word that is a known function word (Rule 6, e.g. `Over`, `Up`). Rules 3 and 4

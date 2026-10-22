@@ -166,7 +166,6 @@ export const MOVIE_CARDS: WordCard[] = build([
   { easy: "Ferris", hard: "Ferris Buellers Day Off" },
   { easy: "Baby", hard: "Baby Driver" },
   { easy: "Bird", hard: "Bird Box" },
-  { easy: "Titan", hard: "Clash Of The Titans" },
   { easy: "Percy", hard: "Percy Jackson" },
 
   // More animated & family classics (90s - early 2010s)

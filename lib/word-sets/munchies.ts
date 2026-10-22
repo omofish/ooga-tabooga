@@ -25,7 +25,7 @@ const TABLE: [string, string[]][] = [
   ["Tea", ["Green Tea", "Milk Tea", "Bubble Tea", "Iced Tea", "Herbal Tea", "Ginger Tea", "Tea Pot", "Tea Cup", "Sweet Tea"]],
   ["Coffee", ["Iced Coffee", "Black Coffee", "Coffee Bean", "Coffee Cup", "Coffee Cake", "Coffee Shop", "Coffee Pot"]],
   ["Milk", ["Milk Shake", "Milk Tea", "Warm Milk", "Milk Bar", "Coconut Milk", "Almond Milk", "Milk Bottle"]],
-  ["Ice", ["Ice Cream", "Ice Cube", "Shaved Ice", "Ice Lolly", "Ice Pop", "Iced Tea"]],
+  ["Ice", ["Ice Cream", "Ice Cube", "Shaved Ice", "Ice Lolly", "Ice Pop"]],
   ["Cream", ["Ice Cream", "Whipped Cream", "Sour Cream", "Cream Puff", "Cream Cheese", "Cream Soda"]],
   ["Sauce", ["Soy Sauce", "Hot Sauce", "Fish Sauce", "Tomato Sauce", "Sweet Sauce", "Chilli Sauce", "Peanut Sauce"]],
   ["Juice", ["Orange Juice", "Apple Juice", "Fruit Juice", "Grape Juice", "Juice Box", "Carrot Juice"]],

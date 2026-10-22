@@ -7,8 +7,10 @@ export type Entry = [easy: string, hards: string[]];
 //
 // Rule 2 (docs/word-set-guidelines.md) is enforced here: a card is only kept if
 // the hard phrase contains the easy word as a whole word. That makes it
-// impossible to ship a containment violation regardless of the source data —
-// the audit script is the backstop, this is the guard rail.
+// impossible to ship a containment violation regardless of the source data.
+// Every dropped card is recorded in `droppedCards`; the audit fails on
+// containment and self-reference drops so a bad row can't silently vanish.
+// Duplicate drops are expected (a compound listed under both of its words).
 
 function esc(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -25,15 +27,30 @@ export function containsEasy(card: WordCard): boolean {
  *  - drop self-references (easy === hard),
  *  - drop duplicate hard phrases.
  */
+export type DropReason = "self-reference" | "containment" | "duplicate";
+
+/** Cards `build()` has dropped so far, for the audit to report. */
+export const droppedCards: { card: WordCard; reason: DropReason }[] = [];
+
 export function build(cards: WordCard[]): WordCard[] {
   const seen = new Set<string>();
   const out: WordCard[] = [];
+  const drop = (card: WordCard, reason: DropReason) => droppedCards.push({ card, reason });
   for (const raw of cards) {
     const card = { easy: raw.easy.trim(), hard: raw.hard.trim() };
-    if (card.easy.toLowerCase() === card.hard.toLowerCase()) continue;
-    if (!containsEasy(card)) continue;
+    if (card.easy.toLowerCase() === card.hard.toLowerCase()) {
+      drop(card, "self-reference");
+      continue;
+    }
+    if (!containsEasy(card)) {
+      drop(card, "containment");
+      continue;
+    }
     const key = card.hard.toLowerCase();
-    if (seen.has(key)) continue;
+    if (seen.has(key)) {
+      drop(card, "duplicate");
+      continue;
+    }
     seen.add(key);
     out.push(card);
   }

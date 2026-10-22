@@ -9,6 +9,9 @@ import { ANIMAL_CARDS } from "./animals";
 import { BIBLE_CARDS } from "./bible";
 import { INTERNET_SLANG_CARDS } from "./internet-slang";
 
+// Re-exported so the audit reads the same module instance the sets wrote to.
+export { droppedCards } from "./gen";
+
 // The "caveman" twist is the *mechanic* — you may only clue using
 // single-syllable words — not the cards. Each card has a simple
 // one-point word and a harder three-point term. Ordering here is the order

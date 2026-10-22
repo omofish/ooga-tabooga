@@ -6,7 +6,10 @@
  *
  * The only hard, machine-checkable rule is containment:
  *   the 3-point `hard` phrase MUST contain the 1-point `easy` word (whole word,
- *   case-insensitive). "Well-known" and "not-nonsense" are judgement calls and
+ *   case-insensitive). `build()` drops such cards before they reach a set, so
+ *   the audit also fails on every containment or self-reference card `build()`
+ *   dropped — otherwise a bad source row just vanishes. Duplicate drops are
+ *   expected (a compound listed under both its words) and not reported. "Well-known" and "not-nonsense" are judgement calls and
  *   are only flagged heuristically (single-word hards, easy===hard).
  *
  * Two softer signals are printed as warnings, never failures:
@@ -16,7 +19,7 @@
  * Each set also reports its unique-base count: the same base word never repeats
  * in one game (buildDeck dedupes), so that is the real per-game deck size.
  */
-import { WORD_SETS } from "../lib/word-sets/index.ts";
+import { WORD_SETS, droppedCards } from "../lib/word-sets/index.ts";
 import { containsEasy } from "../lib/word-sets/gen.ts";
 import type { WordCard } from "../lib/types.ts";
 
@@ -122,6 +125,16 @@ if (baseWordWarnings.length) {
   for (const w of baseWordWarnings) console.log(`        ⚠ ${w}`);
 } else {
   console.log(`Base words: no known non-noun base words found.`);
+}
+const badDrops = droppedCards.filter((d) => d.reason !== "duplicate");
+if (badDrops.length) {
+  console.log(`\nDropped by build() — fix or delete these source rows:`);
+  for (const { card, reason } of badDrops) {
+    console.log(`        ✗ ${reason.padEnd(14)} ${card.easy}  →  ${card.hard}`);
+  }
+  process.exitCode = 1;
+} else {
+  console.log(`Dropped cards: none.`);
 }
 if (failingSets.length) {
   console.log(`Sets failing the containment rule: ${failingSets.join(", ")}`);
