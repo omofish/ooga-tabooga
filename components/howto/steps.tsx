@@ -217,7 +217,7 @@ function TribeCard({
       className="chunk animate-pop rounded-2xl px-2 pb-3.5 pt-3 text-center"
       style={{ background: bg, animationDelay: `${delay}s` }}
     >
-      <div className="whitespace-nowrap text-sm" style={{ color: fg }}>
+      <div className="whitespace-nowrap text-xs min-[390px]:text-sm" style={{ color: fg }}>
         <span className="font-display">{name}</span>
       </div>
       <div className="mt-3 flex justify-center gap-0.5 text-3xl">
@@ -293,11 +293,11 @@ function Watcher() {
 }
 
 const PARTS: [string, string][] = [
-  ["Timer", "Turn ends at zero."],
-  ["Pause", "Restart the turn or give up."],
-  ["Easy word +1", "Tap when they say it. Then go for the phrase, or tap Next Word."],
-  ["Hard phrase +3", "Tap when they say the whole thing."],
-  ["Pass −1", "Skip a card. Free if +1 is already banked."],
+  ["Timer", "Ends the turn at zero."],
+  ["Pause", "Restart or give up."],
+  ["+1 word", "Tap when they get it."],
+  ["+3 phrase", "Tap when they get it all."],
+  ["Pass −1", "Skip the card."],
 ];
 
 function PlayScreen() {
@@ -321,7 +321,7 @@ function PlayScreen() {
   ];
 
   return (
-    <div className="grid flex-1 grid-cols-[132px_1fr] items-center gap-3.5">
+    <div className="my-auto grid grid-cols-[120px_minmax(0,1fr)] items-center gap-3.5 py-3 pl-3">
       <div
         aria-hidden
         className="animate-pop relative flex h-[250px] flex-col gap-1.5 rounded-2xl border-[3px] border-ink p-2"
@@ -371,7 +371,7 @@ function PlayScreen() {
         ))}
       </div>
 
-      <div className="grid content-center gap-1.5">
+      <div className="grid content-center gap-1">
         {PARTS.map(([title, sub], i) => (
           <button
             key={title}
@@ -386,7 +386,7 @@ function PlayScreen() {
             <span className="mt-px grid h-5 w-5 flex-none place-items-center rounded-full bg-ink text-[11px] font-black text-cream">
               {i + 1}
             </span>
-            <span className="text-[13px] leading-snug">
+            <span className="text-[12.5px] leading-tight">
               <b className="block text-[13.5px] font-black text-ink">{title}</b>
               <span className="font-bold text-ink-soft">{sub}</span>
             </span>

@@ -138,7 +138,7 @@ function Guide({
   return (
     <Modal onClose={onClose} title="How to play">
       <div
-        className="flex h-[min(620px,calc(100svh-8rem))] min-h-0 touch-pan-y flex-col"
+        className="flex h-[max(480px,min(640px,calc(100svh-8rem)))] touch-pan-y flex-col"
         style={GUIDE_VARS}
         onPointerDown={(e) => (start.current = { x: e.clientX, y: e.clientY })}
         onPointerUp={(e) => {
@@ -167,7 +167,7 @@ function Guide({
 
         {/* key={step}: remount per step so every entrance animation and
             timeline restarts from scratch. */}
-        <div key={step} className="relative mt-3.5 flex min-h-0 flex-1 flex-col">
+        <div key={step} className="relative mt-3.5 flex min-h-0 flex-1 flex-col overflow-y-auto">
           <s.Visual canTry={!!onTry} onTry={() => {
             track("howto_try_clicked");
             onTry?.();
@@ -180,7 +180,7 @@ function Guide({
           </p>
         )}
 
-        <div className="mt-3.5 flex items-center gap-2.5">
+        <div className="mt-4 flex items-center gap-2 pb-1.5">
           <button
             type="button"
             onClick={() => go(step - 1)}
@@ -189,11 +189,11 @@ function Guide({
           >
             <span className="font-display text-lg">◀</span>
           </button>
-          <div aria-hidden className="flex flex-1 justify-center gap-1.5">
+          <div aria-hidden className="flex min-w-0 flex-1 justify-center gap-1">
             {STEPS.map((st, i) => (
               <span
                 key={st.id}
-                className={`h-[9px] rounded-full transition-all duration-300 ${i === step ? "w-[22px] bg-ink" : "w-[9px] bg-ink/20"}`}
+                className={`h-[7px] shrink-0 rounded-full transition-all duration-300 ${i === step ? "w-4 bg-ink" : "w-[7px] bg-ink/20"}`}
               />
             ))}
           </div>
