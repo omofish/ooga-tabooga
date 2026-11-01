@@ -7,10 +7,40 @@ import { isStandalone } from "./pwa";
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
 
+const NOTRACK_KEY = "ooga-notrack";
+
 let ready = false;
+let optedOut: boolean | null = null;
+
+/** True for traffic that shouldn't count: a device opted out via
+ *  `?notrack=1` (sticky in localStorage until `?notrack=0`), browser
+ *  automation (Playwright/Puppeteer/Selenium set `navigator.webdriver`), and
+ *  local dev hosts. The `notrack` param is stripped from the URL either way. */
+function isOptedOut(): boolean {
+  if (optedOut !== null) return optedOut;
+  const url = new URL(window.location.href);
+  const param = url.searchParams.get("notrack");
+  let stored = false;
+  try {
+    if (param === "0") localStorage.removeItem(NOTRACK_KEY);
+    else if (param !== null) localStorage.setItem(NOTRACK_KEY, "1");
+    stored = localStorage.getItem(NOTRACK_KEY) === "1";
+  } catch {
+    stored = param !== null && param !== "0"; // storage blocked: this visit only
+  }
+  if (param !== null) {
+    url.searchParams.delete("notrack");
+    window.history.replaceState(window.history.state, "", url);
+  }
+  const host = window.location.hostname;
+  const local =
+    host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+  optedOut = stored || navigator.webdriver === true || local;
+  return optedOut;
+}
 
 function ensureInit() {
-  if (ready || !KEY || typeof window === "undefined") return;
+  if (ready || typeof window === "undefined" || isOptedOut() || !KEY) return;
   posthog.init(KEY, {
     api_host: HOST,
     persistence: "localStorage", // no cookies, matches the rest of the app
