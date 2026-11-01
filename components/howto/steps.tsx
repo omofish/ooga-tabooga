@@ -46,7 +46,7 @@ const BONK: ChatLine[] = [
   { kind: "chief", text: "…eve-ning" },
   { kind: "bonk" },
   { kind: "watch", text: "Bonk! “Evening” has two syllables." },
-  { kind: "act", text: "Chief taps Pass", card: "dead" },
+  { kind: "act", text: "Chief taps Pass / Get Bonked", card: "dead" },
   { kind: "result", chip: "−1", text: "Card passed" },
 ];
 
@@ -129,7 +129,7 @@ export const STEPS: Step[] = [
     caption: (
       <>
         Same card, but the chief slips up. Broke a rule, or stuck? Tap{" "}
-        <b>Pass</b>. Passing costs <b>−1</b>, even if you already banked the
+        <b>Pass / Get Bonked</b>. It costs <b>−1</b>, even if you already banked the
         +1.
       </>
     ),
@@ -299,7 +299,7 @@ const PARTS: [string, string][] = [
   ["Pause", "Restart or give up."],
   ["+1 word", "Tap when they get it."],
   ["+3 phrase", "Tap when they get it all."],
-  ["Pass −1", "Skip the card."],
+  ["Pass / Get Bonked −1", "Skip the card, or broke a rule."],
 ];
 
 function PlayScreen() {
@@ -359,7 +359,7 @@ function PlayScreen() {
           style={{ background: "#5a4329" }}
           data-on={on(4)}
         >
-          <span className="font-display">Pass −1</span>
+          <span className="whitespace-nowrap font-display text-[10px]">Pass / Get Bonked</span>
         </div>
         {pins.map((pos, i) => (
           <span

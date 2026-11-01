@@ -566,7 +566,7 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
           }}
           className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 text-xl"
         >
-          <span className="font-display">Pass</span>
+          <span className="font-display">Pass / Get Bonked</span>
           <span className="inline-flex items-center rounded-full bg-cream/20 px-2.5 py-1 text-base">
             <span className="font-display">−1</span>
           </span>
