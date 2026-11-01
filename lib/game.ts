@@ -25,6 +25,15 @@ export const MAX_TEAMS = 3;
 
 export const CLASSIC_MODE = "classic";
 
+/** Fixed setup for How-to-Play's "Give It a Try" (`TRY_GAME`): a short,
+ *  plain first game. */
+export const TRY_PRESET: Preset = {
+  wordSetId: "standard",
+  challengeMode: CLASSIC_MODE,
+  turnSeconds: 60,
+  numTeams: 2,
+};
+
 /** House-rule modes, picked on the setup screen (mutually exclusive — see
  *  `SET_CHALLENGE_MODE`). `CLASSIC_MODE` is the default/no-frills entry;
  *  `Gameplay` only branches on the other ids, so classic just does nothing
@@ -209,6 +218,7 @@ export type Action =
   | { type: "SET_CHALLENGE_MODE"; mode: string }
   | { type: "APPLY_PRESET"; preset: Preset } // setup from a shared link
   | { type: "START_GAME" }
+  | { type: "TRY_GAME" } // How-to-Play's "Give It a Try": TRY_PRESET + start + open first turn
   | { type: "OPEN_MODAL"; teamId: string }
   | { type: "SET_NAME"; name: string }
   | { type: "CLOSE_MODAL" }
@@ -344,6 +354,15 @@ export function reducer(state: GameState, action: Action): GameState {
         currentRound: 0,
         active: null,
       };
+    }
+
+    case "TRY_GAME": {
+      // Composes existing actions so the trial game is exactly a normal one.
+      const started = reducer(
+        reducer(state, { type: "APPLY_PRESET", preset: TRY_PRESET }),
+        { type: "START_GAME" },
+      );
+      return reducer(started, { type: "OPEN_MODAL", teamId: started.teams[0].id });
     }
 
     case "OPEN_MODAL": {

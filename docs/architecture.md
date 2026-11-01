@@ -99,8 +99,8 @@ hand-rolled `<div>` overlay — background scroll lock, so the page behind a
 dialog can't be scrolled while it's open. Every call site passes a `title`
 string; it's rendered `sr-only` as the dialog's accessible name (each caller
 already shows its own heading visually, so this doesn't duplicate it).
-`HowToPlay` (a flat "?" button that opens the rules in a `Modal`) lives in
-`TopBar`, mirroring `MuteToggle`.
+`HowToPlay` (a flat "?" button) lives in `TopBar`, mirroring `MuteToggle`.
+See "How to Play guide" below.
 
 `TopBar` is chrome shown only on Setup and Score (`Game.tsx` renders it
 behind `state.phase === "setup" || state.phase === "score"`) — the two
@@ -139,8 +139,35 @@ nothing.
 The scrollbar is themed globally in `globals.css` (not opt-in per element) so
 any scrollable area — inside a `Modal` or a full-screen phase alike — gets
 the same always-visible, in-theme treatment; give a scrollable container its
-own right-hand padding (see `HowToPlay`'s rules panel) so the bar doesn't sit
+own right-hand padding so the bar doesn't sit
 on top of the last few characters of text.
+
+## How to Play guide
+
+`HowToPlay` opens a 9-step guide in the standard `Modal`, stepped with
+Back/Next, swipe (horizontal only, so the chat panel still scrolls) or the
+arrow keys. Steps are data in `components/howto/steps.tsx` (`STEPS`: `id`
+for analytics, eyebrow, title, caption, `Visual`); the shell re-mounts the
+visual per step (`key={step}`) so every animation/timeline restarts.
+
+- Steps: tribes → watcher → play screen (drawn mock with pins, not the real
+  `Gameplay`) → +1 / +3 / bonk / oops chats → review (drag a misclicked card
+  into +1, phone passes on) → short rules + **Give It a Try**.
+- Every example uses one real Standard card, `DEMO_CARD` (Moon / Honey Moon)
+  in `components/howto/shared.tsx`.
+- Chats are scripted `ChatLine[]` module constants played by
+  `components/howto/ChatDemo.tsx` (typing "…", then bubble; Replay at the end).
+- Art/animation CSS is the `.howto-*` block in `globals.css`; team colours come
+  in as `--h-*` vars from `lib/colors.ts`. Reduced motion turns it all off and
+  chats show in full at once.
+- **Give It a Try** only shows when `TopBar` gets `onTry` (Setup only, so a
+  running game can't be wiped; mid-game the last step shows Got It). It
+  dispatches `TRY_GAME`, which runs `APPLY_PRESET` (`TRY_PRESET`: 2 tribes,
+  60s, Standard pack, Standard mode) → `START_GAME` → `OPEN_MODAL` for the
+  first tribe, landing on the Start Round popup.
+- **First visit**: auto-opens once on Setup for a player who has never played
+  a card (`state.seen` empty), shared links included. "Shown" is its own
+  `localStorage` key (`pfn-howto-seen-v1`), so no `STATE_VERSION` bump.
 
 ## Styling (Tailwind v4 in `app/globals.css`) — gotchas
 
@@ -358,6 +385,11 @@ noted otherwise:
 | `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
 | `share_clicked` | `ShareButton` tap resolves, any outcome | `method` (`native`/`clipboard`), `result` (`sent`/`cancelled`/`copied`/`failed`), `withPreset` (always `true` now — the link carries the setup) — a cancelled share sheet is tracked, not swallowed |
 | `preset_applied` | a shared-link setup is applied (`Game.tsx`'s `applyPreset`, not the phase effect) | `appliedFrom` (`setup`/`mid_game`), `wordSet`, `challengeMode`, `turnSeconds`, `numTeams` (`null` for any param the link didn't carry) |
+| `howto_opened` | guide opens (`HowToPlay`) | `source` (`button`/`auto`), `canTry` |
+| `howto_step_viewed` | each step shown | `step` (1-based), `stepId` |
+| `howto_completed` | first time the last step is reached in an open | — |
+| `howto_closed` | guide closes, any way (incl. Give It a Try) | `lastStep` (furthest step id), `furthestStep`, `completed` |
+| `howto_try_clicked` | Give It a Try tapped | — (the `game_started` that follows has the setup) |
 | `pwa_installed` | `appinstalled` window event | — Chrome/Android only; iOS Safari has no equivalent, so install rate there comes from `is_pwa` on later pageviews instead |
 
 `ShareButton` also tags its link with `utm_source=share_button&utm_medium=organic`

@@ -1,16 +1,68 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Modal from "./Modal";
+import { STEPS } from "./howto/steps";
+import { TEAM_COLORS } from "@/lib/colors";
+import { track } from "@/lib/analytics";
 
-/** Round "?" button that opens the How-to-Play rules. Self-contained (manages
-   its own open state) so screens can drop it in beside <MuteToggle />. */
-export default function HowToPlay({ className }: { className?: string }) {
+/** localStorage flag: the guide has been shown once (auto-open happens only
+ *  before this is set). Own key, outside game state — no STATE_VERSION bump. */
+const SEEN_KEY = "pfn-howto-seen-v1";
+
+const [RED, BLUE] = TEAM_COLORS;
+/** Team colours for the guide's art, fed to the .howto-* CSS in globals.css. */
+const GUIDE_VARS = {
+  "--h-red": RED.base,
+  "--h-red-dark": RED.dark,
+  "--h-red-soft": RED.soft,
+  "--h-blue": BLUE.base,
+  "--h-blue-dark": BLUE.dark,
+  "--h-blue-soft": BLUE.soft,
+} as CSSProperties;
+
+/** Round "?" button that opens the step-by-step How-to-Play guide.
+ *  Self-contained (manages its own open state) so screens can drop it in
+ *  beside <MuteToggle />.
+ *  - `onTry` set: the last step shows "Give It a Try" (setup screen only, so
+ *    a running game can't be wiped); otherwise it shows "Got It".
+ *  - `autoOpen`: open once on mount if the guide has never been shown. */
+export default function HowToPlay({
+  className,
+  onTry,
+  autoOpen = false,
+}: {
+  className?: string;
+  onTry?: () => void;
+  autoOpen?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [source, setSource] = useState<"button" | "auto">("button");
+
+  useEffect(() => {
+    if (!autoOpen) return;
+    let seen = true;
+    try {
+      seen = localStorage.getItem(SEEN_KEY) === "1";
+    } catch {
+      // storage blocked: don't nag on every visit
+    }
+    if (!seen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of client-only storage after mount
+      setSource("auto");
+      setOpen(true);
+    }
+  }, [autoOpen]);
+
+  const show = () => {
+    setSource("button");
+    setOpen(true);
+  };
+
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={show}
         aria-label="How to play"
         className={
           className ??
@@ -21,105 +73,147 @@ export default function HowToPlay({ className }: { className?: string }) {
       </button>
 
       {open && (
-        <Modal onClose={() => setOpen(false)} title="How to play">
-          <div className="text-center">
-            <div className="animate-wiggle text-5xl">🦴</div>
-            <h2 className="mt-2 font-display text-3xl text-ink">How Play Game</h2>
-          </div>
-
-          {/* flex-1 + min-h-0 (Modal's Dialog.Content is a capped-height flex
-              column): this panel shrinks to whatever space is left after the
-              heading and Got-It button take theirs, and scrolls internally
-              from there — so the button always stays visible/reachable, on
-              any screen height, instead of a fixed vh guess that can push it
-              off a shorter phone. The scrollbar (themed globally, see
-              globals.css) gets its own right-hand gutter (pr-4) so it never
-              overlaps the text. */}
-          <div className="mt-4 min-h-0 flex-1 space-y-5 overflow-y-auto pr-4">
-            <p className="text-sm font-bold leading-relaxed text-ink-soft">
-              One player hold phone, is chief. Chief grunt clues. Tribe guess
-              word on the card. Bad talk get bonk. Tribe change when time end.
-            </p>
-
-            <Rule title="Talk way">
-              Clue with one-syllable words only. “Big wet sky drop” — fine.
-              “Rainstorm”? Two syllables — no good! And no say a word shown on
-              card. No use hands, weird sounds. Is cheat.
-            </Rule>
-
-            <Rule title="When give bonk">
-              Player from other tribe sit next to chief. Hold stick. If player
-              talk no good, give bonk and pass word.
-            </Rule>
-
-            <div>
-              <RuleTitle>Points</RuleTitle>
-              <ul className="mt-2 space-y-2">
-                <li className="flex items-center gap-3">
-                  <Chip className="bg-ink text-cream">+1</Chip>
-                  <span className="text-sm font-bold text-ink-soft">
-                    first word
-                  </span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Chip className="bg-amber-400 text-ink">+3</Chip>
-                  <span className="text-sm font-bold text-ink-soft">
-                    lots word
-                  </span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Chip className="bg-ink/10 text-ink">−1</Chip>
-                  <span className="text-sm font-bold text-ink-soft">if pass</span>
-                </li>
-              </ul>
-            </div>
-
-            <Rule title="How win">
-              Tribes take turns, chief change each time. Most points wins. Ug
-              good.
-            </Rule>
-          </div>
-
-          <button
-            onClick={() => setOpen(false)}
-            className="btn btn-ink mt-6 w-full py-4 text-xl"
-          >
-            <span className="font-display">Got It</span>
-          </button>
-        </Modal>
+        <Guide
+          source={source}
+          onTry={
+            onTry &&
+            (() => {
+              setOpen(false);
+              onTry();
+            })
+          }
+          onClose={() => setOpen(false)}
+        />
       )}
     </>
   );
 }
 
-function Rule({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div>
-      <RuleTitle>{title}</RuleTitle>
-      <p className="mt-1.5 text-sm font-bold leading-relaxed text-ink-soft">
-        {children}
-      </p>
-    </div>
-  );
-}
-
-function RuleTitle({ children }: { children: ReactNode }) {
-  return <h3 className="font-display text-lg text-ink">{children}</h3>;
-}
-
-/** Point chip — same chunky look as the +1/+3 chips on the play cards. */
-function Chip({
-  className,
-  children,
+function Guide({
+  source,
+  onTry,
+  onClose,
 }: {
-  className?: string;
-  children: ReactNode;
+  source: "button" | "auto";
+  onTry?: () => void;
+  onClose: () => void;
 }) {
+  const [step, setStep] = useState(0);
+  const furthest = useRef(0);
+  const last = STEPS.length - 1;
+  const s = STEPS[step];
+
+  // Analytics: opened → each step viewed → completed (reached the end) →
+  // closed (with how far they got), so drop-off per step is visible.
+  useEffect(() => {
+    try {
+      localStorage.setItem(SEEN_KEY, "1");
+    } catch {}
+    track("howto_opened", { source, canTry: !!onTry });
+    return () => {
+      track("howto_closed", {
+        lastStep: STEPS[furthest.current].id,
+        furthestStep: furthest.current + 1,
+        completed: furthest.current === STEPS.length - 1,
+      });
+    };
+    // Mount/unmount only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    track("howto_step_viewed", { step: step + 1, stepId: STEPS[step].id });
+    if (step > furthest.current) {
+      furthest.current = step;
+      if (step === STEPS.length - 1) track("howto_completed");
+    }
+  }, [step]);
+
+  const go = (i: number) => setStep(Math.max(0, Math.min(last, i)));
+
+  // Horizontal swipe changes step; vertical drags are left alone so the
+  // chat panel can still scroll.
+  const start = useRef<{ x: number; y: number } | null>(null);
+
   return (
-    <span
-      className={`inline-flex shrink-0 items-center rounded-full border-[3px] border-ink px-3 py-1 text-lg ${className ?? ""}`}
-    >
-      <span className="font-display">{children}</span>
-    </span>
+    <Modal onClose={onClose} title="How to play">
+      <div
+        className="flex h-[min(620px,calc(100svh-8rem))] min-h-0 touch-pan-y flex-col"
+        style={GUIDE_VARS}
+        onPointerDown={(e) => (start.current = { x: e.clientX, y: e.clientY })}
+        onPointerUp={(e) => {
+          const from = start.current;
+          start.current = null;
+          if (!from) return;
+          const dx = e.clientX - from.x;
+          const dy = e.clientY - from.y;
+          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            go(step + (dx < 0 ? 1 : -1));
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") go(step + 1);
+          if (e.key === "ArrowLeft") go(step - 1);
+        }}
+      >
+        <div className="pr-10">
+          <div className="text-xs font-black uppercase tracking-[0.08em] text-ink-soft">
+            Step {step + 1} of {STEPS.length} · {s.eyebrow}
+          </div>
+          <h2 className="mt-2 font-display text-[28px] leading-[1.05] text-ink [text-wrap:balance]">
+            {s.title}
+          </h2>
+        </div>
+
+        {/* key={step}: remount per step so every entrance animation and
+            timeline restarts from scratch. */}
+        <div key={step} className="relative mt-3.5 flex min-h-0 flex-1 flex-col">
+          <s.Visual canTry={!!onTry} onTry={() => {
+            track("howto_try_clicked");
+            onTry?.();
+          }} />
+        </div>
+
+        {s.caption && (
+          <p className="mt-3 text-[14.5px] font-bold leading-[1.45] text-ink-soft [&_b]:font-black [&_b]:text-ink">
+            {s.caption}
+          </p>
+        )}
+
+        <div className="mt-3.5 flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => go(step - 1)}
+            aria-label="Back"
+            className={`btn btn-cream px-4 py-3 ${step === 0 ? "invisible" : ""}`}
+          >
+            <span className="font-display text-lg">◀</span>
+          </button>
+          <div aria-hidden className="flex flex-1 justify-center gap-1.5">
+            {STEPS.map((st, i) => (
+              <span
+                key={st.id}
+                className={`h-[9px] rounded-full transition-all duration-300 ${i === step ? "w-[22px] bg-ink" : "w-[9px] bg-ink/20"}`}
+              />
+            ))}
+          </div>
+          {step < last ? (
+            <button
+              type="button"
+              onClick={() => go(step + 1)}
+              className="btn btn-ink px-[18px] py-3"
+            >
+              <span className="whitespace-nowrap font-display text-lg">Next ▶</span>
+            </button>
+          ) : (
+            !onTry && (
+              <button type="button" onClick={onClose} className="btn btn-ink px-[18px] py-3">
+                <span className="whitespace-nowrap font-display text-lg">Got It</span>
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </Modal>
   );
 }

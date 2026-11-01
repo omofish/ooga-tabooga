@@ -180,6 +180,13 @@ export default function Game() {
 
   const showTopBar = state.phase === "setup" || state.phase === "score";
 
+  // How-to-Play's "Give It a Try": fixed trial setup, straight to the first
+  // tribe's Start Round popup.
+  const tryGame = () => {
+    sound.unlockAudio();
+    dispatch({ type: "TRY_GAME" });
+  };
+
   if (!hydrated) {
     return (
       <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
@@ -193,7 +200,16 @@ export default function Game() {
 
   return (
     <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col">
-      {showTopBar && <TopBar />}
+      {showTopBar && (
+        <TopBar
+          onTry={state.phase === "setup" ? tryGame : undefined}
+          // First visit only: someone who has never played a card (any pack).
+          autoOpenGuide={
+            state.phase === "setup" &&
+            !Object.values(state.seen).some((ids) => ids.length > 0)
+          }
+        />
+      )}
 
       {state.phase === "setup" && (
         <SetupScreen state={state} dispatch={dispatch} />

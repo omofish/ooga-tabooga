@@ -20,7 +20,15 @@ import MuteToggle from "./MuteToggle";
  *  Safari falls back to sampling <body>'s own background — keeping its
  *  native glass/blur look, tinted by (and blurring) <body>'s own colour and
  *  polka-dot texture (globals.css). */
-export default function TopBar() {
+export default function TopBar({
+  onTry,
+  autoOpenGuide = false,
+}: {
+  /** Passed through to HowToPlay's "Give It a Try" (setup screen only). */
+  onTry?: () => void;
+  /** Open the guide once on a first visit. */
+  autoOpenGuide?: boolean;
+} = {}) {
   return (
     <>
       {/* Opaque ink cap over the status-bar inset. The sticky header alone
@@ -40,7 +48,11 @@ export default function TopBar() {
         className="sticky top-0 z-40 flex items-center justify-between gap-2 px-3 pb-2 pt-[calc(env(safe-area-inset-top)+0.5rem)]"
         style={{ background: "var(--color-ink)" }}
       >
-        <HowToPlay className="btn btn-cream flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink" />
+        <HowToPlay
+          className="btn btn-cream flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink"
+          onTry={onTry}
+          autoOpen={autoOpenGuide}
+        />
         <h1
           className="font-display text-lg"
           style={{ color: "var(--color-cream)" }}

@@ -74,6 +74,7 @@ Deeper detail (state machine, screen flow, styling gotchas) is in
 
 - `app/` — `layout.tsx` (fonts, metadata, PWA), `page.tsx` → `<Game/>`, `globals.css`.
 - `components/` — one component per screen; `Game.tsx` routes by `state.phase`; `Modal` is the shared dialog.
+- `components/howto/` — the step-by-step How-to-Play guide (steps, chat demo) opened by `HowToPlay`. See [`docs/architecture.md`](docs/architecture.md#how-to-play-guide).
 - `lib/game.ts` — the reducer + all game logic + localStorage persistence (the brain).
 - `lib/{colors,names,tribes}.ts` — team themes and default player/tribe names.
 - `lib/solo.ts` — solo mode's "best single turn" records (own localStorage key).
