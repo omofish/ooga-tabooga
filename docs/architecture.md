@@ -383,6 +383,15 @@ manually-fired pageview (`capture_pageview: false` in config, so init can
 `isStandalone()` — before that first pageview goes out; every event
 afterwards inherits it too).
 
+**Test traffic is never sent.** `isOptedOut()` in `lib/analytics.ts` makes
+init (and so every `track()`) a no-op when any of these hold:
+
+- `?notrack=1` was ever opened on this device — saved in localStorage
+  (`ooga-notrack`), so it sticks; `?notrack=0` clears it. The param is
+  stripped from the URL on load so it doesn't leak into shares.
+- `navigator.webdriver` is true (Playwright, Puppeteer, Selenium).
+- The host is `localhost` / `127.0.0.1` / `[::1]` (dev and local prod builds).
+
 Events, all fired from `Game.tsx`'s phase-transition effect (kept out of the
 pure reducer, same pattern as the sound/body-colour side effects) unless
 noted otherwise:
