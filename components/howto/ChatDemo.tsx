@@ -118,7 +118,7 @@ export default function ChatDemo({
       <div
         ref={scrollRef}
         aria-live="polite"
-        className="mt-2 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-0.5 pb-9 pt-1.5"
+        className="mt-2 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-0.5 pb-9 pt-1.5"
       >
         {/* The typing "…" is the next line's own bubble (same key), so when
             the text arrives React swaps the dots for the words in place: the

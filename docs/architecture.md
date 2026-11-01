@@ -157,10 +157,15 @@ visual per step (`key={step}`) so every animation/timeline restarts.
   in `components/howto/shared.tsx`.
 - Chats are scripted `ChatLine[]` module constants played by
   `components/howto/ChatDemo.tsx` (the typing "…" bubble becomes the message in place; Replay at the end).
-- Sizing: the guide is a fixed height (`max(480px, min(640px, 100svh − 8rem))`)
-  so steps don't jump; each step's area scrolls if its content is taller, and
-  on very short phones the Modal itself scrolls. Checked at 360×640 up to
-  430×932. Keep the footer (Back, 9 dots, Next) narrow enough for a 360px phone.
+- Sizing: the guide is a fixed height (`max(480px, min(640px, 100svh − 8.5rem))`
+  — exactly the Modal's max-height minus its padding and border) so steps
+  don't jump and **nothing scrolls unless it has to**. Steps are compacted on
+  phones ≤700px tall with the `short:` variant (`@custom-variant` in
+  `globals.css`), so every step fits from 360×640 up; only the chat history
+  scrolls (its scroll area and the step area use `overscroll-contain`).
+  Re-check with a scrollHeight − clientHeight measure at 360×640 and 375×667
+  after changing a step. Keep the footer (Back, 9 dots, Next) narrow enough
+  for a 360px phone.
 - Because each step area scrolls, it also crops anything that grows past
   its edges. So: big blocks enter with `animate-rise` (never a scale), and
   highlights are size-neutral (`howto-glow` inset ring, colour changes).

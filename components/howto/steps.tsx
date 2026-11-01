@@ -253,16 +253,16 @@ function Watcher() {
   ];
   return (
     <div className="flex flex-col">
-      <div className="flex items-end justify-center gap-5 rounded-2xl border-[3px] border-dashed border-ink/30 bg-[#f3e6cd] px-2.5 pb-3.5 pt-5">
+      <div className="flex items-end justify-center gap-5 rounded-2xl border-[3px] border-dashed border-ink/30 bg-[#f3e6cd] px-2.5 pb-3.5 pt-5 short:pb-2 short:pt-3">
         <div className="animate-pop text-center">
-          <span className="relative inline-block text-[44px] leading-none">
+          <span className="relative inline-block text-[44px] leading-none short:text-[36px]">
             🧔<span className="absolute -right-3.5 bottom-0.5 text-2xl">📱</span>
           </span>
           <br />
           <RoleTag bg="var(--h-red)" className="mt-2">Chief</RoleTag>
         </div>
         <div className="howto-slide-in text-center">
-          <span className="relative inline-block text-[44px] leading-none">
+          <span className="relative inline-block text-[44px] leading-none short:text-[36px]">
             <span className="howto-bonk absolute -left-4 -top-1.5 text-[26px]">🦴</span>
             👱
             <span className="howto-hop absolute -right-2.5 -top-3.5 text-lg">👀</span>
@@ -271,11 +271,11 @@ function Watcher() {
           <RoleTag bg="var(--h-blue)" className="mt-2">Watcher</RoleTag>
         </div>
       </div>
-      <div className="mt-3.5 grid gap-2">
+      <div className="mt-3.5 grid gap-2 short:mt-2 short:gap-1.5">
         {rules.map(([title, sub], i) => (
           <div
             key={title}
-            className="animate-rise flex items-center gap-2.5 rounded-2xl border-[3px] border-ink px-3 py-2 text-sm"
+            className="animate-rise flex items-center gap-2.5 rounded-2xl border-[3px] border-ink px-3 py-2 text-sm short:py-1.5"
             style={{ background: "#fffdf5", animationDelay: `${0.5 + i * 0.15}s` }}
           >
             <span className="grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-ink text-[13px] font-black text-cream">
@@ -283,7 +283,7 @@ function Watcher() {
             </span>
             <div className="font-extrabold text-ink">
               {title}
-              <small className="block text-[12.5px] font-bold text-ink-soft">{sub}</small>
+              <small className="block text-[12.5px] font-bold text-ink-soft short:hidden">{sub}</small>
             </div>
           </div>
         ))}
@@ -315,16 +315,16 @@ function PlayScreen() {
   const pins = [
     { left: -12, top: -12 },
     { right: -10, top: 4 },
-    { right: -10, top: 62 },
-    { right: -10, top: 150 },
-    { right: -10, top: 222 },
+    { right: -10, top: "25%" },
+    { right: -10, top: "60%" },
+    { right: -10, top: "89%" },
   ];
 
   return (
-    <div className="my-auto grid grid-cols-[120px_minmax(0,1fr)] items-center gap-3.5 py-3 pl-3">
+    <div className="my-auto grid grid-cols-[120px_minmax(0,1fr)] items-center gap-3.5 py-3 pl-3 short:py-1">
       <div
         aria-hidden
-        className="animate-rise relative flex h-[250px] flex-col gap-1.5 rounded-2xl border-[3px] border-ink p-2"
+        className="animate-rise relative flex h-[250px] flex-col short:h-[200px] gap-1.5 rounded-2xl border-[3px] border-ink p-2"
         style={{ background: "var(--h-red)" }}
       >
         <div className="flex h-[26px] items-center gap-1">
@@ -371,7 +371,7 @@ function PlayScreen() {
         ))}
       </div>
 
-      <div className="grid content-center gap-1">
+      <div className="grid content-center gap-1 short:gap-0">
         {PARTS.map(([title, sub], i) => (
           <button
             key={title}
@@ -380,7 +380,7 @@ function PlayScreen() {
               setAuto(false);
               setCur(i);
             }}
-            className={`animate-rise flex items-start gap-2 rounded-xl border-2 px-2 py-1.5 text-left transition-colors ${cur === i ? "border-ink bg-[#fff1cc]" : "border-transparent"}`}
+            className={`animate-rise flex items-start gap-2 rounded-xl border-2 px-2 py-1.5 text-left short:py-0.5 transition-colors ${cur === i ? "border-ink bg-[#fff1cc]" : "border-transparent"}`}
             style={{ animationDelay: `${0.15 + i * 0.08}s` }}
           >
             <span className="mt-px grid h-5 w-5 flex-none place-items-center rounded-full bg-ink text-[11px] font-black text-cream">
@@ -435,7 +435,7 @@ function Review() {
         </div>
       </div>
 
-      <div className="relative mt-[18px] flex h-[74px] items-center justify-between rounded-2xl border-[3px] border-dashed border-ink/30 bg-[#f3e6cd] px-[18px]">
+      <div className="relative mt-[18px] flex h-[74px] short:mt-3 short:h-[64px] items-center justify-between rounded-2xl border-[3px] border-dashed border-ink/30 bg-[#f3e6cd] px-[18px]">
         <Person emoji="🧔" label="Fire chief" color="var(--h-red-dark)" />
         <span className="text-xl text-ink-soft">➜</span>
         <Person emoji="👱" label="Tusk chief" color="var(--h-blue-dark)" />
@@ -460,7 +460,7 @@ function Bucket({
 }) {
   return (
     <div
-      className={`h-[84px] rounded-2xl border-[3px] border-ink px-2.5 py-2 ${pulse ? "howto-glow" : ""}`}
+      className={`h-[84px] rounded-2xl short:h-[72px] border-[3px] border-ink px-2.5 py-2 ${pulse ? "howto-glow" : ""}`}
       style={{ background: bg }}
     >
       <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide text-ink-soft">
@@ -492,9 +492,9 @@ function Rules({ canTry, onTry }: StepProps) {
   ];
   return (
     <>
-      <div className="my-auto grid gap-[22px]">
+      <div className="my-auto grid gap-[22px] short:gap-3">
         <div
-          className="grid grid-cols-3 rounded-[18px] border-[3px] border-ink px-1.5 pb-3.5 pt-4"
+          className="grid grid-cols-3 rounded-[18px] border-[3px] border-ink px-1.5 pb-3.5 pt-4 short:pb-2.5 short:pt-3"
           style={{ background: "#fffdf5" }}
         >
           {(
@@ -513,7 +513,7 @@ function Rules({ canTry, onTry }: StepProps) {
             </div>
           ))}
         </div>
-        <ul className="grid gap-4 px-1">
+        <ul className="grid gap-4 px-1 short:gap-3">
           {rules.map(([icon, text]) => (
             <li
               key={icon}
@@ -531,7 +531,7 @@ function Rules({ canTry, onTry }: StepProps) {
         <button
           type="button"
           onClick={onTry}
-          className="btn howto-shake mb-2.5 mt-2 w-full py-4 text-white"
+          className="btn howto-shake mb-2.5 mt-2 w-full py-4 text-white short:py-3"
           style={{ background: "var(--h-red)" }}
         >
           <span className="font-display text-2xl">Give It a Try 🔥</span>

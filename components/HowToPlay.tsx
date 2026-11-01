@@ -137,8 +137,11 @@ function Guide({
 
   return (
     <Modal onClose={onClose} title="How to play">
+      {/* Height = Modal's max-height (100svh − 5rem) minus its padding
+          (3rem) and 4px+4px border (0.5rem), so the popup itself never
+          scrolls unless the 480px floor kicks in on a very short phone. */}
       <div
-        className="flex h-[max(480px,min(640px,calc(100svh-8rem)))] touch-pan-y flex-col"
+        className="flex h-[max(480px,min(640px,calc(100svh-8.5rem)))] touch-pan-y flex-col"
         style={GUIDE_VARS}
         onPointerDown={(e) => (start.current = { x: e.clientX, y: e.clientY })}
         onPointerUp={(e) => {
@@ -171,7 +174,7 @@ function Guide({
             leaves room for check badges, bounces and the shaking button so
             the scroll box doesn't crop them. Big blocks enter with
             animate-rise, never a scale, for the same reason. */}
-        <div key={step} className="relative -mx-2 mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-1 pt-2.5">
+        <div key={step} className="relative -mx-2 mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-2 pb-1 pt-2.5">
           <s.Visual canTry={!!onTry} onTry={() => {
             track("howto_try_clicked");
             onTry?.();

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* `short:` — phones up to 700px tall (SE-class). Used by the How-to-Play
+   guide to compact steps so they fit without scrolling. */
+@custom-variant short (@media (max-height: 700px));
+
 /* Non-inline @theme so these are emitted as :root CSS variables (used by the
    custom .chunk/.btn classes below) as well as generating text-/bg-/border-
    utilities. The display/body fonts come in as vars from next/font. */
@@ -672,6 +676,11 @@ html {
 }
 .howto-drag[data-held="true"] { transform: translateX(-50%) scale(1.12) rotate(-3deg); }
 .howto-drag[data-up="true"] { top: 40px; }
+/* Short phones: buckets are 72px (see steps.tsx `short:h-[72px]`). */
+@media (max-height: 700px) {
+  .howto-drag { top: 116px; }
+  .howto-drag[data-up="true"] { top: 32px; }
+}
 .howto-flyphone {
   position: absolute;
   top: 10px;
