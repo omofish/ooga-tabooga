@@ -156,7 +156,7 @@ visual per step (`key={step}`) so every animation/timeline restarts.
 - Every example uses one real Standard card, `DEMO_CARD` (Moon / Honey Moon)
   in `components/howto/shared.tsx`.
 - Chats are scripted `ChatLine[]` module constants played by
-  `components/howto/ChatDemo.tsx` (typing "…", then bubble; Replay at the end).
+  `components/howto/ChatDemo.tsx` (the typing "…" bubble becomes the message in place; Replay at the end).
 - Sizing: the guide is a fixed height (`max(480px, min(640px, 100svh − 8rem))`)
   so steps don't jump; each step's area scrolls if its content is taller, and
   on very short phones the Modal itself scrolls. Checked at 360×640 up to

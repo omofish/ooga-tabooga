@@ -610,6 +610,10 @@ html {
 .howto-bonk { transform-origin: 80% 80%; animation: howto-bonk 2.4s 1s ease-in-out infinite; }
 .howto-slide-in { animation: howto-slide-in 0.6s 0.3s ease-out both; }
 .howto-glow { animation: howto-glow 0.8s 1; }
+/* Chat text fading in where the typing dots were (opacity only, so the
+   bubble itself doesn't move). */
+@keyframes howto-fade { from { opacity: 0; } to { opacity: 1; } }
+.howto-fade { animation: howto-fade 0.25s ease-out both; }
 .howto-shake { animation: howto-shake 2.2s 0.6s ease-in-out infinite; }
 .howto-shake:active { animation: none; }
 
@@ -681,6 +685,7 @@ html {
   .howto-bonk,
   .howto-slide-in,
   .howto-glow,
+  .howto-fade,
   .howto-shake,
   .howto-typing span,
   .howto-bonk-fx {

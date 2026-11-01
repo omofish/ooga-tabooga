@@ -120,18 +120,12 @@ export default function ChatDemo({
         aria-live="polite"
         className="mt-2 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-0.5 pb-9 pt-1.5"
       >
-        {visible.map((line, i) => (
-          <Line key={`${run}-${i}`} line={line} />
+        {/* The typing "…" is the next line's own bubble (same key), so when
+            the text arrives React swaps the dots for the words in place: the
+            sender label and bubble don't re-mount or re-animate. */}
+        {(typingKind ? [...visible, next] : visible).map((line, i) => (
+          <Line key={`${run}-${i}`} line={line} typing={i === shown} />
         ))}
-        {typingKind && (
-          <Bubble kind={typingKind}>
-            <span className="howto-typing inline-flex gap-1 py-1">
-              <span />
-              <span />
-              <span />
-            </span>
-          </Bubble>
-        )}
       </div>
 
       {bonking && (
@@ -153,12 +147,24 @@ export default function ChatDemo({
   );
 }
 
-function Line({ line }: { line: ChatLine }) {
+function Line({ line, typing }: { line: ChatLine; typing: boolean }) {
   switch (line.kind) {
     case "chief":
     case "guess":
     case "watch":
-      return <Bubble kind={line.kind}>{line.text}</Bubble>;
+      return (
+        <Bubble kind={line.kind}>
+          {typing ? (
+            <span className="howto-typing inline-flex gap-1 py-1">
+              <span />
+              <span />
+              <span />
+            </span>
+          ) : (
+            <span className="howto-fade">{line.text}</span>
+          )}
+        </Bubble>
+      );
     case "act":
       return (
         <div className="animate-pop self-center rounded-full bg-ink/10 px-3 py-1 text-xs font-black text-ink">
