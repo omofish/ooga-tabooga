@@ -175,14 +175,18 @@ visual per step (`key={step}`) so every animation/timeline restarts.
 - Art/animation CSS is the `.howto-*` block in `globals.css`; team colours come
   in as `--h-*` vars from `lib/colors.ts`. Reduced motion turns it all off and
   chats show in full at once.
-- **Give It a Try** only shows when `TopBar` gets `onTry` (Setup only, so a
-  running game can't be wiped; mid-game the last step shows Got It). It
+- **Give It a Try** only shows when the opener gets `onTry` (`TopBar`'s "?"
+  on Setup, or `HowToBanner`; so a running game can't be wiped; mid-game the
+  last step shows Got It). It
   dispatches `TRY_GAME`, which runs `APPLY_PRESET` (`TRY_PRESET`: 2 tribes,
   60s, Standard pack, Standard mode) → `START_GAME` → `OPEN_MODAL` for the
   first tribe, landing on the Start Round popup.
-- **First visit**: auto-opens once on Setup for a player who has never played
-  a card (`state.seen` empty), shared links included. "Shown" is its own
-  `localStorage` key (`pfn-howto-seen-v1`), so no `STATE_VERSION` bump.
+- **First visit**: the guide never opens by itself. Setup shows
+  `HowToBanner` ("First time? How to play", above Start Game) for a player
+  who has never played a card (`state.seen` empty), until the guide is opened
+  (banner or "?") or the banner's ✕ is tapped. Both set the `localStorage`
+  key `pfn-howto-seen-v1` (own key, no `STATE_VERSION` bump) and fire a
+  `howto-seen` window event so the banner hides at once.
 
 ## Styling (Tailwind v4 in `app/globals.css`) — gotchas
 
@@ -409,7 +413,7 @@ noted otherwise:
 | `game_over` | entering `gameover` | `mode`, `wordSet`, `turnSeconds`, `challengeMode`, `numTeams`, `durationMs` (wall-clock time since `game_started`) |
 | `share_clicked` | `ShareButton` tap resolves, any outcome | `method` (`native`/`clipboard`), `result` (`sent`/`cancelled`/`copied`/`failed`), `withPreset` (always `true` now — the link carries the setup) — a cancelled share sheet is tracked, not swallowed |
 | `preset_applied` | a shared-link setup is applied (`Game.tsx`'s `applyPreset`, not the phase effect) | `appliedFrom` (`setup`/`mid_game`), `wordSet`, `challengeMode`, `turnSeconds`, `numTeams` (`null` for any param the link didn't carry) |
-| `howto_opened` | guide opens (`HowToPlay`) | `source` (`button`/`auto`), `canTry` |
+| `howto_opened` | guide opens (`HowToPlay`) | `source` (`button` = "?", `banner` = first-visit banner), `canTry` |
 | `howto_step_viewed` | each step shown | `step` (1-based), `stepId` |
 | `howto_completed` | first time the last step is reached in an open | — |
 | `howto_closed` | guide closes, any way (incl. Give It a Try) | `lastStep` (furthest step id), `furthestStep`, `completed` |

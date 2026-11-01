@@ -203,16 +203,11 @@ export default function Game() {
       {showTopBar && (
         <TopBar
           onTry={state.phase === "setup" ? tryGame : undefined}
-          // First visit only: someone who has never played a card (any pack).
-          autoOpenGuide={
-            state.phase === "setup" &&
-            !Object.values(state.seen).some((ids) => ids.length > 0)
-          }
         />
       )}
 
       {state.phase === "setup" && (
-        <SetupScreen state={state} dispatch={dispatch} />
+        <SetupScreen state={state} dispatch={dispatch} onTry={tryGame} />
       )}
 
       {state.phase === "score" && <ScoreView state={state} dispatch={dispatch} />}

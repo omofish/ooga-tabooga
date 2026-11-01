@@ -22,12 +22,9 @@ import MuteToggle from "./MuteToggle";
  *  polka-dot texture (globals.css). */
 export default function TopBar({
   onTry,
-  autoOpenGuide = false,
 }: {
   /** Passed through to HowToPlay's "Give It a Try" (setup screen only). */
   onTry?: () => void;
-  /** Open the guide once on a first visit. */
-  autoOpenGuide?: boolean;
 } = {}) {
   return (
     <>
@@ -51,7 +48,6 @@ export default function TopBar({
         <HowToPlay
           className="btn btn-cream flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink"
           onTry={onTry}
-          autoOpen={autoOpenGuide}
         />
         <h1
           className="font-display text-lg"

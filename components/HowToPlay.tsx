@@ -6,9 +6,21 @@ import { STEPS } from "./howto/steps";
 import { TEAM_COLORS } from "@/lib/colors";
 import { track } from "@/lib/analytics";
 
-/** localStorage flag: the guide has been shown once (auto-open happens only
- *  before this is set). Own key, outside game state — no STATE_VERSION bump. */
+/** localStorage flag: the guide has been opened (or its first-visit banner
+ *  dismissed) once. Own key, outside game state — no STATE_VERSION bump. */
 const SEEN_KEY = "pfn-howto-seen-v1";
+/** Window event fired when SEEN_KEY gets set, so an on-screen
+ *  <HowToBanner/> hides even when the guide was opened from the "?" button. */
+const SEEN_EVENT = "howto-seen";
+
+type Source = "button" | "banner";
+
+function markSeen() {
+  try {
+    localStorage.setItem(SEEN_KEY, "1");
+  } catch {}
+  window.dispatchEvent(new Event(SEEN_EVENT));
+}
 
 const [RED, BLUE] = TEAM_COLORS;
 /** Team colours for the guide's art, fed to the .howto-* CSS in globals.css. */
@@ -25,44 +37,20 @@ const GUIDE_VARS = {
  *  Self-contained (manages its own open state) so screens can drop it in
  *  beside <MuteToggle />.
  *  - `onTry` set: the last step shows "Give It a Try" (setup screen only, so
- *    a running game can't be wiped); otherwise it shows "Got It".
- *  - `autoOpen`: open once on mount if the guide has never been shown. */
+ *    a running game can't be wiped); otherwise it shows "Got It". */
 export default function HowToPlay({
   className,
   onTry,
-  autoOpen = false,
 }: {
   className?: string;
   onTry?: () => void;
-  autoOpen?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [source, setSource] = useState<"button" | "auto">("button");
-
-  useEffect(() => {
-    if (!autoOpen) return;
-    let seen = true;
-    try {
-      seen = localStorage.getItem(SEEN_KEY) === "1";
-    } catch {
-      // storage blocked: don't nag on every visit
-    }
-    if (!seen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of client-only storage after mount
-      setSource("auto");
-      setOpen(true);
-    }
-  }, [autoOpen]);
-
-  const show = () => {
-    setSource("button");
-    setOpen(true);
-  };
 
   return (
     <>
       <button
-        onClick={show}
+        onClick={() => setOpen(true)}
         aria-label="How to play"
         className={
           className ??
@@ -74,7 +62,74 @@ export default function HowToPlay({
 
       {open && (
         <Guide
-          source={source}
+          source="button"
+          onTry={
+            onTry &&
+            (() => {
+              setOpen(false);
+              onTry();
+            })
+          }
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </>
+  );
+}
+
+/** Quiet first-visit nudge (Setup, above Start Game) — the guide never opens
+ *  by itself. Shows until the guide is opened (from here or "?") or ✕ is
+ *  tapped; the parent decides eligibility (never played a card). */
+export function HowToBanner({ onTry }: { onTry?: () => void }) {
+  // Start hidden: storage is client-only, so read it after mount.
+  const [visible, setVisible] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let seen = true;
+    try {
+      seen = localStorage.getItem(SEEN_KEY) === "1";
+    } catch {
+      // storage blocked: don't nag on every visit
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of client-only storage after mount
+    if (!seen) setVisible(true);
+    const hide = () => setVisible(false);
+    window.addEventListener(SEEN_EVENT, hide);
+    return () => window.removeEventListener(SEEN_EVENT, hide);
+  }, []);
+
+  return (
+    <>
+      {visible && (
+        <div className="chunk animate-rise flex items-center rounded-2xl">
+          <button
+            onClick={() => setOpen(true)}
+            className="flex min-w-0 flex-1 items-center gap-2.5 py-2.5 pl-3.5 text-left text-ink"
+          >
+            <span className="text-xl" aria-hidden>
+              🦴
+            </span>
+            <span className="text-sm font-extrabold">
+              First time? <span className="underline">How to play</span>
+            </span>
+            <span className="ml-auto font-display text-lg" aria-hidden>
+              ›
+            </span>
+          </button>
+          <button
+            onClick={markSeen}
+            aria-label="Hide how-to tip"
+            className="shrink-0 px-3.5 py-2.5 text-lg font-extrabold text-ink-soft"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {open && (
+        <Guide
+          source="banner"
           onTry={
             onTry &&
             (() => {
@@ -94,7 +149,7 @@ function Guide({
   onTry,
   onClose,
 }: {
-  source: "button" | "auto";
+  source: Source;
   onTry?: () => void;
   onClose: () => void;
 }) {
@@ -106,9 +161,7 @@ function Guide({
   // Analytics: opened → each step viewed → completed (reached the end) →
   // closed (with how far they got), so drop-off per step is visible.
   useEffect(() => {
-    try {
-      localStorage.setItem(SEEN_KEY, "1");
-    } catch {}
+    markSeen();
     track("howto_opened", { source, canTry: !!onTry });
     return () => {
       track("howto_closed", {

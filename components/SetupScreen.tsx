@@ -6,6 +6,7 @@ import { TEAM_COLORS } from "@/lib/colors";
 import { unlockAudio } from "@/lib/sound";
 import { WORD_SETS, wordSetById } from "@/lib/word-sets";
 import AddToHomeScreen from "./AddToHomeScreen";
+import { HowToBanner } from "./HowToPlay";
 import Modal from "./Modal";
 import ShareButton from "./ShareButton";
 import type { ScreenProps } from "./types";
@@ -15,7 +16,13 @@ const TEAM_OPTIONS = Array.from(
   (_, i) => i + 1,
 ); // [1, 2, 3] — 1 is solo "beat your best" mode
 
-export default function SetupScreen({ state, dispatch }: ScreenProps) {
+export default function SetupScreen({
+  state,
+  dispatch,
+  onTry,
+}: ScreenProps & { onTry: () => void }) {
+  // First-visit how-to nudge: only for someone who has never played a card.
+  const neverPlayed = !Object.values(state.seen).some((ids) => ids.length > 0);
   const seen = seenCount(state, state.wordSetId);
   const wordSet = wordSetById(state.wordSetId);
   const total = wordSet.cards.length;
@@ -252,6 +259,7 @@ export default function SetupScreen({ state, dispatch }: ScreenProps) {
         </section>
 
         <div className="mt-auto flex flex-col gap-3">
+          {neverPlayed && <HowToBanner onTry={onTry} />}
           <button
             onClick={() => {
               unlockAudio();
