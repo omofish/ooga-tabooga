@@ -17,7 +17,10 @@ has two answers:
 
 On a timed turn (60/90/120s) the clue giver gets the team to guess as many cards as
 they can: nail the hard phrase for +3, settle for the easy word for +1, or
-pass/skip (−1). Highest total across rounds wins.
+pass/skip (−1). **Pass is always −1, even after banking the +1** — so going
+for +3 is a gamble: a bonk loses the +1. "Next Word" cashes out a banked +1
+safely (as do a speed-round card timeout and the turn timer). Highest total
+across rounds wins.
 
 ## ⭐ Most common task: word sets
 

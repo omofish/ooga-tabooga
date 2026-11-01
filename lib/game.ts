@@ -227,7 +227,7 @@ export type Action =
   | { type: "PLUS_ONE" } // tap the +1 word (bank it)
   | { type: "NEXT_WORD" } // after banking, advance keeping +1
   | { type: "PLUS_THREE" } // tap the +3 phrase
-  | { type: "PASS" } // pass / give up on this card
+  | { type: "PASS" } // pass / bonk: always −1, even if +1 was banked
   | { type: "PAUSE" }
   | { type: "RESUME" }
   | { type: "RESTART_TURN" } // pause menu: replay this player's turn from scratch
@@ -456,8 +456,9 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "PASS": {
       if (!state.active?.current) return state;
-      const bucket: Bucket = state.active.current.banked1 ? "easy" : "pass";
-      const { active, deck } = resolveAndDraw(state.active, state.deck, bucket);
+      // Always −1, even with +1 banked: going for +3 risks the +1 (a bonk
+      // loses it). To keep a banked +1, use NEXT_WORD instead.
+      const { active, deck } = resolveAndDraw(state.active, state.deck, "pass");
       return { ...state, active, deck };
     }
 

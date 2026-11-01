@@ -116,7 +116,8 @@ export const STEPS: Step[] = [
     caption: (
       <>
         Same card. Keep going for the <b>whole phrase</b> and tap it for{" "}
-        <b>+3</b>. Running out of time? Tap <b>Next Word</b> to keep the +1.
+        <b>+3</b>. Risky: a bonk now loses the +1. Want it safe? Tap{" "}
+        <b>Next Word</b> to keep the +1.
       </>
     ),
     Visual: () => <ChatDemo lines={PLUS3} startCard="easy" />,
@@ -128,7 +129,8 @@ export const STEPS: Step[] = [
     caption: (
       <>
         Same card, but the chief slips up. Broke a rule, or stuck? Tap{" "}
-        <b>Pass</b>. Passing costs <b>−1</b>, unless you already banked the +1.
+        <b>Pass</b>. Passing costs <b>−1</b>, even if you already banked the
+        +1.
       </>
     ),
     Visual: () => <ChatDemo lines={BONK} />,
@@ -487,7 +489,7 @@ function Person({ emoji, label, color }: { emoji: string; label: string; color: 
 function Rules({ canTry, onTry }: StepProps) {
   const rules: [string, ReactNode][] = [
     ["🗣️", <><b>One-syllable words</b> only. No hands, no sounds.</>],
-    ["🦴", <>The <b>watcher</b> bonks any rule break.</>],
+    ["🦴", <>The <b>watcher</b> bonks any rule break: <b>−1</b>, even with +1 banked.</>],
     ["↩️", <>Misclicked? <b>Fix it</b> after the turn.</>],
   ];
   return (

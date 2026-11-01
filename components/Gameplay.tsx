@@ -129,10 +129,13 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
     if (!speedMode || paused || timesUp || !cardEndsAt) return;
     if (now < cardEndsAt || firedForCard.current === cardIndex) return;
     firedForCard.current = cardIndex;
-    if (!active?.current?.banked1) {
-      sound.pass();
-      sound.vibrate(35);
+    // Running out of card time isn't a bonk: a banked +1 is kept.
+    if (active?.current?.banked1) {
+      dispatch({ type: "NEXT_WORD" });
+      return;
     }
+    sound.pass();
+    sound.vibrate(35);
     dispatch({ type: "PASS" });
   }, [now, speedMode, paused, timesUp, cardEndsAt, cardIndex, active, dispatch]);
 
@@ -555,25 +558,18 @@ export default function Gameplay({ state, dispatch }: ScreenProps) {
         <button
           disabled={disruptionBlocking}
           onClick={() => {
-            // A skip (already banked +1) carries no penalty — no buzzer.
-            if (!cur.banked1) {
-              sound.pass();
-              sound.vibrate(35);
-            }
+            // Always −1, even with +1 banked (a bonk loses it). Keeping the
+            // +1 is what the Next Word button is for.
+            sound.pass();
+            sound.vibrate(35);
             dispatch({ type: "PASS" });
           }}
           className="btn btn-ink flex h-14 w-full items-center justify-center gap-2 text-xl"
         >
-          {cur.banked1 ? (
-            <span className="font-display">Next ▶</span>
-          ) : (
-            <>
-              <span className="font-display">Pass</span>
-              <span className="inline-flex items-center rounded-full bg-cream/20 px-2.5 py-1 text-base">
-                <span className="font-display">−1</span>
-              </span>
-            </>
-          )}
+          <span className="font-display">Pass</span>
+          <span className="inline-flex items-center rounded-full bg-cream/20 px-2.5 py-1 text-base">
+            <span className="font-display">−1</span>
+          </span>
         </button>
       </footer>
 
