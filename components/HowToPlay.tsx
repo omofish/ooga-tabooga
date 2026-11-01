@@ -166,8 +166,12 @@ function Guide({
         </div>
 
         {/* key={step}: remount per step so every entrance animation and
-            timeline restarts from scratch. */}
-        <div key={step} className="relative mt-3.5 flex min-h-0 flex-1 flex-col overflow-y-auto">
+            timeline restarts from scratch. The step area scrolls when its
+            content is too tall; its inner padding (pulled back out with -mx)
+            leaves room for check badges, bounces and the shaking button so
+            the scroll box doesn't crop them. Big blocks enter with
+            animate-rise, never a scale, for the same reason. */}
+        <div key={step} className="relative -mx-2 mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-1 pt-2.5">
           <s.Visual canTry={!!onTry} onTry={() => {
             track("howto_try_clicked");
             onTry?.();

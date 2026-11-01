@@ -214,7 +214,7 @@ function TribeCard({
 }) {
   return (
     <div
-      className="chunk animate-pop rounded-2xl px-2 pb-3.5 pt-3 text-center"
+      className="chunk animate-rise rounded-2xl px-2 pb-3.5 pt-3 text-center"
       style={{ background: bg, animationDelay: `${delay}s` }}
     >
       <div className="whitespace-nowrap text-xs min-[390px]:text-sm" style={{ color: fg }}>
@@ -324,7 +324,7 @@ function PlayScreen() {
     <div className="my-auto grid grid-cols-[120px_minmax(0,1fr)] items-center gap-3.5 py-3 pl-3">
       <div
         aria-hidden
-        className="animate-pop relative flex h-[250px] flex-col gap-1.5 rounded-2xl border-[3px] border-ink p-2"
+        className="animate-rise relative flex h-[250px] flex-col gap-1.5 rounded-2xl border-[3px] border-ink p-2"
         style={{ background: "var(--h-red)" }}
       >
         <div className="flex h-[26px] items-center gap-1">
@@ -418,7 +418,7 @@ function Review() {
 
   return (
     <div className="flex flex-col">
-      <div className="animate-pop relative mt-2 grid gap-3">
+      <div className="animate-rise relative grid gap-3">
         <Bucket chip="+1" label="Got the word" bg="#dbe8fd" pulse={landed} />
         <Bucket chip="−1" label="Passed" bg="#f8dbd8" />
         <div className="howto-drag" data-held={held} data-up={up}>
@@ -460,11 +460,11 @@ function Bucket({
 }) {
   return (
     <div
-      className={`h-[78px] rounded-2xl border-[3px] border-ink px-2.5 py-2 ${pulse ? "howto-pulse" : ""}`}
+      className={`h-[84px] rounded-2xl border-[3px] border-ink px-2.5 py-2 ${pulse ? "howto-glow" : ""}`}
       style={{ background: bg }}
     >
       <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide text-ink-soft">
-        <span className="inline-flex items-center rounded-full border-2 border-ink bg-cream px-1.5 text-[11px] leading-none text-ink">
+        <span className="inline-flex items-center rounded-full border-2 border-ink bg-cream px-1.5 py-[3px] text-[11px] leading-none text-ink">
           <span className="font-display">{chip}</span>
         </span>
         {label}

@@ -161,6 +161,11 @@ visual per step (`key={step}`) so every animation/timeline restarts.
   so steps don't jump; each step's area scrolls if its content is taller, and
   on very short phones the Modal itself scrolls. Checked at 360×640 up to
   430×932. Keep the footer (Back, 9 dots, Next) narrow enough for a 360px phone.
+- Because each step area scrolls, it also crops anything that grows past
+  its edges. So: big blocks enter with `animate-rise` (never a scale), and
+  highlights are size-neutral (`howto-glow` inset ring, colour changes).
+  The step area has inner padding (pulled back with `-mx-2`) as room for
+  small bounces, the ✓ badges and the shaking Give It a Try button.
 - Art/animation CSS is the `.howto-*` block in `globals.css`; team colours come
   in as `--h-*` vars from `lib/colors.ts`. Reduced motion turns it all off and
   chats show in full at once.

@@ -216,7 +216,7 @@ function MiniCard({
 }) {
   return (
     <div
-      className={`relative flex flex-col items-center gap-1.5 rounded-xl border-[3px] border-ink px-1.5 py-2 text-center transition-all duration-300 ${dead ? "opacity-45" : ""} ${hit ? "scale-[1.04]" : ""}`}
+      className={`relative flex flex-col items-center gap-1.5 rounded-xl border-[3px] border-ink px-1.5 py-2 text-center transition-[opacity,background-color] duration-300 ${dead ? "opacity-45" : ""}`}
       style={{ background: hit ? "#fff1cc" : hard ? "#fffdf5" : "var(--color-cream)" }}
     >
       <span className="font-display text-base text-ink">{word}</span>

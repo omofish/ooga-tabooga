@@ -22,10 +22,10 @@ export function PointChip({
 }) {
   const sizing =
     size === "xs"
-      ? "border-2 px-1.5 text-[10px]"
+      ? "border-2 px-1.5 py-[3px] text-[10px]"
       : size === "lg"
-        ? "border-[3px] px-3 py-1 text-lg"
-        : "border-2 px-2 py-0.5 text-xs";
+        ? "border-[3px] px-3 py-1.5 text-lg"
+        : "border-2 px-2 py-1 text-xs";
   return (
     <span
       className={`inline-flex shrink-0 items-center rounded-full border-ink leading-none ${sizing} ${CHIP_STYLE[label] ?? ""}`}
