@@ -32,7 +32,7 @@ const PLUS1: ChatLine[] = [
 
 const PLUS3: ChatLine[] = [
   { kind: "act", text: "MOON is banked (+1). Keep going!" },
-  { kind: "chief", text: "Now add on… the sweet stuff bees make." },
+  { kind: "chief", text: "Now, the sweet stuff bees make… plus moon!" },
   { kind: "guess", text: "Wax?" },
   { kind: "chief", text: "No! Sweet. Bears love it. Goes in tea." },
   { kind: "guess", text: "Honey… HONEYMOON!" },
@@ -55,9 +55,9 @@ const BANKED_BONK: ChatLine[] = [
   { kind: "act", text: "MOON is banked (+1). Go for +3?" },
   { kind: "chief", text: "Sweet stuff bees make." },
   { kind: "guess", text: "Jam?" },
-  { kind: "chief", text: "No! Bears love it. Goes with moon!" },
+  { kind: "chief", text: "No! Bears love it. It's hon—" },
   { kind: "bonk" },
-  { kind: "watch", text: "Bonk! “Moon” is on the card." },
+  { kind: "watch", text: "Bonk! “Honey” is on the card." },
   { kind: "act", text: "Chief taps Pass / Get Bonked", card: "dead" },
   { kind: "result", chip: "−1", text: "Lost the +1 too" },
 ];
@@ -125,7 +125,7 @@ export const STEPS: Step[] = [
     caption: (
       <>
         When your tribe says the <b>easy word</b>, say “Yes!” and tap it for{" "}
-        <b>+1</b>.
+        <b>+1</b>. Now it&apos;s guessed, the chief <b>can say “moon”</b>.
       </>
     ),
     Visual: () => <ChatDemo lines={PLUS1} />,
@@ -163,7 +163,8 @@ export const STEPS: Step[] = [
     caption: (
       <>
         Even after you get the first word, a bonk can <b>lose it all</b>. MOON
-        was banked, but the chief said a <b>word on the card</b>: <b>−1</b>.
+        was banked, but the chief said “honey”, a <b>word on the card</b>:{" "}
+        <b>−1</b>.
       </>
     ),
     Visual: () => <ChatDemo lines={BANKED_BONK} startCard="easy" />,
@@ -295,7 +296,7 @@ function TribeCard({
 function Watcher() {
   const rules: [string, string][] = [
     ["One-syllable words only", "“Big wet sky drop” ✓  “Rainstorm” ✗"],
-    ["No words from the card", "Card says MOON? Don't say “moon”."],
+    ["No words from the card", "Card says MOON? No “moon” till it's guessed."],
     ["No hands, no sound effects", "Words only."],
   ];
   return (
@@ -533,7 +534,7 @@ function Person({ emoji, label, color }: { emoji: string; label: string; color: 
 
 function Rules({ canTry, onTry }: StepProps) {
   const rules: [string, ReactNode][] = [
-    ["🗣️", <><b>One-syllable words</b>. No card words, hands or sounds.</>],
+    ["🗣️", <><b>One-syllable words</b>. No card words (till guessed), hands or sounds.</>],
     ["🦴", <>The <b>watcher</b> bonks rule breaks: <b>−1</b>, +1 lost too.</>],
     ["↩️", <>Misclicked? <b>Fix it</b> after the turn.</>],
   ];
