@@ -42,13 +42,13 @@ const PLUS3: ChatLine[] = [
 ];
 
 const STRAIGHT3: ChatLine[] = [
-  { kind: "chief", text: "Sweet stuff bees make." },
-  { kind: "guess", text: "Honey!" },
-  { kind: "chief", text: "Yes! Add the big round thing up in the sky at night." },
+  { kind: "chief", text: "Trip you go on when you get wed." },
+  { kind: "guess", text: "Road trip?" },
+  { kind: "chief", text: "No! Just the two of you. Right when you wed." },
   { kind: "guess", text: "HONEYMOON!" },
   { kind: "chief", text: "Yes, honeymoon!" },
   { kind: "act", text: "Chief taps HONEY MOON, no need to tap MOON first", card: "hard" },
-  { kind: "result", chip: "+3", text: "Straight to the phrase" },
+  { kind: "result", chip: "+3", text: "Clued the whole meaning" },
 ];
 
 const BANKED_BONK: ChatLine[] = [
@@ -144,18 +144,6 @@ export const STEPS: Step[] = [
     Visual: () => <ChatDemo lines={PLUS3} startCard="easy" />,
   },
   {
-    id: "straight3",
-    eyebrow: "Playing",
-    title: "Example: straight to +3",
-    caption: (
-      <>
-        No need to get the easy word first. Clue the <b>whole phrase</b> from
-        the start and tap it for <b>+3</b>.
-      </>
-    ),
-    Visual: () => <ChatDemo lines={STRAIGHT3} />,
-  },
-  {
     id: "bonk",
     eyebrow: "Playing",
     title: "Example: bonk",
@@ -174,12 +162,23 @@ export const STEPS: Step[] = [
     title: "Example: risky +3",
     caption: (
       <>
-        MOON is banked, but the chief says a <b>word on the card</b>. Bonk!
-        The +1 is lost and the card scores <b>−1</b>. Not sure? Tap{" "}
-        <b>Next Word</b> to keep the +1.
+        Even after you get the first word, a bonk can <b>lose it all</b>. MOON
+        was banked, but the chief said a <b>word on the card</b>: <b>−1</b>.
       </>
     ),
     Visual: () => <ChatDemo lines={BANKED_BONK} startCard="easy" />,
+  },
+  {
+    id: "straight3",
+    eyebrow: "Playing",
+    title: "Example: straight to +3",
+    caption: (
+      <>
+        No need to break it into parts. Clue what the <b>whole phrase
+        means</b>, then tap it for <b>+3</b>.
+      </>
+    ),
+    Visual: () => <ChatDemo lines={STRAIGHT3} />,
   },
   {
     id: "oops",
@@ -534,8 +533,8 @@ function Person({ emoji, label, color }: { emoji: string; label: string; color: 
 
 function Rules({ canTry, onTry }: StepProps) {
   const rules: [string, ReactNode][] = [
-    ["🗣️", <><b>One-syllable words</b> only. No hands, no sounds.</>],
-    ["🦴", <>The <b>watcher</b> bonks any rule break: <b>−1</b>, even with +1 banked.</>],
+    ["🗣️", <><b>One-syllable words</b>. No card words, hands or sounds.</>],
+    ["🦴", <>The <b>watcher</b> bonks rule breaks: <b>−1</b>, +1 lost too.</>],
     ["↩️", <>Misclicked? <b>Fix it</b> after the turn.</>],
   ];
   return (
