@@ -249,11 +249,11 @@ function Guide({
           >
             <span className="font-display text-lg">◀</span>
           </button>
-          <div aria-hidden className="flex min-w-0 flex-1 justify-center gap-1">
+          <div aria-hidden className="flex min-w-0 flex-1 justify-center gap-[2px]">
             {STEPS.map((st, i) => (
               <span
                 key={st.id}
-                className={`h-[7px] shrink-0 rounded-full transition-all duration-300 ${i === step ? "w-4 bg-ink" : "w-[7px] bg-ink/20"}`}
+                className={`h-[5px] shrink-0 rounded-full transition-all duration-300 ${i === step ? "w-2.5 bg-ink" : "w-[5px] bg-ink/20"}`}
               />
             ))}
           </div>

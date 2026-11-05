@@ -145,14 +145,14 @@ on top of the last few characters of text.
 
 ## How to Play guide
 
-`HowToPlay` opens a 9-step guide in the standard `Modal`, stepped with
+`HowToPlay` opens an 11-step guide in the standard `Modal`, stepped with
 Back/Next, swipe (horizontal only, so the chat panel still scrolls) or the
 arrow keys. Steps are data in `components/howto/steps.tsx` (`STEPS`: `id`
 for analytics, eyebrow, title, caption, `Visual`); the shell re-mounts the
 visual per step (`key={step}`) so every animation/timeline restarts.
 
 - Steps: tribes → watcher → play screen (drawn mock with pins, not the real
-  `Gameplay`) → +1 / +3 / bonk / oops chats → review (drag a misclicked card
+  `Gameplay`) → +1 / +3 / straight-to-+3 / bonk / bonk-after-+1 / oops chats → review (drag a misclicked card
   into +1, phone passes on) → short rules + **Give It a Try**.
 - Every example uses one real Standard card, `DEMO_CARD` (Moon / Honey Moon)
   in `components/howto/shared.tsx`.
@@ -165,7 +165,7 @@ visual per step (`key={step}`) so every animation/timeline restarts.
   `globals.css`), so every step fits from 360×640 up; only the chat history
   scrolls (its scroll area and the step area use `overscroll-contain`).
   Re-check with a scrollHeight − clientHeight measure at 360×640 and 375×667
-  after changing a step. Keep the footer (Back, 9 dots, Next) narrow enough
+  after changing a step. Keep the footer (Back, 11 dots, Next) narrow enough
   for a 360px phone.
 - Because each step area scrolls, it also crops anything that grows past
   its edges. So: big blocks enter with `animate-rise` (never a scale), and
