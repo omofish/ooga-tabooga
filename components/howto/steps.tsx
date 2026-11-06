@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import ChatDemo, { type ChatLine } from "./ChatDemo";
 import { DEMO_CARD, PointChip, RoleTag } from "./shared";
+import { TEAM_COLORS } from "@/lib/colors";
 
 export type StepProps = { canTry: boolean; onTry: () => void };
 
@@ -92,9 +93,9 @@ export const STEPS: Step[] = [
     title: "Split into tribes",
     caption: (
       <>
-        Split into <b>2 or 3 tribes</b> (or play solo). Each turn, one player
-        is the <b>chief</b>: they hold the phone and give clues. Their own
-        tribe guesses. A new chief every turn.
+        Play <b>solo</b> or in <b>2 or 3 tribes</b>. Each turn, one player is
+        the <b>chief</b>: they hold the phone and give clues. Their own tribe
+        guesses. A new chief every turn.
       </>
     ),
     Visual: Tribes,
@@ -102,12 +103,12 @@ export const STEPS: Step[] = [
   {
     id: "watcher",
     eyebrow: "Set up",
-    title: "Seat a watcher",
+    title: "A watcher enforces rules",
     caption: (
       <>
-        Someone from the <b>other tribe</b> sits next to the chief and watches
-        the screen. If the chief breaks a rule, they <b>bonk</b> and the card
-        is passed.
+        Someone from the <b>other tribe</b> watches the chief&apos;s screen. A{" "}
+        <b>stick</b> is strongly recommended: break a rule, and they{" "}
+        <b>bonk the chief</b>. Card passed.
       </>
     ),
     Visual: Watcher,
@@ -122,7 +123,7 @@ export const STEPS: Step[] = [
   {
     id: "plus1",
     eyebrow: "Playing",
-    title: "Example: +1",
+    title: "Get the easy word",
     caption: (
       <>
         When your tribe says the <b>easy word</b>, say “Yes!” and tap it for{" "}
@@ -134,7 +135,7 @@ export const STEPS: Step[] = [
   {
     id: "plus3",
     eyebrow: "Playing",
-    title: "Example: +3",
+    title: "Build up to the phrase",
     caption: (
       <>
         Same card. Keep going for the <b>whole phrase</b> and tap it for{" "}
@@ -147,7 +148,7 @@ export const STEPS: Step[] = [
   {
     id: "bonk",
     eyebrow: "Playing",
-    title: "Example: bonk",
+    title: "Broke a rule? Get the bonk",
     caption: (
       <>
         Same card, but the chief says a <b>word on the card</b>. Broke a rule,
@@ -159,7 +160,7 @@ export const STEPS: Step[] = [
   {
     id: "bankedBonk",
     eyebrow: "Playing",
-    title: "Example: risky +3",
+    title: "A bonk can lose it all",
     caption: (
       <>
         Even after you get the first word, a bonk can <b>lose it all</b>. MOON
@@ -172,7 +173,7 @@ export const STEPS: Step[] = [
   {
     id: "straight3",
     eyebrow: "Playing",
-    title: "Example: straight to +3",
+    title: "You can go straight for +3",
     caption: (
       <>
         No need to break it into parts. Clue what the <b>whole phrase
@@ -195,8 +196,8 @@ export const STEPS: Step[] = [
   },
   {
     id: "review",
-    eyebrow: "After the turn",
-    title: "Check, then pass it on",
+    eyebrow: "Wrap up",
+    title: "At the end, review your turn",
     caption: (
       <>
         When time&apos;s up, you see every card. <b>Drag</b>{" "}the misclicked
@@ -216,30 +217,52 @@ export const STEPS: Step[] = [
 
 /* ---------- visuals ---------- */
 
+const TRIBE_CARDS = [
+  { name: "🔥 Fire Starters", c: TEAM_COLORS[0], people: ["🧔", "👩", "🧑"] },
+  { name: "🦣 Tusk Force", c: TEAM_COLORS[1], people: ["👱", "👵", "🧒"] },
+  { name: "🥥 Coconut Bonkers", c: TEAM_COLORS[2], people: ["🧓", "👧", "👦"] },
+];
+
+const TRIBE_NOTES = [
+  "Solo: clue your crew and beat your best turn.",
+  "Tribes take turns. Most points wins.",
+  "Tribes take turns. Most points wins.",
+];
+
 function Tribes() {
+  const [n, setN] = useState(2);
   return (
     <div className="my-auto">
-      <div className="grid grid-cols-2 gap-3">
-        <TribeCard
-          name="🔥 Fire Starters"
-          bg="var(--h-red-soft)"
-          fg="var(--h-red-dark)"
-          people={["🧔", "👩", "🧑"]}
-          chief
-        />
-        <TribeCard
-          name="🦣 Tusk Force"
-          bg="var(--h-blue-soft)"
-          fg="var(--h-blue-dark)"
-          people={["👱", "👵", "🧒"]}
-          delay={0.12}
-        />
+      <div className="mb-3.5 grid grid-cols-3 gap-2">
+        {[1, 2, 3].map((k) => (
+          <button
+            key={k}
+            type="button"
+            aria-pressed={n === k}
+            onClick={() => setN(k)}
+            className={`btn ${n === k ? "btn-ink" : "btn-cream"} py-1.5 text-sm`}
+          >
+            <span className="font-display">{k === 1 ? "Solo" : `${k} tribes`}</span>
+          </button>
+        ))}
       </div>
-      <p
-        className="animate-rise mt-4 text-center text-xs font-bold text-ink-soft"
-        style={{ animationDelay: "1s" }}
-      >
-        Pick tribes, round length and a word pack on the Setup screen.
+      <div key={n} className={`grid gap-2 ${["grid-cols-1 px-12", "grid-cols-2", "grid-cols-3"][n - 1]}`}>
+        {TRIBE_CARDS.slice(0, n).map((t, i) => (
+          <TribeCard
+            key={t.name}
+            name={t.name}
+            bg={t.c.soft}
+            fg={t.c.dark}
+            people={t.people}
+            chief={i === 0}
+            chiefBg={t.c.base}
+            compact={n === 3}
+            delay={i * 0.12}
+          />
+        ))}
+      </div>
+      <p className="mt-4 text-center text-xs font-bold text-ink-soft">
+        {TRIBE_NOTES[n - 1]}
       </p>
     </div>
   );
@@ -251,6 +274,8 @@ function TribeCard({
   fg,
   people,
   chief,
+  chiefBg,
+  compact,
   delay = 0,
 }: {
   name: string;
@@ -258,6 +283,8 @@ function TribeCard({
   fg: string;
   people: string[];
   chief?: boolean;
+  chiefBg: string;
+  compact?: boolean;
   delay?: number;
 }) {
   return (
@@ -265,10 +292,13 @@ function TribeCard({
       className="chunk animate-rise rounded-2xl px-2 pb-3.5 pt-3 text-center"
       style={{ background: bg, animationDelay: `${delay}s` }}
     >
-      <div className="whitespace-nowrap text-xs min-[390px]:text-sm" style={{ color: fg }}>
+      <div
+        className={compact ? "text-[11px] leading-tight" : "whitespace-nowrap text-xs min-[390px]:text-sm"}
+        style={{ color: fg }}
+      >
         <span className="font-display">{name}</span>
       </div>
-      <div className="mt-3 flex justify-center gap-0.5 text-3xl">
+      <div className={`mt-3 flex justify-center ${compact ? "text-lg" : "gap-0.5 text-3xl"}`}>
         {people.map((p, i) => (
           <span
             key={p}
@@ -283,7 +313,7 @@ function TribeCard({
         ))}
       </div>
       <RoleTag
-        bg={chief ? "var(--h-red)" : "var(--color-cream)"}
+        bg={chief ? chiefBg : "var(--color-cream)"}
         color={chief ? "#fff" : "var(--color-ink-soft)"}
         className="animate-pop mt-2.5"
       >
@@ -301,19 +331,18 @@ function Watcher() {
   ];
   return (
     <div className="flex flex-col">
-      <div className="flex items-end justify-center gap-5 rounded-2xl border-[3px] border-dashed border-ink/30 bg-[#f3e6cd] px-2.5 pb-3.5 pt-5 short:pb-2 short:pt-3">
+      <div className="flex items-end justify-center gap-5 rounded-2xl border-[3px] border-dashed border-ink/30 bg-[#f3e6cd] px-2.5 pb-3.5 pt-5 short:pb-1.5 short:pt-2">
         <div className="animate-pop text-center">
-          <span className="relative inline-block text-[44px] leading-none short:text-[36px]">
+          <span className="relative inline-block text-[44px] leading-none short:text-[32px]">
             🧔<span className="absolute -right-3.5 bottom-0.5 text-2xl">📱</span>
           </span>
           <br />
           <RoleTag bg="var(--h-red)" className="mt-2">Chief</RoleTag>
         </div>
         <div className="howto-slide-in text-center">
-          <span className="relative inline-block text-[44px] leading-none short:text-[36px]">
+          <span className="relative inline-block text-[44px] leading-none short:text-[32px]">
             <span className="howto-bonk absolute -left-4 -top-1.5 text-[26px]">🦴</span>
             👱
-            <span className="howto-hop absolute -right-2.5 -top-3.5 text-lg">👀</span>
           </span>
           <br />
           <RoleTag bg="var(--h-blue)" className="mt-2">Watcher</RoleTag>

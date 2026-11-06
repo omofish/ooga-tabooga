@@ -151,7 +151,7 @@ arrow keys. Steps are data in `components/howto/steps.tsx` (`STEPS`: `id`
 for analytics, eyebrow, title, caption, `Visual`); the shell re-mounts the
 visual per step (`key={step}`) so every animation/timeline restarts.
 
-- Steps: tribes → watcher → play screen (drawn mock with pins, not the real
+- Steps: tribes (tap Solo / 2 / 3 tribes to switch the art) → watcher → play screen (drawn mock with pins, not the real
   `Gameplay`) → +1 / +3 / bonk / bonk-after-+1 / straight-to-+3 / oops chats → review (drag a misclicked card
   into +1, phone passes on) → short rules + **Give It a Try**.
 - Every example uses one real Standard card, `DEMO_CARD` (Moon / Honey Moon)

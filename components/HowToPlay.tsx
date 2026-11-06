@@ -216,7 +216,7 @@ function Guide({
           <div className="text-xs font-black uppercase tracking-[0.08em] text-ink-soft">
             Step {step + 1} of {STEPS.length} · {s.eyebrow}
           </div>
-          <h2 className="mt-2 font-display text-[28px] leading-[1.05] text-ink [text-wrap:balance]">
+          <h2 className="mt-2 font-display text-[28px] leading-[1.05] text-ink [text-wrap:balance] short:text-[24px]">
             {s.title}
           </h2>
         </div>
