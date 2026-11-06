@@ -55,18 +55,19 @@ const BANKED_BONK: ChatLine[] = [
   { kind: "act", text: "MOON is banked (+1). Go for +3?" },
   { kind: "chief", text: "Sweet stuff bees make." },
   { kind: "guess", text: "Jam?" },
-  { kind: "chief", text: "No! Bears love it. It's hon—" },
+  { kind: "chief", text: "No! Bears love it. Sticky and yel-low!" },
   { kind: "bonk" },
-  { kind: "watch", text: "Bonk! “Honey” is on the card." },
+  { kind: "watch", text: "Bonk! “Yellow” has two syllables." },
   { kind: "act", text: "Chief taps Pass / Get Bonked", card: "dead" },
   { kind: "result", chip: "−1", text: "Lost the +1 too" },
 ];
 
 const BONK: ChatLine[] = [
-  { kind: "chief", text: "Big. Round. Up in the sky in the…" },
-  { kind: "chief", text: "…eve-ning" },
+  { kind: "chief", text: "Big. Round. Up in the sky at night." },
+  { kind: "guess", text: "Sun?" },
+  { kind: "chief", text: "No! Not hot. The cow jumped on the moon—" },
   { kind: "bonk" },
-  { kind: "watch", text: "Bonk! “Evening” has two syllables." },
+  { kind: "watch", text: "Bonk! “Moon” is on the card." },
   { kind: "act", text: "Chief taps Pass / Get Bonked", card: "dead" },
   { kind: "result", chip: "−1", text: "Card passed" },
 ];
@@ -149,9 +150,8 @@ export const STEPS: Step[] = [
     title: "Example: bonk",
     caption: (
       <>
-        Same card, but the chief slips up. Broke a rule, or stuck? Tap{" "}
-        <b>Pass / Get Bonked</b>. It costs <b>−1</b>, even if you already banked the
-        +1.
+        Same card, but the chief says a <b>word on the card</b>. Broke a rule,
+        or stuck? Tap <b>Pass / Get Bonked</b>. It costs <b>−1</b>.
       </>
     ),
     Visual: () => <ChatDemo lines={BONK} />,
@@ -163,7 +163,7 @@ export const STEPS: Step[] = [
     caption: (
       <>
         Even after you get the first word, a bonk can <b>lose it all</b>. MOON
-        was banked, but the chief said “honey”, a <b>word on the card</b>:{" "}
+        was banked, but the chief said “yellow”, a <b>two-syllable word</b>:{" "}
         <b>−1</b>.
       </>
     ),
