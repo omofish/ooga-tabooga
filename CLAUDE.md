@@ -110,4 +110,5 @@ attach it with `add_repo`).
   agent-playground in the same session. Follow its `CLAUDE.md` (file format,
   `repo:path` + SHA citations, `(user's call, YYYY-MM-DD)`) and ship it with
   its `npm run ship`. If a rule there proved wrong, fix it in place. Tell the
-  user what you added.
+  user what you added. A Stop hook (`.claude/hooks/kb-nudge.sh`) reminds you
+  once per session.
