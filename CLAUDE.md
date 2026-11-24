@@ -94,3 +94,20 @@ These docs exist so a fresh agent can orient in seconds instead of re-reading th
 tree — that only works if they stay accurate. **When you change how something
 works, update the relevant doc in the same change.** Document the *current* state
 only (no changelogs/history). If you notice a doc is stale, fix it.
+
+## Shared knowledge (agent-playground)
+
+The user's cross-repo playbook is the GitHub repo `omofish/agent-playground`
+(in cloud sessions usually at `/home/user/agent-playground`; if it's missing,
+attach it with `add_repo`).
+
+- **Read:** before setting up or changing anything it covers (docs, shipping,
+  hooks, tests, iOS Safari, sheets, hosting, data, analytics, Telegram, Google,
+  PDFs…), open its `README.md` and read the matching file. This repo's own
+  rules win where they differ.
+- **Write back:** when you find a pattern, gotcha or user's call that would
+  help another repo (not one about this product only), add it to
+  agent-playground in the same session. Follow its `CLAUDE.md` (file format,
+  `repo:path` + SHA citations, `(user's call, YYYY-MM-DD)`) and ship it with
+  its `npm run ship`. If a rule there proved wrong, fix it in place. Tell the
+  user what you added.
